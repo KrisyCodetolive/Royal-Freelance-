@@ -10,10 +10,12 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        Schema::table('funnel_user', function (Blueprint $table) {
-            $table->string('custom_slug')->nullable()->after('custom_branding')
-                ->comment('Slug personnalisé du commercial pour ce tunnel');
-        });
+        if (!Schema::hasColumn('funnel_user', 'custom_slug')) {
+            Schema::table('funnel_user', function (Blueprint $table) {
+                $table->string('custom_slug')->nullable()->after('custom_branding')
+                    ->comment('Slug personnalisé du commercial pour ce tunnel');
+            });
+        }
     }
 
     /**

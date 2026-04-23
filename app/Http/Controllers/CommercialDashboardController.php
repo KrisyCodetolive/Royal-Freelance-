@@ -23,11 +23,76 @@ class CommercialDashboardController extends Controller
         $user = Auth::user();
         $stats = $this->commercialService->getStats($user);
 
-        // Données pour les graphiques (30 derniers jours)
+        // Tendances : période courante vs précédente (30j)
+        $currentLeads = Lead::withoutGlobalScope('tenant')
+            ->where('brought_by', $user->id)
+            ->where('created_at', '>=', now()->subDays(30))
+            ->count();
+
+        $prevLeads = Lead::withoutGlobalScope('tenant')
+            ->where('brought_by', $user->id)
+            ->whereBetween('created_at', [now()->subDays(60), now()->subDays(30)])
+            ->count();
+
+        $currentConversions = Lead::withoutGlobalScope('tenant')
+            ->where('brought_by', $user->id)
+            ->whereNotNull('converted_at')
+            ->where('converted_at', '>=', now()->subDays(30))
+            ->count();
+
+        $prevConversions = Lead::withoutGlobalScope('tenant')
+            ->where('brought_by', $user->id)
+            ->whereNotNull('converted_at')
+            ->whereBetween('converted_at', [now()->subDays(60), now()->subDays(30)])
+            ->count();
+
+        $leadsTrend = $prevLeads > 0 ? round(($currentLeads - $prevLeads) / $prevLeads * 100) : null;
+        $conversionsTrend = $prevConversions > 0 ? round(($currentConversions - $prevConversions) / $prevConversions * 100) : null;
+
+        // Taux de conversion global
+        $totalLeads = $stats['total_leads'];
+        $conversionRate = $totalLeads > 0 ? round($stats['conversions'] / $totalLeads * 100, 1) : 0;
+
+        // Répartition des leads par statut
+        $leadsByStatus = Lead::withoutGlobalScope('tenant')
+            ->where('brought_by', $user->id)
+            ->selectRaw('status, COUNT(*) as count')
+            ->groupBy('status')
+            ->pluck('count', 'status')
+            ->toArray();
+
+        // Leads à relancer (chauds/tièdes inactifs depuis 3+ jours)
+        $leadsToFollowUp = Lead::withoutGlobalScope('tenant')
+            ->where('brought_by', $user->id)
+            ->whereIn('status', [
+                \App\Enums\LeadStatus::WARM,
+                \App\Enums\LeadStatus::HOT,
+                \App\Enums\LeadStatus::ULTRA_HOT,
+            ])
+            ->where(function ($q) {
+                $q->where('last_activity_at', '<=', now()->subDays(3))
+                  ->orWhereNull('last_activity_at');
+            })
+            ->with(['funnel:id,name'])
+            ->orderByDesc('score')
+            ->limit(6)
+            ->get();
+
+        // Données graphique 30 derniers jours
         $leadsByDay = Lead::withoutGlobalScope('tenant')
             ->where('brought_by', $user->id)
             ->where('created_at', '>=', now()->subDays(30))
             ->selectRaw('DATE(created_at) as date, COUNT(*) as count')
+            ->groupBy('date')
+            ->orderBy('date')
+            ->pluck('count', 'date')
+            ->toArray();
+
+        $conversionsByDay = Lead::withoutGlobalScope('tenant')
+            ->where('brought_by', $user->id)
+            ->whereNotNull('converted_at')
+            ->where('converted_at', '>=', now()->subDays(30))
+            ->selectRaw('DATE(converted_at) as date, COUNT(*) as count')
             ->groupBy('date')
             ->orderBy('date')
             ->pluck('count', 'date')
@@ -47,15 +112,22 @@ class CommercialDashboardController extends Controller
             ->count();
 
         return view('commercial.dashboard', [
-            'user' => $user,
-            'stats' => $stats,
-            'leadsByDay' => $leadsByDay,
-            'recentLeads' => Lead::withoutGlobalScope('tenant')
+            'user'             => $user,
+            'stats'            => $stats,
+            'conversionRate'   => $conversionRate,
+            'leadsTrend'       => $leadsTrend,
+            'conversionsTrend' => $conversionsTrend,
+            'leadsByStatus'    => $leadsByStatus,
+            'leadsToFollowUp'  => $leadsToFollowUp,
+            'leadsByDay'       => $leadsByDay,
+            'conversionsByDay' => $conversionsByDay,
+            'recentLeads'      => Lead::withoutGlobalScope('tenant')
                 ->where('brought_by', $user->id)
+                ->with(['funnel:id,name'])
                 ->latest()
                 ->take(5)
                 ->get(),
-            'alerts' => $alerts,
+            'alerts'      => $alerts,
             'unreadCount' => $unreadAlertsCount,
         ]);
     }

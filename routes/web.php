@@ -24,6 +24,9 @@ use Spatie\Permission\Middleware\RoleMiddleware;
 | Authentication Routes
 |--------------------------------------------------------------------------
 */
+// Landing page — fallback sans contrainte de domaine (local dev + prod)
+Route::get('/', fn() => view('landing'))->name('home');
+
 // Guest Routes (CGU, Privacy, Support)
 Route::view('/cgu', 'guest.terms')->name('guest.terms');
 Route::view('/confidentialite', 'guest.privacy')->name('guest.privacy');

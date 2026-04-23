@@ -1,0 +1,126 @@
+Objet : Proposition AIMANT CLIENT - MVP Optimisé 1M XOF
+
+---
+
+Bonjour Royal,
+
+Suite à notre discussion concernant votre projet AIMANT CLIENT, nous vous proposons une approche pragmatique et efficace adaptée à votre budget.
+
+## 📌 APPROCHE PROPOSÉE
+
+Plutôt que de diluer les ressources sur une longue période, nous recommandons une **stratégie en deux phases** :
+
+**Phase 1 : MVP Optimisé (1 000 000 XOF)**
+Lancez rapidement avec les fonctionnalités essentielles et validez votre marché en 2 mois.
+
+**Phase 2 : Mises à Jour Continues**
+Enrichissez progressivement selon vos besoins réels et retours utilisateurs.
+
+---
+
+## ✅ MVP INCLUS (1M XOF)
+
+**Back-Office Administrateur**
+- Créer, modifier, dupliquer tunnels
+- Page Builder simple (blocs : titre, texte, vidéo, bouton)
+- Gestion équipe commerciale
+- Dashboard analytics (trafic, conversions)
+
+**Dashboard Commercial**
+- Mes tunnels assignés
+- Pipeline prospects (Froid → Client)
+- Fiches prospects complètes
+- Alertes temps réel
+
+**Pages Publiques**
+- Page Capture (formulaire)
+- Page Merci (vidéo bienvenue)
+- Pages Présentation (3-5 vidéos)
+- Page Modalités (CTA WhatsApp)
+
+**Tracking & Scoring Automatique**
+- Événements : pages vues, vidéos, clics, conversions
+- Scoring intelligent : FROID → TIÈDE → CHAUD → ULTRA CHAUD
+- Alertes : prospects chauds, inactivité, clics WhatsApp
+
+---
+
+## 💰 INVESTISSEMENT
+
+**MVP (2 mois)**
+- Budget : 1 000 000 XOF
+- Paiement : 60% signature + 40% livraison
+- Livrables : Plateforme complète + documentation + formation
+
+**Mises à Jour Continues (optionnel)**
+
+---
+
+## 🎯 AVANTAGES
+
+✅ Lancez rapidement et validez le marché
+✅ Budget maîtrisé et prévisible
+✅ Itération agile selon feedback utilisateurs
+✅ ROI rapide (commencez à générer des revenus avant V2)
+✅ Risque réduit
+✅ Flexibilité pour adapter les phases
+
+---
+
+## 📋 PLANNING
+
+- **Semaines 1-2** : Cadrage & Design
+- **Semaines 3-4** : Backend Core
+- **Semaines 5-6** : Interfaces (Back-Office + Dashboard)
+- **Semaine 7** : Tracking & Scoring
+- **Semaine 8** : Tests & Lancement
+
+**Livraison MVP : 2 mois**
+
+---
+
+## 📦 LIVRABLES
+
+✅ Plateforme Web responsive (mobile + desktop)
+✅ Back-Office Administrateur complet
+✅ Dashboard Commercial
+✅ Pages publiques (tunnels)
+✅ Backend API + Base de données
+✅ Tracking & Scoring automatique
+✅ Documentation technique
+✅ Code source (accès Git)
+✅ Formation utilisateur (4h)
+✅ Support technique 1 mois
+
+---
+
+## 🚀 PROCHAINES ÉTAPES
+
+1. Validation de cette proposition
+2. Signature du contrat MVP
+3. Acompte 60% (600 000 XOF)
+4. Kick-off et démarrage Sprint 1
+5. Livraison MVP en 2 mois
+6. Planification Phase 1 (mises à jour continues)
+
+---
+
+## 📎 DOCUMENTS JOINTS
+
+- AIMANT CLIENT - MVP 1M XOF.md (proposition détaillée)
+
+---
+
+Nous sommes convaincus que cette approche vous permettra de lancer rapidement, de valider votre concept, et de croître progressivement avec une plateforme robuste et adaptée à vos besoins.
+
+N'hésitez pas si vous avez des questions ou souhaitez discuter des détails.
+
+Cordialement,
+
+**GENIUS GROUPS**
+Équipe Développement
+
+---
+
+*Proposition valable 30 jours*
+*Décembre 2024*

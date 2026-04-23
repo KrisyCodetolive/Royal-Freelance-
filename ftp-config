@@ -1,0 +1,69 @@
+# Configuration FTP pour le déploiement automatique ROYAL
+# Copiez ce fichier vers 'ftp-config' et remplissez vos informations
+
+# Informations du serveur FTP
+FTP_HOST=ftp.royalleadpro.com
+FTP_PORT=21
+FTP_USER=dev@royalleadpro.com
+FTP_PASS=dev@royalleadpro.com
+
+# Répertoire distant (généralement public_html ou www)
+FTP_REMOTE_DIR=/ 
+
+# Répertoire local (racine du projet)
+LOCAL_DIR=.
+
+# Mode de transfert (binary ou ascii)
+FTP_MODE=binary
+
+# Timeout en secondes
+FTP_TIMEOUT=30
+
+# Utiliser FTPS (FTP sécurisé) - true ou false
+USE_FTPS=false
+
+# Port FTPS (généralement 990)
+FTPS_PORT=990
+
+# Mode passif (recommandé pour la plupart des hébergeurs) - true ou false
+PASSIVE_MODE=true
+
+# Exclusions - fichiers/dossiers à ne jamais uploader
+EXCLUDE_PATTERNS=(
+    "*.log"
+    "*.tmp"
+    ".git/*"
+    ".gitignore"
+    ".env"
+    ".env.*"
+    "node_modules/*"
+    "vendor/*"
+    "storage/logs/*"
+    "storage/framework/cache/*"
+    "storage/framework/sessions/*"
+    "storage/framework/views/*"
+    ".DS_Store"
+    "Thumbs.db"
+    "ftp-config*"
+    "deploy.sh"
+    "prepare-production.sh"
+    "*.md"
+    "tests/*"
+    "phpunit.xml"
+    ".phpunit.result.cache"
+)
+
+# Dossiers à créer automatiquement sur le serveur distant
+AUTO_CREATE_DIRS=(
+    "storage/logs"
+    "storage/framework/cache/data"
+    "storage/framework/sessions"
+    "storage/framework/views"
+    "storage/app/public"
+)
+
+# Backup avant déploiement (true ou false)
+CREATE_BACKUP=true
+
+# Nombre de backups à conserver
+BACKUP_COUNT=5

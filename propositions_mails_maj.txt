@@ -1,0 +1,61 @@
+================================================================================
+OBJET : [INTERNAL] Lancement des Tests Globaux - Mise à jour majeure LeadMagnet
+================================================================================
+
+Salut l'équipe,
+
+Nous venons de déployer une série de correctifs et d'améliorations critiques sur la plateforme. Avant la livraison client, nous devons effectuer une phase de tests globaux (End-to-End).
+
+Points clés à tester impérativement :
+
+1. CAPTURE DE LEADS & MAPPING DYNAMIQUE (Nouveau moteur) :
+   - Créer un formulaire avec des champs variés (Email, Phone, Ville, Pays, Nom, Prénom).
+   - Vérifier que les numéros de téléphone ne sont plus confondus avec les emails.
+   - Vérifier que les champs "inconnus" (ex: "Nom de l'entreprise") remontent bien dans les 'custom_fields' du Lead.
+   - Tester la non-destruction des données : Si je saisis "Dakar" manuellement, la géolocalisation IP ne doit pas écraser ma saisie.
+
+2. BUILDER & ÉDITION :
+   - Vérifier le saut de ligne automatique (<br>) dans les textes et titres.
+   - Tester l'insertion des listes (puces et numérotées) via les nouveaux boutons.
+   - Vérifier que la duplication d'un bloc l'insère bien juste en dessous de l'original.
+   - Tester le bouton "Annuler" lors de l'édition d'un bloc.
+
+3. ESPACE COMMERCIAL :
+   - Simuler un parcours complet via un sous-domaine de commercial (ex: commercial.domaine.com).
+   - Vérifier l'attribution immédiate du Lead au bon commercial.
+   - Vérifier que le bouton WhatsApp redirige bien vers le numéro du commercial et non du propriétaire.
+
+Merci de remonter tout bug sur le board habituel.
+
+--------------------------------------------------------------------------------
+
+================================================================================
+OBJET : Mise à jour LeadMagnet : Nouvelles fonctionnalités et optimisation du Builder
+================================================================================
+
+Bonjour [Nom du Client],
+
+Nous avons le plaisir de vous annoncer le déploiement d'une mise à jour majeure de votre plateforme Royal LeadPro, axée sur la flexibilité du Builder et la fiabilité de votre acquisition.
+
+Voici les principales nouveautés :
+
+🚀 Optimisation de la Capture de Leads
+- Moteur intelligent : Le système reconnaît désormais automatiquement la nature de vos champs (Téléphone, Email, Ville, Pays) pour un classement parfait.
+- Données personnalisées : Tous vos champs spécifiques (besoins clients, noms d'entreprises) sont désormais intégralement conservés et consultables dans vos fiches Leads.
+- Géolocalisation renforcée : Les informations géographiques sont complétées automatiquement sans jamais écraser les données saisies par vos leads.
+
+🎨 Améliorations du Page Builder
+- Listes à puces & numérotées : Créez des sections structurées en un clic grâce aux nouveaux raccourcis Markdown.
+- Sauts de ligne naturels : L'édition de vos textes et titres est désormais plus fluide et respecte vos retours à la ligne.
+- Sécurité d'édition : Un nouveau bouton "Annuler" vous permet de revenir instantanément à l'état initial d'un bloc en cas d'erreur de manipulation.
+- Duplication intelligente : Organisez vos pages plus vite grâce à l'insertion immédiate des copies sous l'élément original.
+
+📊 Espace Commercial & Tracking
+- Attribution parfaite : Le tracking via vos sous-domaines commerciaux a été fiabilisé pour garantir que chaque lead arrive au bon destinataire.
+- WhatsApp Commercial : Vos équipes bénéficient désormais d'une redirection WhatsApp 100% personnalisée sur tous leurs tunnels.
+
+Votre plateforme est à jour et ces fonctionnalités sont déjà disponibles sur votre interface.
+
+Bien cordialement,
+L'équipe technique
+================================================================================

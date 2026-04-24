@@ -10,6 +10,7 @@ enum EmailSequenceTrigger: string
     case TAG_ASSIGNED = 'tag_assigned';
     case INACTIVITY = 'inactivity';
     case MANUAL = 'manual';
+    case STATUS_CHANGED = 'status_changed';
 
     public function label(): string
     {
@@ -20,6 +21,7 @@ enum EmailSequenceTrigger: string
             self::TAG_ASSIGNED => 'Tag assigné',
             self::INACTIVITY => 'Inactivité prolongée',
             self::MANUAL => 'Déclenchement manuel',
+            self::STATUS_CHANGED => 'Changement de statut',
         };
     }
 
@@ -32,6 +34,7 @@ enum EmailSequenceTrigger: string
             self::TAG_ASSIGNED => 'Se déclenche quand un tag spécifique est assigné',
             self::INACTIVITY => 'Se déclenche après une période d\'inactivité',
             self::MANUAL => 'Déclenchement manuel par un commercial',
+            self::STATUS_CHANGED => 'Se déclenche quand le lead devient Chaud, Client, etc.',
         };
     }
 
@@ -44,6 +47,7 @@ enum EmailSequenceTrigger: string
             self::TAG_ASSIGNED => 'heroicon-o-tag',
             self::INACTIVITY => 'heroicon-o-clock',
             self::MANUAL => 'heroicon-o-hand-raised',
+            self::STATUS_CHANGED => 'heroicon-o-arrow-path',
         };
     }
 
@@ -56,6 +60,7 @@ enum EmailSequenceTrigger: string
             self::TAG_ASSIGNED => ['tag_id'],
             self::INACTIVITY => ['days'],
             self::MANUAL => [],
+            self::STATUS_CHANGED => ['status'],
         };
     }
 }

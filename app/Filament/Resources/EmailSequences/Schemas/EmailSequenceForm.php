@@ -4,6 +4,7 @@ namespace App\Filament\Resources\EmailSequences\Schemas;
 
 use App\Enums\EmailSequenceStatus;
 use App\Enums\EmailSequenceTrigger;
+use App\Enums\LeadStatus;
 use App\Models\Funnel;
 use App\Models\Page;
 use App\Models\Tag;
@@ -99,6 +100,20 @@ class EmailSequenceForm
                                     ->maxValue(365)
                                     ->visible(fn(Get $get) => $get('trigger') === EmailSequenceTrigger::INACTIVITY->value)
                                     ->helperText('Jours d\'inactivité avant déclenchement'),
+
+                                Select::make('trigger_conditions.status')
+                                    ->label('Statut du lead')
+                                    ->options([
+                                        'cold'      => '❄️ Froid',
+                                        'warm'      => '☀️ Tiède',
+                                        'hot'       => '🔥 Chaud',
+                                        'ultra_hot' => '⚡ Ultra Chaud',
+                                        'client'    => '✅ Client',
+                                        'member'    => '👤 Membre',
+                                    ])
+                                    ->visible(fn(Get $get) => $get('trigger') === EmailSequenceTrigger::STATUS_CHANGED->value)
+                                    ->helperText('Email envoyé dès que le lead atteint ce statut')
+                                    ->required(fn(Get $get) => $get('trigger') === EmailSequenceTrigger::STATUS_CHANGED->value),
                             ]),
 
                         Tabs\Tab::make('Paramètres')

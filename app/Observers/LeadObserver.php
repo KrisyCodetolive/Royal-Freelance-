@@ -51,9 +51,16 @@ class LeadObserver
         // Auto-tagging basé sur le score
         if ($lead->isDirty('score')) {
             $this->autoAssignTagsByScore($lead);
-
-            // Vérifier les séquences email basées sur le score
             app(\App\Services\EmailService::class)->checkAndSubscribeLeadToSequences($lead, \App\Enums\EmailSequenceTrigger::SCORE_THRESHOLD->value);
+        }
+
+        // Séquences email basées sur le changement de statut
+        if ($lead->isDirty('status')) {
+            app(\App\Services\EmailService::class)->checkAndSubscribeLeadToSequences(
+                $lead,
+                \App\Enums\EmailSequenceTrigger::STATUS_CHANGED->value,
+                ['new_status' => $lead->status->value]
+            );
         }
     }
 

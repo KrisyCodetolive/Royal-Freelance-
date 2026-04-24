@@ -138,6 +138,11 @@ class EmailSequence extends Model
                 $days = $conditions['days'] ?? 7;
                 return $lead->isInactive($days);
 
+            case EmailSequenceTrigger::STATUS_CHANGED:
+                $targetStatus = $conditions['status'] ?? null;
+                if (!$targetStatus) return false;
+                return $lead->status->value === $targetStatus;
+
             default:
                 return false;
         }

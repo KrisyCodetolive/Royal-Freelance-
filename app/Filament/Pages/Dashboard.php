@@ -11,6 +11,10 @@ use App\Filament\Widgets\ConversionByCountryWidget;
 use App\Filament\Widgets\RevenuePerformanceWidget;
 use App\Filament\Widgets\TeamPerformanceWidget;
 use Filament\Pages\Dashboard as BaseDashboard;
+use Filament\Schemas\Components\Grid;
+use Filament\Schemas\Components\Tabs;
+use Filament\Schemas\Components\Tabs\Tab;
+use Filament\Schemas\Schema;
 
 class Dashboard extends BaseDashboard
 {
@@ -22,22 +26,52 @@ class Dashboard extends BaseDashboard
 
     protected static ?string $title = 'Tableau de bord';
 
-    public function getWidgets(): array
-    {
-        return [
-            StatsOverview::class,
-            LeadsPipelineChart::class,
-            EngagementStatsWidget::class,
-            LatestLeads::class,
-            LeadsByDeviceWidget::class,
-            ConversionByCountryWidget::class,
-            RevenuePerformanceWidget::class,
-            TeamPerformanceWidget::class,
-        ];
-    }
-
     public function getColumns(): int | array
     {
         return 12;
+    }
+
+    public function content(Schema $schema): Schema
+    {
+        return $schema->components([
+            Tabs::make()
+                ->persistTabInQueryString('tab')
+                ->tabs([
+                    Tab::make('Vue d\'ensemble')
+                        ->icon('heroicon-o-home')
+                        ->schema([
+                            Grid::make(12)->schema(
+                                $this->getWidgetsSchemaComponents([
+                                    StatsOverview::class,
+                                    LeadsPipelineChart::class,
+                                    LatestLeads::class,
+                                ])
+                            ),
+                        ]),
+
+                    Tab::make('Analyse')
+                        ->icon('heroicon-o-chart-bar')
+                        ->schema([
+                            Grid::make(12)->schema(
+                                $this->getWidgetsSchemaComponents([
+                                    EngagementStatsWidget::class,
+                                    LeadsByDeviceWidget::class,
+                                    ConversionByCountryWidget::class,
+                                    RevenuePerformanceWidget::class,
+                                ])
+                            ),
+                        ]),
+
+                    Tab::make('Équipe')
+                        ->icon('heroicon-o-user-group')
+                        ->schema([
+                            Grid::make(12)->schema(
+                                $this->getWidgetsSchemaComponents([
+                                    TeamPerformanceWidget::class,
+                                ])
+                            ),
+                        ]),
+                ]),
+        ]);
     }
 }

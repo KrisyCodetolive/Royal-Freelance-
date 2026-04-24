@@ -13,7 +13,7 @@ class ConversionByCountryWidget extends ChartWidget
 
     protected ?string $pollingInterval = '60s';
 
-    protected static ?int $sort = 5;
+    protected static ?int $sort = 7;
 
     protected int|string|array $columnSpan = [
         'default' => 'full',
@@ -23,7 +23,8 @@ class ConversionByCountryWidget extends ChartWidget
     protected function getData(): array
     {
         // Top 10 pays avec le plus de leads convertis (CONVERTED)
-        $topCountries = Lead::select('country', DB::raw('count(*) as total'))
+        $topCountries = Lead::withoutGlobalScope('tenant')
+            ->select('country', DB::raw('count(*) as total'))
             ->whereNotNull('converted_at')
             ->whereNotNull('country')
             ->groupBy('country')

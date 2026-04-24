@@ -12,6 +12,8 @@ use Illuminate\Support\Facades\DB;
 
 class LeadOverviewWidget extends BaseWidget
 {
+    protected static bool $isDiscovered = false;
+
     protected ?string $pollingInterval = '30s';
 
     protected static ?int $sort = 1;

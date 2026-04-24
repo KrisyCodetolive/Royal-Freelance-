@@ -14,7 +14,7 @@ class TeamPerformanceWidget extends BaseWidget
 {
     protected static ?string $heading = 'Performance Équipe Commerciale';
 
-    protected static ?int $sort = 7;
+    protected static ?int $sort = 9;
 
     protected int|string|array $columnSpan = [
         'default' => 'full',
@@ -27,17 +27,19 @@ class TeamPerformanceWidget extends BaseWidget
             ->query(
                 User::role('commercial')
                     ->withCount([
-                        'broughtLeads as leads',
-                        'broughtLeads as hot_leads_count' => fn($q) => $q->where('score', '>=', 60),
+                        'broughtLeads as leads_count',
+                        'broughtLeads as hot_leads_count'       => fn($q) => $q->where('score', '>=', 31),
                         'broughtLeads as converted_leads_count' => fn($q) => $q->whereNotNull('converted_at'),
                     ])
-                    ->orderByDesc('converted_leads_count')
+                    ->withAvg('broughtLeads as avg_score', 'score')
+                    ->orderByDesc('leads_count')
             )
             ->columns([
                 Tables\Columns\TextColumn::make('name')
                     ->label('Commercial')
                     ->searchable()
-                    ->weight('bold'),
+                    ->weight('bold')
+                    ->description(fn($record) => $record->shop_name),
 
                 Tables\Columns\TextColumn::make('leads_count')
                     ->label('Total Leads')
@@ -47,7 +49,7 @@ class TeamPerformanceWidget extends BaseWidget
                     ->color('info'),
 
                 Tables\Columns\TextColumn::make('hot_leads_count')
-                    ->label('Leads HOT')
+                    ->label('Leads Chauds')
                     ->numeric()
                     ->alignCenter()
                     ->badge()
@@ -60,31 +62,32 @@ class TeamPerformanceWidget extends BaseWidget
                     ->badge()
                     ->color('success'),
 
-                Tables\Columns\TextColumn::make('conversion_rate')
+                Tables\Columns\TextColumn::make('taux_conversion')
                     ->label('Taux Conv.')
-                    ->formatStateUsing(function ($record) {
+                    ->state(function ($record) {
                         $total = $record->leads_count ?? 0;
                         $converted = $record->converted_leads_count ?? 0;
-                        return $total > 0 ? round(($converted / $total) * 100, 1) . '%' : '-';
+                        return $total > 0 ? round($converted / $total * 100, 1) . '%' : '—';
                     })
                     ->alignCenter()
                     ->badge()
                     ->color(fn($state) => match (true) {
-                        str_contains($state, '100') => 'success',
-                        str_contains($state, '-') => 'gray',
-                        (float) $state >= 30 => 'success',
-                        (float) $state >= 15 => 'warning',
-                        default => 'danger',
+                        $state === '—'                    => 'gray',
+                        (float) $state >= 30             => 'success',
+                        (float) $state >= 10             => 'warning',
+                        default                          => 'danger',
                     }),
 
                 Tables\Columns\TextColumn::make('avg_score')
                     ->label('Score Moyen')
-                    ->formatStateUsing(function ($record) {
-                        $avg = $record->broughtLeads()->avg('score') ?? 0;
-                        return round($avg, 1);
-                    })
+                    ->state(fn($record) => round($record->avg_score ?? 0, 1))
                     ->alignCenter()
-                    ->numeric(),
+                    ->badge()
+                    ->color(fn($state) => match (true) {
+                        $state >= 61 => 'danger',
+                        $state >= 31 => 'warning',
+                        default      => 'gray',
+                    }),
             ])
             ->paginated(false)
             ->striped();

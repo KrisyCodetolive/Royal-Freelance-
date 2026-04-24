@@ -12,7 +12,7 @@ class RevenuePerformanceWidget extends ChartWidget
 
     protected ?string $pollingInterval = '60s';
 
-    protected static ?int $sort = 6;
+    protected static ?int $sort = 8;
 
     protected int|string|array $columnSpan = [
         'default' => 'full',
@@ -31,13 +31,15 @@ class RevenuePerformanceWidget extends ChartWidget
             $labels[] = $date->format('d/m');
 
             // Conversions du jour
-            $dayConversions = Lead::whereNotNull('converted_at')
+            $dayConversions = Lead::withoutGlobalScope('tenant')
+                ->whereNotNull('converted_at')
                 ->whereDate('converted_at', $date)
                 ->count();
             $conversions[] = $dayConversions;
 
             // Revenue estimé (basé sur score moyen des conversions)
-            $dayRevenue = Lead::whereNotNull('converted_at')
+            $dayRevenue = Lead::withoutGlobalScope('tenant')
+                ->whereNotNull('converted_at')
                 ->whereDate('converted_at', $date)
                 ->avg('score') ?? 0;
             $revenue[] = round($dayRevenue);

@@ -11,7 +11,7 @@ class LeadsByDeviceWidget extends ChartWidget
 
     protected ?string $pollingInterval = '30s';
 
-    protected static ?int $sort = 3;
+    protected static ?int $sort = 6;
 
     protected int|string|array $columnSpan = [
         'default' => 'full',
@@ -20,10 +20,10 @@ class LeadsByDeviceWidget extends ChartWidget
 
     protected function getData(): array
     {
-        $mobile = Lead::where('device_type', 'mobile')->count();
-        $desktop = Lead::where('device_type', 'desktop')->count();
-        $tablet = Lead::where('device_type', 'tablet')->count();
-        $unknown = Lead::whereNull('device_type')->count();
+        $mobile = Lead::withoutGlobalScope('tenant')->where('device_type', 'mobile')->count();
+        $desktop = Lead::withoutGlobalScope('tenant')->where('device_type', 'desktop')->count();
+        $tablet = Lead::withoutGlobalScope('tenant')->where('device_type', 'tablet')->count();
+        $unknown = Lead::withoutGlobalScope('tenant')->whereNull('device_type')->count();
 
         return [
             'datasets' => [

@@ -14,7 +14,7 @@ class EngagementStatsWidget extends ChartWidget
 
     protected ?string $pollingInterval = '30s';
 
-    protected static ?int $sort = 3;
+    protected static ?int $sort = 4;
 
     protected int|string|array $columnSpan = 'full';
 

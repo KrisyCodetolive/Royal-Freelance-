@@ -18,6 +18,8 @@ class LeadsByDeviceWidget extends ChartWidget
         'lg' => 6,
     ];
 
+    protected ?string $maxHeight = '200px';
+
     protected function getData(): array
     {
         $mobile = Lead::withoutGlobalScope('tenant')->where('device_type', 'mobile')->count();

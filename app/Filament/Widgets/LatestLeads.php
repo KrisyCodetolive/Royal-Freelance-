@@ -22,7 +22,7 @@ class LatestLeads extends BaseWidget
                     ->with(['funnel:id,name', 'broughtBy:id,name'])
                     ->orderByRaw("FIELD(status, 'ultra_hot', 'hot', 'warm', 'cold', 'client', 'member')")
                     ->orderByDesc('score')
-                    ->limit(10)
+                    ->limit(5)
             )
             ->columns([
                 Tables\Columns\TextColumn::make('full_name')

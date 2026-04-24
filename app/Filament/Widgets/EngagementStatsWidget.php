@@ -18,6 +18,8 @@ class EngagementStatsWidget extends ChartWidget
 
     protected int|string|array $columnSpan = 'full';
 
+    protected ?string $maxHeight = '200px';
+
     protected function getData(): array
     {
         $labels = [];

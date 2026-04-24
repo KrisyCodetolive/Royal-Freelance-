@@ -19,6 +19,8 @@ class RevenuePerformanceWidget extends ChartWidget
         'lg' => 6,
     ];
 
+    protected ?string $maxHeight = '200px';
+
     protected function getData(): array
     {
         $labels = [];

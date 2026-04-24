@@ -15,6 +15,8 @@ class LeadsPipelineChart extends ChartWidget
 
     protected int|string|array $columnSpan = 'full';
 
+    protected ?string $maxHeight = '220px';
+
     protected function getData(): array
     {
         $pipeline = [

@@ -20,6 +20,8 @@ class ConversionByCountryWidget extends ChartWidget
         'lg' => 6,
     ];
 
+    protected ?string $maxHeight = '200px';
+
     protected function getData(): array
     {
         // Top 10 pays avec le plus de leads convertis (CONVERTED)

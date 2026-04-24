@@ -15,7 +15,6 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Schema;
-use Filament\Schemas\Components\Utilities\Get;
 
 class EmailSequenceForm
 {
@@ -75,21 +74,21 @@ class EmailSequenceForm
                                     ->default(10)
                                     ->minValue(1)
                                     ->maxValue(100)
-                                    ->visible(fn(Get $get) => $get('trigger') === EmailSequenceTrigger::SCORE_THRESHOLD->value)
+                                    ->visible(fn($get) => $get('trigger') === EmailSequenceTrigger::SCORE_THRESHOLD->value)
                                     ->helperText('Score à atteindre pour déclencher'),
 
                                 Select::make('trigger_conditions.page_id')
                                     ->label('Page spécifique')
                                     ->options(fn() => Page::pluck('title', 'id'))
                                     ->searchable()
-                                    ->visible(fn(Get $get) => $get('trigger') === EmailSequenceTrigger::PAGE_VIEW->value)
+                                    ->visible(fn($get) => $get('trigger') === EmailSequenceTrigger::PAGE_VIEW->value)
                                     ->helperText('Page à visiter pour déclencher'),
 
                                 Select::make('trigger_conditions.tag_id')
                                     ->label('Tag spécifique')
                                     ->options(fn() => Tag::pluck('name', 'id'))
                                     ->searchable()
-                                    ->visible(fn(Get $get) => $get('trigger') === EmailSequenceTrigger::TAG_ASSIGNED->value)
+                                    ->visible(fn($get) => $get('trigger') === EmailSequenceTrigger::TAG_ASSIGNED->value)
                                     ->helperText('Tag à assigner pour déclencher'),
 
                                 TextInput::make('trigger_conditions.days')
@@ -98,7 +97,7 @@ class EmailSequenceForm
                                     ->default(7)
                                     ->minValue(1)
                                     ->maxValue(365)
-                                    ->visible(fn(Get $get) => $get('trigger') === EmailSequenceTrigger::INACTIVITY->value)
+                                    ->visible(fn($get) => $get('trigger') === EmailSequenceTrigger::INACTIVITY->value)
                                     ->helperText('Jours d\'inactivité avant déclenchement'),
 
                                 Select::make('trigger_conditions.status')
@@ -111,9 +110,9 @@ class EmailSequenceForm
                                         'client'    => '✅ Client',
                                         'member'    => '👤 Membre',
                                     ])
-                                    ->visible(fn(Get $get) => $get('trigger') === EmailSequenceTrigger::STATUS_CHANGED->value)
+                                    ->visible(fn($get) => $get('trigger') === EmailSequenceTrigger::STATUS_CHANGED->value)
                                     ->helperText('Email envoyé dès que le lead atteint ce statut')
-                                    ->required(fn(Get $get) => $get('trigger') === EmailSequenceTrigger::STATUS_CHANGED->value),
+                                    ->required(fn($get) => $get('trigger') === EmailSequenceTrigger::STATUS_CHANGED->value),
                             ]),
 
                         Tabs\Tab::make('Paramètres')

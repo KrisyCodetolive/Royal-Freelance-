@@ -2,8 +2,13 @@
 
 namespace App\Filament\Resources\EmailSequences\RelationManagers;
 
+use Filament\Actions\CreateAction;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\EditAction;
 use Filament\Forms;
 use Filament\Resources\RelationManagers\RelationManager;
+use Filament\Schemas\Components\Grid;
+use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -20,7 +25,7 @@ class EmailsRelationManager extends RelationManager
     {
         return $schema
             ->schema([
-                Forms\Components\Section::make('Contenu de l\'Email')
+                Section::make('Contenu de l\'Email')
                     ->schema([
                         Forms\Components\TextInput::make('subject')
                             ->label('Sujet')
@@ -48,9 +53,9 @@ class EmailsRelationManager extends RelationManager
                             ]),
                     ]),
 
-                Forms\Components\Section::make('Paramètres d\'Envoi')
+                Section::make('Paramètres d\'Envoi')
                     ->schema([
-                        Forms\Components\Grid::make(2)->schema([
+                        Grid::make(2)->schema([
                             Forms\Components\TextInput::make('send_after_hours')
                                 ->label('Délai d\'envoi (heures)')
                                 ->numeric()
@@ -139,7 +144,11 @@ class EmailsRelationManager extends RelationManager
                     ->falseLabel('Inactifs uniquement'),
             ])
             ->headerActions([
-                // Creation is handled automatically by RelationManager in Filament v4
+                CreateAction::make()->label('Ajouter un email'),
+            ])
+            ->recordActions([
+                EditAction::make(),
+                DeleteAction::make(),
             ])
             
             ->emptyStateHeading('Aucun email dans cette séquence')

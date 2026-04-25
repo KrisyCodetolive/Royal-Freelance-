@@ -6,13 +6,13 @@ use App\Enums\EmailSequenceStatus;
 use App\Enums\EmailSequenceTrigger;
 use App\Models\Page;
 use App\Models\Tag;
-use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Components\Tabs;
-use Filament\Forms\Components\Tabs\Tab;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
+use Filament\Schemas\Components\Grid;
+use Filament\Schemas\Components\Tabs;
+use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Schemas\Schema;
 
 class EmailSequenceForm
@@ -73,21 +73,21 @@ class EmailSequenceForm
                                     ->default(10)
                                     ->minValue(1)
                                     ->maxValue(100)
-                                    ->visible(fn ($get) => $get('trigger') === EmailSequenceTrigger::SCORE_THRESHOLD->value)
+                                    ->visible(fn ($get) => static::isTrigger($get('trigger'), EmailSequenceTrigger::SCORE_THRESHOLD))
                                     ->helperText('Score à atteindre pour déclencher'),
 
                                 Select::make('trigger_conditions.page_id')
                                     ->label('Page spécifique')
                                     ->options(fn () => Page::pluck('title', 'id'))
                                     ->searchable()
-                                    ->visible(fn ($get) => $get('trigger') === EmailSequenceTrigger::PAGE_VIEW->value)
+                                    ->visible(fn ($get) => static::isTrigger($get('trigger'), EmailSequenceTrigger::PAGE_VIEW))
                                     ->helperText('Page à visiter pour déclencher'),
 
                                 Select::make('trigger_conditions.tag_id')
                                     ->label('Tag spécifique')
                                     ->options(fn () => Tag::pluck('name', 'id'))
                                     ->searchable()
-                                    ->visible(fn ($get) => $get('trigger') === EmailSequenceTrigger::TAG_ASSIGNED->value)
+                                    ->visible(fn ($get) => static::isTrigger($get('trigger'), EmailSequenceTrigger::TAG_ASSIGNED))
                                     ->helperText('Tag à assigner pour déclencher'),
 
                                 TextInput::make('trigger_conditions.days')
@@ -96,7 +96,7 @@ class EmailSequenceForm
                                     ->default(7)
                                     ->minValue(1)
                                     ->maxValue(365)
-                                    ->visible(fn ($get) => $get('trigger') === EmailSequenceTrigger::INACTIVITY->value)
+                                    ->visible(fn ($get) => static::isTrigger($get('trigger'), EmailSequenceTrigger::INACTIVITY))
                                     ->helperText('Jours d\'inactivité avant déclenchement'),
 
                                 Select::make('trigger_conditions.status')
@@ -109,8 +109,8 @@ class EmailSequenceForm
                                         'client'    => '✅ Client',
                                         'member'    => '👤 Membre',
                                     ])
-                                    ->visible(fn ($get) => $get('trigger') === EmailSequenceTrigger::STATUS_CHANGED->value)
-                                    ->required(fn ($get) => $get('trigger') === EmailSequenceTrigger::STATUS_CHANGED->value)
+                                    ->visible(fn ($get) => static::isTrigger($get('trigger'), EmailSequenceTrigger::STATUS_CHANGED))
+                                    ->required(fn ($get) => static::isTrigger($get('trigger'), EmailSequenceTrigger::STATUS_CHANGED))
                                     ->helperText('Email envoyé dès que le lead atteint ce statut'),
                             ]),
 
@@ -144,5 +144,10 @@ class EmailSequenceForm
                     ])
                     ->columnSpanFull(),
             ]);
+    }
+
+    private static function isTrigger(mixed $value, EmailSequenceTrigger $trigger): bool
+    {
+        return $value === $trigger || $value === $trigger->value;
     }
 }

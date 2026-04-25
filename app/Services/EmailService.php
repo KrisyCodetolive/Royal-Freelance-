@@ -22,11 +22,13 @@ class EmailService
     {
         $totalSent = 0;
         
-        // Get all active subscriptions that need emails
-        $subscriptions = EmailSequenceSubscription::query()
-            ->with(['emailSequence.emails', 'lead'])
+        // Get all active subscriptions that need emails (no tenant scope: runs as background job)
+        $subscriptions = EmailSequenceSubscription::withoutGlobalScopes()
+            ->with(['emailSequence' => fn($q) => $q->withoutGlobalScopes(),
+                    'emailSequence.emails' => fn($q) => $q->withoutGlobalScopes(),
+                    'lead' => fn($q) => $q->withoutGlobalScopes()])
             ->whereHas('emailSequence', function ($query) {
-                $query->where('status', 'active');
+                $query->withoutGlobalScopes()->where('status', 'active');
             })
             ->where('is_active', true)
             ->whereNull('completed_at')
@@ -58,10 +60,11 @@ class EmailService
      */
     public function subscribeLead(Lead $lead, EmailSequence $sequence): EmailSequenceSubscription
     {
-        // Check if already subscribed
+        // Check if already subscribed and not yet completed
         $existing = $sequence->subscriptions()
             ->where('lead_id', $lead->id)
             ->where('is_active', true)
+            ->whereNull('completed_at')
             ->first();
 
         if ($existing) {
@@ -86,11 +89,17 @@ class EmailService
     {
         $subscribed = 0;
         
-        // Get sequences for this tenant with the specified trigger
+        // Get sequences for this tenant with the specified trigger.
+        // A sequence scoped to a funnel only applies to leads from that funnel.
+        // A sequence with no funnel_id is global and applies to all tenant leads.
         $sequences = EmailSequence::query()
             ->where('tenant_id', $lead->tenant_id)
             ->where('status', 'active')
             ->where('trigger', $trigger)
+            ->where(function ($query) use ($lead) {
+                $query->whereNull('funnel_id')
+                    ->orWhere('funnel_id', $lead->funnel_id);
+            })
             ->get();
 
         foreach ($sequences as $sequence) {
@@ -111,9 +120,10 @@ class EmailService
     {
         return $subscription->emailSequence
             ->emails()
+            ->withoutGlobalScopes()
             ->active()
             ->whereDoesntHave('sends', function ($query) use ($subscription) {
-                $query->where('subscription_id', $subscription->id);
+                $query->withoutGlobalScopes()->where('subscription_id', $subscription->id);
             })
             ->get()
             ->filter(function ($email) use ($subscription) {

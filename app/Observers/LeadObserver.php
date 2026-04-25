@@ -36,7 +36,7 @@ class LeadObserver
     public function updated(Lead $lead): void
     {
         // Update funnel stats if status changed
-        if ($lead->isDirty('status')) {
+        if ($lead->wasChanged('status')) {
             $lead->funnel?->updateStats();
 
             // Update commercial stats if applicable
@@ -49,13 +49,13 @@ class LeadObserver
         }
 
         // Auto-tagging basé sur le score
-        if ($lead->isDirty('score')) {
+        if ($lead->wasChanged('score')) {
             $this->autoAssignTagsByScore($lead);
             app(\App\Services\EmailService::class)->checkAndSubscribeLeadToSequences($lead, \App\Enums\EmailSequenceTrigger::SCORE_THRESHOLD->value);
         }
 
         // Séquences email basées sur le changement de statut
-        if ($lead->isDirty('status')) {
+        if ($lead->wasChanged('status')) {
             app(\App\Services\EmailService::class)->checkAndSubscribeLeadToSequences(
                 $lead,
                 \App\Enums\EmailSequenceTrigger::STATUS_CHANGED->value,

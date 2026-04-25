@@ -103,9 +103,22 @@ class EmailSequence extends Model
 
     public function subscribeLead(Lead $lead): EmailSequenceSubscription
     {
-        return $this->subscriptions()->firstOrCreate([
+        $existing = $this->subscriptions()->where('lead_id', $lead->id)->first();
+
+        if ($existing) {
+            // Reset completed subscription so emails are re-sent
+            $existing->update([
+                'is_active' => true,
+                'subscribed_at' => now(),
+                'completed_at' => null,
+                'unsubscribed_at' => null,
+            ]);
+            $existing->emailSends()->delete();
+            return $existing->fresh();
+        }
+
+        return $this->subscriptions()->create([
             'lead_id' => $lead->id,
-        ], [
             'tenant_id' => $this->tenant_id,
             'subscribed_at' => now(),
         ]);

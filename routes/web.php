@@ -170,3 +170,9 @@ Route::prefix('api/tracking')->group(function () {
     Route::post('/update-lead-data', [\App\Http\Controllers\TrackingApiController::class, 'updateLeadData']);
     Route::post('/cta-click', [\App\Http\Controllers\TrackingApiController::class, 'trackCtaClick']);
 });
+
+Route::get('/email/unsubscribe/{send}', [\App\Http\Controllers\EmailUnsubscribeController::class, 'unsubscribe'])
+    ->name('email.unsubscribe');
+
+Route::get('/email/track/open/{send}', [\App\Http\Controllers\EmailUnsubscribeController::class, 'trackOpen'])
+    ->name('email.tracking.open');

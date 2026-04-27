@@ -12,4 +12,4 @@ Artisan::command('inspire', function () {
 Schedule::command('leads:check-inactive')->dailyAt('09:00');
 
 // Traiter les séquences email actives (toutes les minutes en dev, hourly en prod)
-Schedule::command('email:process-sequences')->everyMinute();
+Schedule::command('email:process-sequences')->everyMinute()->withoutOverlapping();

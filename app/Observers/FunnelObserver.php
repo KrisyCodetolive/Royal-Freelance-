@@ -48,7 +48,8 @@ class FunnelObserver
     {
         // Log status changes
         if ($funnel->isDirty('status')) {
-            $oldStatus = FunnelStatus::tryFrom($funnel->getOriginal('status'));
+            $original  = $funnel->getOriginal('status');
+            $oldStatus = $original instanceof FunnelStatus ? $original : FunnelStatus::tryFrom($original);
             $newStatus = $funnel->status;
 
             activity()

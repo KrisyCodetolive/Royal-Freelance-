@@ -27,6 +27,8 @@ class FunnelTemplateResource extends Resource
 
     protected static ?int $navigationSort = 0;
 
+    protected static bool $shouldRegisterNavigation = false;
+
     public static function getEloquentQuery(): Builder
     {
         return parent::getEloquentQuery()->where('is_template', true);

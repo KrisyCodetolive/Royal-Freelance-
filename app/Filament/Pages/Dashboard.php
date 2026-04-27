@@ -65,7 +65,7 @@ class Dashboard extends BaseDashboard
                     Tab::make('Équipe')
                         ->icon('heroicon-o-user-group')
                         ->schema([
-                            Grid::make(12)->schema(
+                            Grid::make()->schema(
                                 $this->getWidgetsSchemaComponents([
                                     TeamPerformanceWidget::class,
                                 ])

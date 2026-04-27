@@ -12,17 +12,20 @@ class LatestLeads extends BaseWidget
 {
     protected static ?string $heading = 'Leads Prioritaires';
     protected static ?int $sort = 5;
-    protected int|string|array $columnSpan = 'full';
+    protected int|string|array $columnSpan = [
+        'default' => 12,
+        'md' => 7,
+    ];
 
     public function table(Table $table): Table
     {
         return $table
             ->query(
                 Lead::withoutGlobalScope('tenant')
-                    ->with(['funnel:id,name', 'broughtBy:id,name'])
+                    ->with(['funnel:id,name'])
                     ->orderByRaw("FIELD(status, 'ultra_hot', 'hot', 'warm', 'cold', 'client', 'member')")
                     ->orderByDesc('score')
-                    ->limit(5)
+                    ->limit(3)
             )
             ->columns([
                 Tables\Columns\TextColumn::make('full_name')
@@ -60,29 +63,19 @@ class LatestLeads extends BaseWidget
                     ->label('Tunnel')
                     ->badge()
                     ->color('primary')
-                    ->limit(20),
-
-                Tables\Columns\TextColumn::make('broughtBy.name')
-                    ->label('Commercial')
-                    ->badge()
-                    ->color('gray')
-                    ->default('—'),
-
-                Tables\Columns\TextColumn::make('country')
-                    ->label('Pays')
-                    ->default('—'),
+                    ->limit(15),
 
                 Tables\Columns\TextColumn::make('last_activity_at')
-                    ->label('Dernière activité')
+                    ->label('Activité')
                     ->since()
-                    ->placeholder('Jamais'),
+                    ->placeholder('—'),
             ])
             ->recordActions([
                 Action::make('view')
-                    ->label('Voir')
                     ->icon('heroicon-o-eye')
                     ->url(fn($record) => route('filament.admin.resources.leads.view', $record))
-                    ->color('gray'),
+                    ->color('gray')
+                    ->iconButton(),
             ])
             ->paginated(false)
             ->striped();

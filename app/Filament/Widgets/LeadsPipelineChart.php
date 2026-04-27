@@ -13,9 +13,12 @@ class LeadsPipelineChart extends ChartWidget
 
     protected static ?int $sort = 2;
 
-    protected int|string|array $columnSpan = 'full';
+    protected int|string|array $columnSpan = [
+        'default' => 12,
+        'md' => 5,
+    ];
 
-    protected ?string $maxHeight = '220px';
+    protected ?string $maxHeight = '217px';
 
     protected function getData(): array
     {

@@ -2,6 +2,8 @@
 
 namespace App\Filament\Resources\EmailSequences\RelationManagers;
 
+use App\Services\SequenceTemplateService;
+use Filament\Actions\Action;
 use Filament\Actions\CreateAction;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
@@ -145,8 +147,35 @@ class EmailsRelationManager extends RelationManager
             ])
             ->headerActions([
                 CreateAction::make()->label('Ajouter un email'),
+
+                Action::make('apply_template')
+                    ->label('Utiliser un template')
+                    ->icon('heroicon-o-sparkles')
+                    ->color('warning')
+                    ->form([
+                        Forms\Components\Radio::make('template')
+                            ->label('Choisir une séquence')
+                            ->options(collect(SequenceTemplateService::getMeta())->map(fn($m) => $m['label'])->toArray())
+                            ->descriptions(collect(SequenceTemplateService::getMeta())->map(fn($m) => $m['description'])->toArray())
+                            ->required(),
+
+                        Forms\Components\Toggle::make('replace')
+                            ->label('Remplacer les emails existants')
+                            ->helperText('Activez pour supprimer les emails actuels avant d\'appliquer le template')
+                            ->default(false),
+                    ])
+                    ->action(function (array $data, RelationManager $livewire): void {
+                        $sequence = $livewire->getOwnerRecord();
+                        SequenceTemplateService::apply($sequence, $data['template'], $data['replace'] ?? false);
+                    })
+                    ->successNotificationTitle('Template appliqué avec succès'),
             ])
             ->recordActions([
+                Action::make('design')
+                    ->label('Designer')
+                    ->icon('heroicon-o-paint-brush')
+                    ->color('info')
+                    ->url(fn($record) => route('email-builder.edit', $record)),
                 EditAction::make(),
                 DeleteAction::make(),
             ])

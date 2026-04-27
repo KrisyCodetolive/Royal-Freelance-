@@ -101,6 +101,11 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('/page-builder/preview/{model}/{modelId}', [PageBuilder::class, 'preview'])->name('page-builder.preview');
 });
 
+// Email Builder Routes
+Route::group(['middleware' => ['auth']], function () {
+    Route::get('/email-builder/{email}', \App\Livewire\EmailBuilder\EmailBuilder::class)->name('email-builder.edit');
+});
+
 /*
 |--------------------------------------------------------------------------
 | Public Funnel Routes (Domain & Subdomain Handling)

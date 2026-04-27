@@ -48,9 +48,10 @@ class LeadObserver
             }
         }
 
-        // Auto-tagging basé sur le score
+        // Auto-tagging + mise à jour statut basés sur le score
         if ($lead->wasChanged('score')) {
             $this->autoAssignTagsByScore($lead);
+            $this->scoringService->updateStatusFromScore($lead);
             app(\App\Services\EmailService::class)->checkAndSubscribeLeadToSequences($lead, \App\Enums\EmailSequenceTrigger::SCORE_THRESHOLD->value);
         }
 

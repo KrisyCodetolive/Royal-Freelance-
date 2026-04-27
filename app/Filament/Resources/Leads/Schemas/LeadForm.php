@@ -65,7 +65,9 @@ class LeadForm
                                             ->label('Score')
                                             ->numeric()
                                             ->default(0)
-                                            ->disabled(),
+                                            ->minValue(0)
+                                            ->maxValue(100)
+                                            ->helperText('Modifier le score met à jour le statut automatiquement'),
                                     ]),
                             ]),
 

@@ -85,14 +85,14 @@
                 <!-- Card 2 -->
                 <div
                     class="p-8 rounded-2xl bg-slate-700/50 border border-slate-600 hover:border-amber-500/50 transition-colors">
-                    <div class="text-amber-500 text-4xl font-bold mb-2">11/11</div>
+                    <div class="text-amber-500 text-4xl font-bold mb-2">14/14</div>
                     <div class="text-slate-300 font-medium">Fonctionnalités Core</div>
                     <p class="text-sm text-slate-500 mt-2">100% Fonctionnelles</p>
                 </div>
                 <!-- Card 3 -->
                 <div
                     class="p-8 rounded-2xl bg-slate-700/50 border border-slate-600 hover:border-amber-500/50 transition-colors">
-                    <div class="text-amber-500 text-4xl font-bold mb-2">+7</div>
+                    <div class="text-amber-500 text-4xl font-bold mb-2">+10</div>
                     <div class="text-slate-300 font-medium">Bonus Inclus</div>
                     <p class="text-sm text-slate-500 mt-2">Non prévus initialement</p>
                 </div>
@@ -232,6 +232,25 @@
                     <h3 class="text-xl font-bold mb-3 text-white">Auto-Tagging</h3>
                     <p class="text-slate-400 text-sm">Tags automatiques : "Vidéo Complète", "Relance 7j", "Intéressé".
                     </p>
+                </div>
+
+                <!-- Block 7 -->
+                <div class="p-8 rounded-2xl bg-white/5 border border-white/5 hover:border-amber-500/30 transition-all group">
+                    <div class="flex items-center justify-between mb-3">
+                        <h3 class="text-xl font-bold text-white">Séquences Email Auto</h3>
+                        <span class="text-xs font-semibold bg-amber-500/20 text-amber-400 px-2 py-1 rounded-full border border-amber-500/30 shrink-0">Nouveau</span>
+                    </div>
+                    <p class="text-slate-400 text-sm">Envoi automatique d'emails selon les actions du lead. 3 déclencheurs, délais configurables, anti-doublon.</p>
+                    <a href="{{ route('presentation.sequences-email') }}" class="inline-block mt-3 text-amber-500 text-sm font-medium hover:underline">En savoir plus →</a>
+                </div>
+                <!-- Block 8 -->
+                <div class="p-8 rounded-2xl bg-white/5 border border-white/5 hover:border-amber-500/30 transition-all group">
+                    <div class="flex items-center justify-between mb-3">
+                        <h3 class="text-xl font-bold text-white">Builder Email Visuel</h3>
+                        <span class="text-xs font-semibold bg-amber-500/20 text-amber-400 px-2 py-1 rounded-full border border-amber-500/30 shrink-0">Nouveau</span>
+                    </div>
+                    <p class="text-slate-400 text-sm">Éditeur visuel par blocs pour composer les emails des séquences. 6 types de blocs, 4 templates, export HTML.</p>
+                    <a href="{{ route('presentation.email-builder') }}" class="inline-block mt-3 text-amber-500 text-sm font-medium hover:underline">En savoir plus →</a>
                 </div>
             </div>
         </div>
@@ -379,11 +398,27 @@
                     </div>
                 </div>
                 <!-- Row 5 -->
-                <div class="grid grid-cols-3 p-6 items-center hover:bg-slate-800 transition-colors bg-emerald-500/5">
+                <div class="grid grid-cols-3 p-6 border-b border-slate-700 items-center hover:bg-slate-800 transition-colors">
                     <div class="font-medium text-white">Alertes</div>
                     <div class="text-center text-slate-500">Aucune</div>
                     <div class="text-center text-emerald-400 font-bold flex items-center justify-center gap-2">
                         <span class="text-xl">🔔</span> 6 Types (Temps réel)
+                    </div>
+                </div>
+                <!-- Row 6 -->
+                <div class="grid grid-cols-3 p-6 border-b border-slate-700 items-center hover:bg-slate-800 transition-colors bg-amber-500/5">
+                    <div class="font-medium text-white">Email Marketing</div>
+                    <div class="text-center text-slate-500">Outils externes</div>
+                    <div class="text-center text-amber-400 font-bold flex items-center justify-center gap-2">
+                        <span class="text-xl">📧</span> Séquences Auto (3 triggers)
+                    </div>
+                </div>
+                <!-- Row 7 -->
+                <div class="grid grid-cols-3 p-6 items-center hover:bg-slate-800 transition-colors bg-amber-500/5">
+                    <div class="font-medium text-white">Builder Email</div>
+                    <div class="text-center text-slate-500">Absent</div>
+                    <div class="text-center text-amber-400 font-bold flex items-center justify-center gap-2">
+                        <span class="text-xl">🎨</span> Visuel par blocs (6 types)
                     </div>
                 </div>
             </div>
@@ -523,14 +558,14 @@
                         <p class="text-slate-400 mb-4">Fonctionnalités avancées pour accélérer la croissance.</p>
 
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
-                            <div class="flex items-center gap-3 text-slate-300">
-                                <span class="text-amber-500">📧</span> Automations Emails
+                            <div class="flex items-center gap-3 text-emerald-400 font-medium">
+                                <span>✓</span> Séquences Email Auto <span class="text-xs bg-emerald-500/20 px-2 py-0.5 rounded-full border border-emerald-500/30">Fait</span>
                             </div>
                             <div class="flex items-center gap-3 text-slate-300">
                                 <span class="text-amber-500">🏷️</span> Leads & Tags Optimisés
                             </div>
-                            <div class="flex items-center gap-3 text-slate-300">
-                                <span class="text-amber-500">📈</span> Dashboard Commercial V2
+                            <div class="flex items-center gap-3 text-emerald-400 font-medium">
+                                <span>✓</span> Dashboard Commercial V2 <span class="text-xs bg-emerald-500/20 px-2 py-0.5 rounded-full border border-emerald-500/30">Fait</span>
                             </div>
                             <div class="flex items-center gap-3 text-slate-300">
                                 <span class="text-amber-500">📱</span> App Mobile / PWA
@@ -607,6 +642,12 @@
                                 class="w-6 h-6 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-xs">
                                 ✓</div>
                             Documentation & Code Source
+                        </li>
+                        <li class="flex items-center gap-3 text-slate-300">
+                            <div
+                                class="w-6 h-6 rounded-full bg-amber-500/20 text-amber-400 flex items-center justify-center text-xs">
+                                ✓</div>
+                            Séquences Email Automatiques (3 triggers, délais, variables)
                         </li>
                     </ul>
                 </div>

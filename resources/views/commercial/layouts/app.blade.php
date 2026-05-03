@@ -28,76 +28,117 @@
         .font-sans {
             font-family: 'Outfit', sans-serif;
         }
+
+        @media (min-width: 1024px) {
+            .sidebar-desktop {
+                transition: width 0.3s ease;
+            }
+            .sidebar-desktop.is-collapsed { width: 5rem; }
+            .sidebar-desktop.is-expanded  { width: 18rem; }
+
+            .main-content {
+                transition: padding-left 0.3s ease;
+            }
+            .main-content.sidebar-is-collapsed { padding-left: 5rem; }
+            .main-content.sidebar-is-expanded  { padding-left: 18rem; }
+        }
     </style>
     @livewireStyles
     @stack('styles')
 </head>
 
-<body class="h-full font-sans antialiased text-slate-900 bg-slate-50 overflow-x-hidden" x-data="{ sidebarOpen: false }">
+<body class="h-full font-sans antialiased text-slate-900 bg-slate-50 overflow-x-hidden"
+    x-data="{
+        sidebarOpen: false,
+        sidebarCollapsed: localStorage.getItem('sidebarCollapsed') === 'true',
+        toggleCollapse() {
+            this.sidebarCollapsed = !this.sidebarCollapsed;
+            localStorage.setItem('sidebarCollapsed', this.sidebarCollapsed);
+        }
+    }">
     @php
         $unreadCount = \App\Models\Alert::where('user_id', Auth::id())->where('is_read', false)->count();
     @endphp
     <div class="min-h-full">
         <!-- Sidebar Desktop -->
-        <div class="hidden lg:fixed lg:inset-y-0 lg:flex lg:w-72 lg:flex-col z-50">
+        <div class="sidebar-desktop hidden lg:fixed lg:inset-y-0 lg:flex lg:flex-col z-50"
+            :class="sidebarCollapsed ? 'is-collapsed' : 'is-expanded'">
             <div class="flex min-h-0 flex-1 flex-col bg-slate-900 border-r border-slate-800 shadow-2xl">
-                <!-- Logo -->
-                <div class="flex h-20 flex-shrink-0 items-center px-6 bg-slate-950 border-b border-slate-800">
-                    <a href="/" class="flex items-center gap-3 group">
+
+                <!-- Logo + toggle -->
+                <div class="flex h-20 flex-shrink-0 items-center bg-slate-950 border-b border-slate-800 px-4"
+                    :class="sidebarCollapsed ? 'justify-center' : 'justify-between px-6'">
+                    <a href="/" x-show="!sidebarCollapsed">
                         <img src="{{ asset('assets/logowhite.png') }}" class="h-8 sm:h-10 w-auto" alt="Logo">
                     </a>
+                    <button @click="toggleCollapse()"
+                        class="p-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+                        :title="sidebarCollapsed ? 'Agrandir' : 'Réduire'">
+                        <svg class="h-5 w-5 transition-transform duration-300" :class="sidebarCollapsed ? 'rotate-180' : ''"
+                            fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7M18 19l-7-7 7-7" />
+                        </svg>
+                    </button>
                 </div>
 
                 <!-- Navigation -->
-                <nav class="flex-1 space-y-1 px-4 py-6">
-                    <p class="px-2 text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Principal</p>
+                <nav class="flex-1 space-y-1 py-6" :class="sidebarCollapsed ? 'px-2' : 'px-4'">
+                    <p x-show="!sidebarCollapsed" class="px-2 text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Principal</p>
 
-                    <a href="{{ route('commercial.dashboard') }}"
-                        class="group flex items-center px-3 py-3 text-sm font-medium rounded-lg transition-all duration-200 {{ request()->routeIs('commercial.dashboard') ? 'bg-amber-500 text-slate-900 shadow-lg shadow-amber-500/20' : 'text-slate-400 hover:bg-slate-800 hover:text-white' }}">
-                        <svg class="mr-3 h-5 w-5 {{ request()->routeIs('commercial.dashboard') ? 'text-slate-900' : 'text-slate-500 group-hover:text-amber-400' }}"
+                    <a href="{{ route('commercial.dashboard') }}" title="Tableau de bord"
+                        class="group flex items-center py-3 text-sm font-medium rounded-lg transition-all duration-200 {{ request()->routeIs('commercial.dashboard') ? 'bg-amber-500 text-slate-900 shadow-lg shadow-amber-500/20' : 'text-slate-400 hover:bg-slate-800 hover:text-white' }}"
+                        :class="sidebarCollapsed ? 'justify-center px-3' : 'px-3'">
+                        <svg class="h-5 w-5 shrink-0 {{ request()->routeIs('commercial.dashboard') ? 'text-slate-900' : 'text-slate-500 group-hover:text-amber-400' }}"
+                            :class="sidebarCollapsed ? '' : 'mr-3'"
                             fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
                         </svg>
-                        Tableau de bord
+                        <span x-show="!sidebarCollapsed" x-transition.opacity>Tableau de bord</span>
                     </a>
 
-                    <p class="px-2 text-xs font-semibold text-slate-500 uppercase tracking-wider mt-8 mb-2">Activités
-                    </p>
+                    <p x-show="!sidebarCollapsed" class="px-2 text-xs font-semibold text-slate-500 uppercase tracking-wider mt-8 mb-2">Activités</p>
 
-                    <a href="{{ route('commercial.funnels') }}"
-                        class="group flex items-center px-3 py-3 text-sm font-medium rounded-lg transition-all duration-200 {{ request()->routeIs('commercial.funnels*') ? 'bg-amber-500 text-slate-900 shadow-lg shadow-amber-500/20' : 'text-slate-400 hover:bg-slate-800 hover:text-white' }}">
-                        <svg class="mr-3 h-5 w-5 {{ request()->routeIs('commercial.funnels*') ? 'text-slate-900' : 'text-slate-500 group-hover:text-amber-400' }}"
+                    <a href="{{ route('commercial.funnels') }}" title="Mes Tunnels"
+                        class="group flex items-center py-3 text-sm font-medium rounded-lg transition-all duration-200 {{ request()->routeIs('commercial.funnels*') ? 'bg-amber-500 text-slate-900 shadow-lg shadow-amber-500/20' : 'text-slate-400 hover:bg-slate-800 hover:text-white' }}"
+                        :class="sidebarCollapsed ? 'justify-center px-3' : 'px-3'">
+                        <svg class="h-5 w-5 shrink-0 {{ request()->routeIs('commercial.funnels*') ? 'text-slate-900' : 'text-slate-500 group-hover:text-amber-400' }}"
+                            :class="sidebarCollapsed ? '' : 'mr-3'"
                             fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M19.428 15.428a2 2 0 00-1.022-.547l-2.384-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
                         </svg>
-                        Mes Tunnels
+                        <span x-show="!sidebarCollapsed" x-transition.opacity>Mes Tunnels</span>
                     </a>
 
-                    <a href="{{ route('commercial.leads') }}"
-                        class="group flex items-center px-3 py-3 text-sm font-medium rounded-lg transition-all duration-200 {{ request()->routeIs('commercial.leads*') ? 'bg-amber-500 text-slate-900 shadow-lg shadow-amber-500/20' : 'text-slate-400 hover:bg-slate-800 hover:text-white' }}">
-                        <svg class="mr-3 h-5 w-5 {{ request()->routeIs('commercial.leads*') ? 'text-slate-900' : 'text-slate-500 group-hover:text-amber-400' }}"
+                    <a href="{{ route('commercial.leads') }}" title="Mes Leads"
+                        class="group flex items-center py-3 text-sm font-medium rounded-lg transition-all duration-200 {{ request()->routeIs('commercial.leads*') ? 'bg-amber-500 text-slate-900 shadow-lg shadow-amber-500/20' : 'text-slate-400 hover:bg-slate-800 hover:text-white' }}"
+                        :class="sidebarCollapsed ? 'justify-center px-3' : 'px-3'">
+                        <svg class="h-5 w-5 shrink-0 {{ request()->routeIs('commercial.leads*') ? 'text-slate-900' : 'text-slate-500 group-hover:text-amber-400' }}"
+                            :class="sidebarCollapsed ? '' : 'mr-3'"
                             fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
                         </svg>
-                        Mes Leads
+                        <span x-show="!sidebarCollapsed" x-transition.opacity>Mes Leads</span>
                     </a>
 
-                    <a href="{{ route('commercial.alerts') }}"
-                        class="group flex items-center justify-between px-3 py-3 text-sm font-medium rounded-lg transition-all duration-200 {{ request()->routeIs('commercial.alerts*') ? 'bg-amber-500 text-slate-900 shadow-lg shadow-amber-500/20' : 'text-slate-400 hover:bg-slate-800 hover:text-white' }}">
+                    <a href="{{ route('commercial.alerts') }}" title="Alertes"
+                        class="group flex items-center py-3 text-sm font-medium rounded-lg transition-all duration-200 {{ request()->routeIs('commercial.alerts*') ? 'bg-amber-500 text-slate-900 shadow-lg shadow-amber-500/20' : 'text-slate-400 hover:bg-slate-800 hover:text-white' }}"
+                        :class="sidebarCollapsed ? 'justify-center px-3 relative' : 'justify-between px-3'">
                         <div class="flex items-center">
-                            <svg class="mr-3 h-5 w-5 {{ request()->routeIs('commercial.alerts*') ? 'text-slate-900' : 'text-slate-500 group-hover:text-amber-400' }}"
+                            <svg class="h-5 w-5 shrink-0 {{ request()->routeIs('commercial.alerts*') ? 'text-slate-900' : 'text-slate-500 group-hover:text-amber-400' }}"
+                                :class="sidebarCollapsed ? '' : 'mr-3'"
                                 fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
                             </svg>
-                            Alertes
+                            <span x-show="!sidebarCollapsed" x-transition.opacity>Alertes</span>
                         </div>
                         @if($unreadCount > 0)
                             <span id="alerts-badge-desktop"
-                                class="inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white bg-rose-500 rounded-full">
+                                class="inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white bg-rose-500 rounded-full"
+                                :class="sidebarCollapsed ? 'absolute -top-1 -right-1 px-1.5 py-0.5' : ''">
                                 {{ $unreadCount }}
                             </span>
                         @else
@@ -105,41 +146,39 @@
                         @endif
                     </a>
 
-                    <p class="px-2 text-xs font-semibold text-slate-500 uppercase tracking-wider mt-8 mb-2">Compte</p>
+                    <p x-show="!sidebarCollapsed" class="px-2 text-xs font-semibold text-slate-500 uppercase tracking-wider mt-8 mb-2">Compte</p>
 
-                    <a href="{{ route('commercial.profile') }}"
-                        class="group flex items-center px-3 py-3 text-sm font-medium rounded-lg transition-all duration-200 {{ request()->routeIs('commercial.profile') ? 'bg-amber-500 text-slate-900 shadow-lg shadow-amber-500/20' : 'text-slate-400 hover:bg-slate-800 hover:text-white' }}">
-                        <svg class="mr-3 h-5 w-5 {{ request()->routeIs('commercial.profile') ? 'text-slate-900' : 'text-slate-500 group-hover:text-amber-400' }}"
+                    <a href="{{ route('commercial.profile') }}" title="Mon Profil"
+                        class="group flex items-center py-3 text-sm font-medium rounded-lg transition-all duration-200 {{ request()->routeIs('commercial.profile') ? 'bg-amber-500 text-slate-900 shadow-lg shadow-amber-500/20' : 'text-slate-400 hover:bg-slate-800 hover:text-white' }}"
+                        :class="sidebarCollapsed ? 'justify-center px-3' : 'px-3'">
+                        <svg class="h-5 w-5 shrink-0 {{ request()->routeIs('commercial.profile') ? 'text-slate-900' : 'text-slate-500 group-hover:text-amber-400' }}"
+                            :class="sidebarCollapsed ? '' : 'mr-3'"
                             fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                         </svg>
-                        Mon Profil
+                        <span x-show="!sidebarCollapsed" x-transition.opacity>Mon Profil</span>
                     </a>
                 </nav>
 
                 <!-- User info / Logout -->
                 <div class="border-t border-slate-800 p-4 bg-slate-950">
-                    <div class="flex items-center w-full">
-                        <div class="flex-shrink-0">
+                    <div class="flex items-center" :class="sidebarCollapsed ? 'justify-center' : 'w-full'">
+                        <div class="shrink-0">
                             @if(auth()->user()->avatar)
                                 <img class="h-10 w-10 rounded-full border-2 border-slate-700"
                                     src="{{ Storage::url(auth()->user()->avatar) }}" alt="">
                             @else
-                                <span
-                                    class="inline-flex h-10 w-10 items-center justify-center rounded-full bg-slate-800 border-2 border-slate-700">
-                                    <span
-                                        class="text-sm font-medium leading-none text-amber-500">{{ substr(auth()->user()->name, 0, 2) }}</span>
+                                <span class="inline-flex h-10 w-10 items-center justify-center rounded-full bg-slate-800 border-2 border-slate-700">
+                                    <span class="text-sm font-medium leading-none text-amber-500">{{ substr(auth()->user()->name, 0, 2) }}</span>
                                 </span>
                             @endif
                         </div>
-                        <div class="ml-3 min-w-0 flex-1">
+                        <div class="ml-3 min-w-0 flex-1" x-show="!sidebarCollapsed" x-transition.opacity>
                             <p class="text-sm font-medium text-white truncate">{{ auth()->user()->name }}</p>
-                            <p class="text-xs font-medium text-slate-400 truncate">
-                                {{ auth()->user()->shop_name ?? 'Partenaire' }}
-                            </p>
+                            <p class="text-xs font-medium text-slate-400 truncate">{{ auth()->user()->shop_name ?? 'Partenaire' }}</p>
                         </div>
-                        <form method="POST" action="{{ route('logout') }}">
+                        <form method="POST" action="{{ route('logout') }}" x-show="!sidebarCollapsed" x-transition.opacity>
                             @csrf
                             <button type="submit"
                                 class="ml-2 p-2 text-slate-400 hover:text-white rounded-full hover:bg-slate-800 transition-colors"
@@ -152,6 +191,7 @@
                         </form>
                     </div>
                 </div>
+
             </div>
         </div>
 
@@ -306,7 +346,8 @@
 
 
         <!-- Main content -->
-        <div class="lg:pl-72 flex flex-col flex-1 min-h-screen">
+        <div class="main-content flex flex-col flex-1 min-h-screen"
+            :class="sidebarCollapsed ? 'sidebar-is-collapsed' : 'sidebar-is-expanded'">
             <!-- Top bar -->
             <div
                 class="sticky top-0 z-40 flex min-h-16 lg:min-h-20 py-2 flex-shrink-0 items-center gap-x-4 border-b border-slate-200 bg-white/80 backdrop-blur-md px-4 shadow-sm sm:gap-x-6 sm:px-6 lg:px-8">

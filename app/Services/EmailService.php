@@ -123,7 +123,9 @@ class EmailService
             ->withoutGlobalScopes()
             ->active()
             ->whereDoesntHave('sends', function ($query) use ($subscription) {
-                $query->withoutGlobalScopes()->where('subscription_id', $subscription->id);
+                $query->withoutGlobalScopes()
+                    ->where('subscription_id', $subscription->id)
+                    ->whereNotNull('sent_at');
             })
             ->get()
             ->filter(function ($email) use ($subscription) {

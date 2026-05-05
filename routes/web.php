@@ -134,14 +134,18 @@ Route::domain('{subdomain}.' . $baseDomain)->group(function () {
 
 // Route pour le domaine principal uniquement (landing page)
 Route::domain($baseDomain)->group(function () {
-    Route::get('/presentation-client', function () {
-        return view('presentation.client');
-    })->name('presentation.client');
-
-    Route::get('/', function () {
-        return view('landing');
-    });
+    Route::get('/presentation-client', fn() => view('presentation.client'))->name('presentation.client');
+    Route::get('/presentation-client/sequences-email', fn() => view('presentation.sequences-email'))->name('presentation.sequences-email');
+    Route::get('/presentation-client/email-builder', fn() => view('presentation.email-builder'))->name('presentation.email-builder');
+    Route::get('/presentation-client/pwa', fn() => view('presentation.pwa'))->name('presentation.pwa');
+    Route::get('/', fn() => view('landing'));
 });
+
+// Fallback (accès sans contrainte de domaine — dev local sur port 8000)
+Route::get('/presentation-client', fn() => view('presentation.client'))->name('presentation.client.fallback');
+Route::get('/presentation-client/sequences-email', fn() => view('presentation.sequences-email'))->name('presentation.sequences-email.fallback');
+Route::get('/presentation-client/email-builder', fn() => view('presentation.email-builder'))->name('presentation.email-builder.fallback');
+Route::get('/presentation-client/pwa', fn() => view('presentation.pwa'))->name('presentation.pwa.fallback');
 
 // Route principale pour les URLs avec domaine personnalisé
 Route::domain('{domain}')->group(function () {

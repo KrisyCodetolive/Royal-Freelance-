@@ -12,6 +12,40 @@
     <link href="https://fonts.bunny.net/css?family=outfit:300,400,500,600,700|playfair-display:400,500,600,700"
         rel="stylesheet" />
 
+    <!-- PWA -->
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#f59e0b">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="LeadMagnet">
+    <link rel="apple-touch-icon" href="/assets/icons/icon-192.png">
+    <!-- Splash screens iOS -->
+    <!-- iPhone SE / 8 -->
+    <link rel="apple-touch-startup-image" href="/assets/icons/splash-750x1334.png"
+        media="(device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2)">
+    <!-- iPhone X / XS / 11 Pro -->
+    <link rel="apple-touch-startup-image" href="/assets/icons/splash-1125x2436.png"
+        media="(device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3)">
+    <!-- iPhone XR / 11 -->
+    <link rel="apple-touch-startup-image" href="/assets/icons/splash-828x1792.png"
+        media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2)">
+    <!-- iPhone 12 / 13 / 14 -->
+    <link rel="apple-touch-startup-image" href="/assets/icons/splash-1170x2532.png"
+        media="(device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3)">
+    <!-- iPhone 14 Plus / 13 Pro Max -->
+    <link rel="apple-touch-startup-image" href="/assets/icons/splash-1284x2778.png"
+        media="(device-width: 428px) and (device-height: 926px) and (-webkit-device-pixel-ratio: 3)">
+    <!-- iPhone 14 Pro Max -->
+    <link rel="apple-touch-startup-image" href="/assets/icons/splash-1290x2796.png"
+        media="(device-width: 430px) and (device-height: 932px) and (-webkit-device-pixel-ratio: 3)">
+    <!-- iPad / iPad Mini -->
+    <link rel="apple-touch-startup-image" href="/assets/icons/splash-1536x2048.png"
+        media="(device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 2)">
+    <!-- iPad Pro 12.9" -->
+    <link rel="apple-touch-startup-image" href="/assets/icons/splash-2048x2732.png"
+        media="(device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2)">
+
     <!-- Scripts & Styles -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -41,6 +75,13 @@
             }
             .main-content.sidebar-is-collapsed { padding-left: 5rem; }
             .main-content.sidebar-is-expanded  { padding-left: 18rem; }
+        }
+
+        /* Feedback tactile mobile sur les liens de nav non-actifs */
+        nav a:not(.bg-amber-500):active {
+            background-color: rgb(51 65 85); /* slate-700 */
+            color: white;
+            transform: scale(0.98);
         }
     </style>
     @livewireStyles
@@ -86,7 +127,7 @@
                     <p x-show="!sidebarCollapsed" class="px-2 text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Principal</p>
 
                     <a href="{{ route('commercial.dashboard') }}" title="Tableau de bord"
-                        class="group flex items-center py-3 text-sm font-medium rounded-lg transition-all duration-200 {{ request()->routeIs('commercial.dashboard') ? 'bg-amber-500 text-slate-900 shadow-lg shadow-amber-500/20' : 'text-slate-400 hover:bg-slate-800 hover:text-white' }}"
+                        class="group flex items-center py-3 text-sm font-medium rounded-lg transition-all duration-200 {{ request()->routeIs('commercial.dashboard') ? 'bg-amber-500 text-slate-900 shadow-lg shadow-amber-500/20' : 'text-slate-400 hover:bg-slate-800 hover:text-white active:bg-slate-700 active:scale-[0.98]' }} focus:outline-none focus:ring-2 focus:ring-amber-500/50"
                         :class="sidebarCollapsed ? 'justify-center px-3' : 'px-3'">
                         <svg class="h-5 w-5 shrink-0 {{ request()->routeIs('commercial.dashboard') ? 'text-slate-900' : 'text-slate-500 group-hover:text-amber-400' }}"
                             :class="sidebarCollapsed ? '' : 'mr-3'"
@@ -135,7 +176,7 @@
                             </svg>
                             <span x-show="!sidebarCollapsed" x-transition.opacity>Alertes</span>
                         </div>
-                        @if($unreadCount > 0)
+                        @if ($unreadCount > 0)
                             <span id="alerts-badge-desktop"
                                 class="inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white bg-rose-500 rounded-full"
                                 :class="sidebarCollapsed ? 'absolute -top-1 -right-1 px-1.5 py-0.5' : ''">
@@ -165,7 +206,7 @@
                 <div class="border-t border-slate-800 p-4 bg-slate-950">
                     <div class="flex items-center" :class="sidebarCollapsed ? 'justify-center' : 'w-full'">
                         <div class="shrink-0">
-                            @if(auth()->user()->avatar)
+                            @if (auth()->user()->avatar)
                                 <img class="h-10 w-10 rounded-full border-2 border-slate-700"
                                     src="{{ Storage::url(auth()->user()->avatar) }}" alt="">
                             @else
@@ -201,8 +242,9 @@
             <!-- Backdrop -->
             <div x-show="sidebarOpen" x-transition:enter="transition-opacity ease-linear duration-300"
                 x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
-                x-transition:leave="transition-opacity ease-linear duration-300" x-transition:leave-start="opacity-100"
-                x-transition:leave-end="opacity-0" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm"></div>
+                x-transition:leave="transition-opacity ease-linear duration-300"
+                x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
+                class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm"></div>
 
             <div class="fixed inset-0 flex">
                 <div x-show="sidebarOpen" x-transition:enter="transition ease-in-out duration-300 transform"
@@ -236,7 +278,8 @@
 
                         <!-- Navigation -->
                         <nav class="flex-1 space-y-1 px-4 py-6">
-                            <p class="px-2 text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Principal
+                            <p class="px-2 text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">
+                                Principal
                             </p>
 
                             <a href="{{ route('commercial.dashboard') }}"
@@ -282,7 +325,7 @@
                                     </svg>
                                     Alertes
                                 </div>
-                                @if($unreadCount > 0)
+                                @if ($unreadCount > 0)
                                     <span id="alerts-badge-mobile"
                                         class="inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white bg-rose-500 rounded-full">
                                         {{ $unreadCount }}
@@ -310,7 +353,7 @@
                         <div class="border-t border-slate-800 p-4 bg-slate-950">
                             <div class="flex items-center w-full">
                                 <div class="flex-shrink-0">
-                                    @if(auth()->user()->avatar)
+                                    @if (auth()->user()->avatar)
                                         <img class="h-10 w-10 rounded-full border-2 border-slate-700"
                                             src="{{ Storage::url(auth()->user()->avatar) }}" alt="">
                                     @else
@@ -331,7 +374,8 @@
                                     @csrf
                                     <button type="submit"
                                         class="ml-2 p-2 text-slate-400 hover:text-white rounded-full hover:bg-slate-800 transition-colors">
-                                        <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                                            stroke="currentColor">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                 d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
                                         </svg>
@@ -355,8 +399,8 @@
                     class="-m-2.5 p-2.5 text-slate-700 lg:hidden hover:text-amber-600 transition-colors"
                     @click="sidebarOpen = true">
                     <span class="sr-only">Open sidebar</span>
-                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
-                        aria-hidden="true">
+                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                        stroke="currentColor" aria-hidden="true">
                         <path stroke-linecap="round" stroke-linejoin="round"
                             d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
                     </svg>
@@ -396,7 +440,7 @@
             <main class="py-10">
                 <div class="px-4 sm:px-6 lg:px-8">
                     <!-- Flash messages -->
-                    @if(session('success'))
+                    @if (session('success'))
                         <div
                             class="mb-6 rounded-lg bg-emerald-50 p-4 border border-emerald-100 flex gap-3 items-start animate-fade-in-up shadow-sm">
                             <svg class="h-5 w-5 text-emerald-500 mt-0.5" viewBox="0 0 20 20" fill="currentColor">
@@ -408,7 +452,7 @@
                         </div>
                     @endif
 
-                    @if(session('error'))
+                    @if (session('error'))
                         <div
                             class="mb-6 rounded-lg bg-red-50 p-4 border border-red-100 flex gap-3 items-start animate-fade-in-up shadow-sm">
                             <svg class="h-5 w-5 text-red-500 mt-0.5" viewBox="0 0 20 20" fill="currentColor">
@@ -425,8 +469,69 @@
             </main>
         </div>
     </div>
+    <!-- Loader global -->
+    <div id="page-loader" style="display:none;"
+        class="fixed inset-0 z-[9999] items-center justify-center bg-black/40 backdrop-blur-sm">
+
+        <div class="flex flex-col items-center gap-4">
+            <div class="w-12 h-12 border-4 border-amber-500 border-t-transparent rounded-full animate-spin"></div>
+            <p class="text-amber-500 font-semibold">Chargement...</p>
+        </div>
+
+    </div>
+
+    <!-- Loader Livewire -->
+    {{-- <div wire:loading.delay.flex
+        class="fixed inset-0 z-[9999] items-center justify-center bg-black/40 backdrop-blur-sm" >
+
+        <div class="flex flex-col items-center gap-4">
+            <div class="w-12 h-12 border-4 border-amber-500 border-t-transparent rounded-full animate-spin"></div>
+            <p class="text-white font-semibold">Chargement...</p>
+        </div>
+
+    </div> --}}
     @livewireScripts
     @stack('scripts')
+
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .catch(err => console.warn('SW registration failed:', err));
+            });
+        }
+    </script>
+
+    <script>
+        (function () {
+            var loader = document.getElementById('page-loader');
+            if (!loader) return;
+
+            var ACTIVE   = ['bg-amber-500', 'text-slate-900', 'shadow-lg', 'shadow-amber-500/20'];
+            var INACTIVE = ['text-slate-400', 'hover:bg-slate-800', 'hover:text-white'];
+
+            document.addEventListener('click', function (e) {
+                var link = e.target.closest('nav a[href]');
+                if (!link) return;
+                var href = link.getAttribute('href');
+                if (!href || href.charAt(0) === '#') return;
+
+                // Feedback visuel immédiat : active le lien cliqué
+                document.querySelectorAll('nav a[href]').forEach(function (a) {
+                    a.classList.remove.apply(a.classList, ACTIVE);
+                    a.classList.add.apply(a.classList, INACTIVE);
+                });
+                link.classList.remove.apply(link.classList, INACTIVE);
+                link.classList.add.apply(link.classList, ACTIVE);
+
+                loader.style.display = 'flex';
+            });
+
+            window.addEventListener('pageshow', function () {
+                loader.style.display = 'none';
+            });
+        })();
+    </script>
 </body>
 
 </html>

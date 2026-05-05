@@ -233,6 +233,33 @@
                     <p class="text-slate-400 text-sm">Tags automatiques : "Vidéo Complète", "Relance 7j", "Intéressé".
                     </p>
                 </div>
+                <!-- Block 7 -->
+                <div class="p-8 rounded-2xl bg-white/5 border border-white/5 hover:border-amber-500/30 transition-all group">
+                    <div class="flex items-center justify-between mb-3">
+                        <h3 class="text-xl font-bold text-white">Séquences Email Auto</h3>
+                        <span class="text-xs font-semibold bg-amber-500/20 text-amber-400 px-2 py-1 rounded-full border border-amber-500/30 shrink-0">Nouveau</span>
+                    </div>
+                    <p class="text-slate-400 text-sm">Envoi automatique d'emails à vos leads selon des déclencheurs : inscription, changement de statut, score atteint.</p>
+                    <a href="{{ route('presentation.sequences-email.fallback') }}" class="inline-block mt-3 text-amber-500 text-sm font-medium hover:underline">En savoir plus →</a>
+                </div>
+                <!-- Block 8 -->
+                <div class="p-8 rounded-2xl bg-white/5 border border-white/5 hover:border-amber-500/30 transition-all group">
+                    <div class="flex items-center justify-between mb-3">
+                        <h3 class="text-xl font-bold text-white">Builder Email Visuel</h3>
+                        <span class="text-xs font-semibold bg-amber-500/20 text-amber-400 px-2 py-1 rounded-full border border-amber-500/30 shrink-0">Nouveau</span>
+                    </div>
+                    <p class="text-slate-400 text-sm">Composez vos emails par blocs sans toucher au code. 6 types de blocs, 4 templates, export HTML automatique.</p>
+                    <a href="{{ route('presentation.email-builder.fallback') }}" class="inline-block mt-3 text-amber-500 text-sm font-medium hover:underline">En savoir plus →</a>
+                </div>
+                <!-- Block 9 -->
+                <div class="p-8 rounded-2xl bg-white/5 border border-white/5 hover:border-amber-500/30 transition-all group">
+                    <div class="flex items-center justify-between mb-3">
+                        <h3 class="text-xl font-bold text-white">App Mobile (PWA)</h3>
+                        <span class="text-xs font-semibold bg-amber-500/20 text-amber-400 px-2 py-1 rounded-full border border-amber-500/30 shrink-0">Nouveau</span>
+                    </div>
+                    <p class="text-slate-400 text-sm">L'espace commercial s'installe sur l'écran d'accueil comme une vraie app — iOS et Android. Fonctionne hors-ligne.</p>
+                    <a href="{{ route('presentation.pwa.fallback') }}" class="inline-block mt-3 text-amber-500 text-sm font-medium hover:underline">En savoir plus →</a>
+                </div>
             </div>
         </div>
     </section>
@@ -386,6 +413,30 @@
                         <span class="text-xl">🔔</span> 6 Types (Temps réel)
                     </div>
                 </div>
+                <!-- Row 6 — Nouveau -->
+                <div class="grid grid-cols-3 p-6 border-b border-slate-700 items-center hover:bg-amber-500/5 transition-colors bg-amber-500/5">
+                    <div class="font-medium text-white">Email Marketing</div>
+                    <div class="text-center text-slate-500">Outils externes</div>
+                    <div class="text-center text-amber-400 font-bold flex items-center justify-center gap-2">
+                        <span class="text-xl">📧</span> Séquences Auto intégrées
+                    </div>
+                </div>
+                <!-- Row 7 — Nouveau -->
+                <div class="grid grid-cols-3 p-6 border-b border-slate-700 items-center hover:bg-amber-500/5 transition-colors bg-amber-500/5">
+                    <div class="font-medium text-white">Builder Email</div>
+                    <div class="text-center text-slate-500">Absent</div>
+                    <div class="text-center text-amber-400 font-bold flex items-center justify-center gap-2">
+                        <span class="text-xl">✏️</span> Visuel par blocs
+                    </div>
+                </div>
+                <!-- Row 8 — Nouveau -->
+                <div class="grid grid-cols-3 p-6 items-center hover:bg-amber-500/5 transition-colors bg-amber-500/5">
+                    <div class="font-medium text-white">App Mobile</div>
+                    <div class="text-center text-slate-500">Absent</div>
+                    <div class="text-center text-amber-400 font-bold flex items-center justify-center gap-2">
+                        <span class="text-xl">📱</span> PWA installable
+                    </div>
+                </div>
             </div>
         </div>
     </section>
@@ -523,17 +574,20 @@
                         <p class="text-slate-400 mb-4">Fonctionnalités avancées pour accélérer la croissance.</p>
 
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
-                            <div class="flex items-center gap-3 text-slate-300">
-                                <span class="text-amber-500">📧</span> Automations Emails
+                            <div class="flex items-center justify-between gap-3 text-slate-300">
+                                <span class="flex items-center gap-2"><span class="text-amber-500">📧</span> Séquences Email Auto</span>
+                                <span class="text-xs font-bold bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded border border-emerald-500/30">Fait ✓</span>
                             </div>
                             <div class="flex items-center gap-3 text-slate-300">
                                 <span class="text-amber-500">🏷️</span> Leads & Tags Optimisés
                             </div>
-                            <div class="flex items-center gap-3 text-slate-300">
-                                <span class="text-amber-500">📈</span> Dashboard Commercial V2
+                            <div class="flex items-center justify-between gap-3 text-slate-300">
+                                <span class="flex items-center gap-2"><span class="text-amber-500">📈</span> Dashboard Commercial V2</span>
+                                <span class="text-xs font-bold bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded border border-emerald-500/30">Fait ✓</span>
                             </div>
-                            <div class="flex items-center gap-3 text-slate-300">
-                                <span class="text-amber-500">📱</span> App Mobile / PWA
+                            <div class="flex items-center justify-between gap-3 text-slate-300">
+                                <span class="flex items-center gap-2"><span class="text-amber-500">📱</span> App Mobile / PWA</span>
+                                <span class="text-xs font-bold bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded border border-emerald-500/30">Fait ✓</span>
                             </div>
                         </div>
                     </div>
@@ -607,6 +661,24 @@
                                 class="w-6 h-6 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-xs">
                                 ✓</div>
                             Documentation & Code Source
+                        </li>
+                        <li class="flex items-center gap-3 text-slate-300">
+                            <div
+                                class="w-6 h-6 rounded-full bg-amber-500/20 text-amber-400 flex items-center justify-center text-xs">
+                                ✓</div>
+                            Séquences Email Automatiques
+                        </li>
+                        <li class="flex items-center gap-3 text-slate-300">
+                            <div
+                                class="w-6 h-6 rounded-full bg-amber-500/20 text-amber-400 flex items-center justify-center text-xs">
+                                ✓</div>
+                            Builder Email Visuel
+                        </li>
+                        <li class="flex items-center gap-3 text-slate-300">
+                            <div
+                                class="w-6 h-6 rounded-full bg-amber-500/20 text-amber-400 flex items-center justify-center text-xs">
+                                ✓</div>
+                            App Mobile (PWA)
                         </li>
                     </ul>
                 </div>

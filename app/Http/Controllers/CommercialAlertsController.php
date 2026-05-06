@@ -41,6 +41,11 @@ class CommercialAlertsController extends Controller
         $alerts = $query->orderByDesc('created_at')
             ->paginate(20);
 
+        // Marquer automatiquement toutes les non-lues comme lues à l'ouverture de la page
+        if (!$request->ajax() && !$request->filled('status')) {
+            $this->alertService->markAllAsRead($user);
+        }
+
         return view('commercial.alerts.index', [
             'user' => $user,
             'alerts' => $alerts,

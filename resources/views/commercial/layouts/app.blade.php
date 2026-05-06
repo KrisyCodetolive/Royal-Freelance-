@@ -413,14 +413,21 @@
                     </div>
                     <div class="flex items-center gap-x-4 lg:gap-x-6">
                         <!-- Notifications -->
-                        <button type="button" class="-m-2.5 p-2.5 text-slate-400 hover:text-slate-500">
-                            <span class="sr-only">View notifications</span>
+                        <a href="{{ route('commercial.alerts') }}" class="relative -m-2.5 p-2.5 text-slate-400 hover:text-amber-600 transition-colors">
+                            <span class="sr-only">Voir les alertes</span>
                             <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
                                 stroke="currentColor" aria-hidden="true">
                                 <path stroke-linecap="round" stroke-linejoin="round"
                                     d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0" />
                             </svg>
-                        </button>
+                            @if($unreadCount > 0)
+                                <span id="bell-badge" class="absolute top-1 right-1 h-4 w-4 rounded-full bg-rose-500 text-white text-[10px] font-bold flex items-center justify-center">
+                                    {{ $unreadCount > 9 ? '9+' : $unreadCount }}
+                                </span>
+                            @else
+                                <span id="bell-badge" class="hidden"></span>
+                            @endif
+                        </a>
 
                         <!-- Separator -->
                         <div class="hidden lg:block lg:h-6 lg:w-px lg:bg-slate-900/10" aria-hidden="true"></div>
@@ -494,12 +501,65 @@
     @stack('scripts')
 
     <script>
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/sw.js')
-                    .catch(err => console.warn('SW registration failed:', err));
+    (function () {
+        const VAPID_PUBLIC_KEY = '{{ config("services.vapid.public_key") }}';
+
+        function urlBase64ToUint8Array(base64String) {
+            const padding = '='.repeat((4 - base64String.length % 4) % 4);
+            const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+            const rawData = atob(base64);
+            return Uint8Array.from([...rawData].map(c => c.charCodeAt(0)));
+        }
+
+        async function subscribeToPush(swReg) {
+            try {
+                let sub = await swReg.pushManager.getSubscription();
+                if (sub) return; // Deja abonne
+
+                sub = await swReg.pushManager.subscribe({
+                    userVisibleOnly: true,
+                    applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY),
+                });
+
+                const key = sub.getKey('p256dh');
+                const auth = sub.getKey('auth');
+
+                await fetch('{{ route("commercial.push.subscribe") }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    },
+                    body: JSON.stringify({
+                        endpoint:   sub.endpoint,
+                        public_key: btoa(String.fromCharCode(...new Uint8Array(key))),
+                        auth_token: btoa(String.fromCharCode(...new Uint8Array(auth))),
+                    }),
+                });
+            } catch (e) {
+                console.warn('Push subscription failed:', e);
+            }
+        }
+
+        if ('serviceWorker' in navigator && 'PushManager' in window) {
+            window.addEventListener('load', async () => {
+                try {
+                    const swReg = await navigator.serviceWorker.register('/sw.js');
+
+                    if (Notification.permission === 'granted') {
+                        await subscribeToPush(swReg);
+                    } else if (Notification.permission !== 'denied') {
+                        const permission = await Notification.requestPermission();
+                        if (permission === 'granted') {
+                            await subscribeToPush(swReg);
+                        }
+                    }
+                } catch (err) {
+                    console.warn('SW registration failed:', err);
+                }
             });
         }
+    })();
     </script>
 
     <script>

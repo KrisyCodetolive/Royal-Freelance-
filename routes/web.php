@@ -96,6 +96,14 @@ Route::prefix('commercial')
 
         Route::get('/alerts/unread-count', [CommercialAlertsController::class, 'getUnreadCount'])
             ->name('commercial.alerts.unread-count');
+
+        // Push notification subscription
+        Route::post('/push/subscribe', [\App\Http\Controllers\PushSubscriptionController::class, 'store'])
+            ->name('commercial.push.subscribe');
+        Route::post('/push/unsubscribe', [\App\Http\Controllers\PushSubscriptionController::class, 'destroy'])
+            ->name('commercial.push.unsubscribe');
+        Route::get('/push/vapid-key', [\App\Http\Controllers\PushSubscriptionController::class, 'vapidPublicKey'])
+            ->name('commercial.push.vapid-key');
     });
 
 // Page Builder Routes (protected by Filament auth)

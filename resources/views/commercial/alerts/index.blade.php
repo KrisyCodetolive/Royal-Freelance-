@@ -114,6 +114,14 @@
 
 @push('scripts')
 <script>
+// Masquer tous les badges de notification immédiatement (alertes marquées comme lues)
+document.addEventListener('DOMContentLoaded', function () {
+    ['bell-badge', 'alerts-badge-desktop', 'alerts-badge-mobile'].forEach(function (id) {
+        var el = document.getElementById(id);
+        if (el) el.classList.add('hidden');
+    });
+});
+
 function markAsRead(alertId) {
     fetch(`/commercial/alerts/${alertId}/read`, {
         method: 'POST',

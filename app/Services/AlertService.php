@@ -7,9 +7,13 @@ use App\Enums\EventType;
 use App\Enums\LeadStatus;
 use App\Models\Alert;
 use App\Models\Lead;
+use App\Models\PushSubscription;
 use App\Models\Tenant;
 use App\Models\User;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Notification;
+use Minishlink\WebPush\Subscription;
+use Minishlink\WebPush\WebPush;
 
 class AlertService
 {
@@ -156,25 +160,62 @@ class AlertService
     {
         $alert->update(['sent_at' => now()]);
 
-        // Get recipient
         $recipient = $alert->user;
         if (!$recipient) {
             return;
         }
 
-        // Check tenant notification settings
-        $tenant = $alert->tenant;
-        $settings = $tenant->settings['notifications'] ?? [];
+        $this->sendPushNotification($alert, $recipient);
+    }
 
-        // Email notification
-        if ($settings['email_on_hot_lead'] ?? true) {
-            // TODO: Send email notification
-            // Notification::send($recipient, new AlertNotification($alert));
+    /**
+     * Send Web Push notification to all subscriptions of the user
+     */
+    public function sendPushNotification(Alert $alert, User $recipient): void
+    {
+        $subscriptions = PushSubscription::where('user_id', $recipient->id)->get();
+        if ($subscriptions->isEmpty()) {
+            return;
         }
 
-        // Push notification
-        if ($settings['push_enabled'] ?? true) {
-            // TODO: Send push notification
+        try {
+            $webPush = new WebPush([
+                'VAPID' => [
+                    'subject'    => config('services.vapid.subject'),
+                    'publicKey'  => config('services.vapid.public_key'),
+                    'privateKey' => config('services.vapid.private_key'),
+                ],
+            ]);
+
+            $payload = json_encode([
+                'title' => $alert->title,
+                'body'  => $alert->message,
+                'tag'   => 'alert-' . $alert->type->value,
+                'url'   => '/commercial/alerts',
+            ]);
+
+            foreach ($subscriptions as $sub) {
+                $webPush->queueNotification(
+                    Subscription::create([
+                        'endpoint' => $sub->endpoint,
+                        'keys'     => [
+                            'p256dh' => $sub->public_key,
+                            'auth'   => $sub->auth_token,
+                        ],
+                    ]),
+                    $payload
+                );
+            }
+
+            foreach ($webPush->flush() as $report) {
+                if ($report->isSubscriptionExpired()) {
+                    PushSubscription::where('endpoint', $report->getRequest()->getUri()->__toString())->delete();
+                } elseif (!$report->isSuccess()) {
+                    Log::warning('Push notification failed', ['reason' => $report->getReason()]);
+                }
+            }
+        } catch (\Throwable $e) {
+            Log::warning('Push notification skipped: ' . $e->getMessage());
         }
     }
 

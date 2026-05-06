@@ -1,364 +1,311 @@
-<p align="center">
-  <img src="public/images/logo.png" width="200" alt="Royal LeadMagnet Logo">
-</p>
+# Royal LeadMagnet
 
-<h1 align="center">🎯 Royal LeadMagnet</h1>
+Plateforme SaaS multi-tenant de génération et gestion de leads avec tunnels de vente, séquences email automatisées et tableau de bord commercial.
 
-<p align="center">
-  <strong>Plateforme CRM de Génération & Gestion de Leads</strong>
-</p>
-
-<p align="center">
-  <a href="#"><img src="https://img.shields.io/badge/version-1.0.0-blue.svg" alt="Version"></a>
-  <a href="#"><img src="https://img.shields.io/badge/Laravel-12.x-red.svg" alt="Laravel"></a>
-  <a href="#"><img src="https://img.shields.io/badge/Filament-4.x-orange.svg" alt="Filament"></a>
-  <a href="#"><img src="https://img.shields.io/badge/PHP-8.2+-purple.svg" alt="PHP"></a>
-  <a href="#"><img src="https://img.shields.io/badge/License-Proprietary-green.svg" alt="License"></a>
-</p>
+**Stack :** Laravel 12 · Filament 4 · PHP 8.2+ · MySQL 8 · Livewire · Tailwind CSS · PWA
 
 ---
 
-## 📋 Description
+## Prérequis serveur
 
-**Royal LeadMagnet** est une plateforme SaaS complète de génération et gestion de leads, conçue pour les entreprises africaines. Elle permet de créer des tunnels de vente (funnels), capturer des prospects, suivre leur engagement et automatiser les relances.
-
-### 🎯 Fonctionnalités Principales
-
-- 🚀 **Tunnels de Vente** - Créez des pages de capture avec vidéos, formulaires et CTAs
-- 📊 **Tracking Avancé** - 23 champs par lead (device, géolocalisation, comportement)
-- 🏷️ **Système de Tags** - Organisation et segmentation des leads
-- 🤖 **Auto-Tagging** - Attribution automatique basée sur le comportement
-- 📧 **Séquences Email** - Automatisation des relances
-- 📋 **Pipeline Kanban** - Vue visuelle du parcours des leads
-- 🔔 **Alertes Temps Réel** - Notifications pour les leads chauds
-- 👥 **Multi-Commerciaux** - Attribution et suivi par équipe
+- PHP 8.2+ avec extensions : `pdo_mysql`, `mbstring`, `openssl`, `tokenizer`, `xml`, `ctype`, `json`, `bcmath`, `curl`, `zip`
+- MySQL 8+
+- Composer 2+
+- Node.js 18+ et npm
+- Nginx
+- Certbot pour SSL
 
 ---
 
-## 🛠️ Stack Technique
+## Installation initiale (première mise en production)
 
-| Technologie | Version | Usage |
-|-------------|---------|-------|
-| **Laravel** | 12.x | Framework PHP |
-| **Filament** | 4.x | Admin Panel |
-| **Livewire** | 3.x | Composants réactifs |
-| **MySQL** | 8.x | Base de données |
-| **Tailwind CSS** | 3.x | Styling |
-| **Chart.js** | 4.x | Graphiques |
-| **Sortable.js** | 1.x | Drag & Drop |
-
----
-
-## 📁 Structure du Projet
-
-```
-app/
-├── Console/Commands/        # Commandes Artisan
-│   ├── CheckInactiveLeads.php
-│   └── AttributeExistingLeads.php
-├── Filament/
-│   ├── Resources/           # CRUD Filament
-│   │   ├── Leads/
-│   │   ├── Tags/
-│   │   ├── EmailSequences/
-│   │   ├── Funnels/
-│   │   └── Pages/
-│   └── Widgets/             # Widgets Dashboard
-├── Http/Controllers/
-│   ├── CommercialDashboardController.php
-│   ├── CommercialAlertsController.php
-│   ├── FunnelController.php
-│   └── TrackingApiController.php
-├── Models/
-│   ├── Lead.php
-│   ├── Funnel.php
-│   ├── Tag.php
-│   ├── Alert.php
-│   └── EmailSequence.php
-├── Observers/               # Auto-tagging
-│   ├── EventObserver.php
-│   └── LeadObserver.php
-└── Services/
-    ├── GeolocationService.php
-    ├── TrackingService.php
-    ├── AlertService.php
-    ├── ScoringService.php
-    └── SubdomainService.php
-
-resources/views/
-├── commercial/              # Dashboard Commercial
-│   ├── dashboard.blade.php
-│   ├── leads/
-│   │   ├── index.blade.php
-│   │   └── kanban.blade.php
-│   ├── alerts/
-│   ├── funnels/
-│   └── widgets/
-└── funnel/                  # Pages Publiques
-    └── page.blade.php
-```
-
----
-
-## 🚀 Installation
-
-### Prérequis
-
-- PHP 8.2+
-- Composer 2.x
-- Node.js 18+
-- MySQL 8.x
-
-### Installation Locale
+### 1. Cloner le projet
 
 ```bash
-# Cloner le repository
-git clone https://github.com/your-org/royal-leadmagnet.git
-cd royal-leadmagnet
-
-# Installer les dépendances PHP
-composer install
-
-# Installer les dépendances JS
-npm install
-
-# Copier le fichier d'environnement
-cp .env.example .env
-
-# Générer la clé d'application
-php artisan key:generate
-
-# Configurer la base de données dans .env
-# DB_DATABASE=royal_leadmagnet
-# DB_USERNAME=root
-# DB_PASSWORD=
-
-# Exécuter les migrations
-php artisan migrate --seed
-
-# Compiler les assets
-npm run build
-
-# Lancer le serveur
-php artisan serve
+cd /var/www
+git clone git@github.com:TON_USER/TON_REPO.git royalleadpro
+cd royalleadpro
 ```
 
-### Configuration Production
+### 2. Installer les dépendances
+
+```bash
+composer install --no-dev --optimize-autoloader
+npm install && npm run build
+```
+
+### 3. Configurer l'environnement
+
+```bash
+cp .env.example .env
+nano .env
+```
+
+Valeurs à renseigner obligatoirement :
 
 ```env
+APP_NAME="Royal LeadMagnet"
 APP_ENV=production
 APP_DEBUG=false
 APP_URL=https://royalleadpro.com
+APP_KEY=                          # généré à l'étape suivante
 
-# Wildcard Subdomains
 APP_SUBDOMAIN_BASE=royalleadpro.com
+APP_SERVER_IP=TON_IP_VPS
+
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=royal_leadmagnet
+DB_USERNAME=ton_user_mysql
+DB_PASSWORD=ton_mot_de_passe
+
+SESSION_DRIVER=database
 SESSION_DOMAIN=.royalleadpro.com
 
-# Géolocalisation (optionnel - 4 APIs fallback incluses)
-# IPAPI_KEY=your_key
+QUEUE_CONNECTION=database
+
+MAIL_MAILER=smtp
+MAIL_HOST=ton_serveur_smtp
+MAIL_PORT=587
+MAIL_USERNAME=ton_email@royalleadpro.com
+MAIL_PASSWORD=ton_mot_de_passe_smtp
+MAIL_FROM_ADDRESS=noreply@royalleadpro.com
+MAIL_FROM_NAME="Royal LeadMagnet"
+
+# Clés VAPID pour les notifications push PWA
+# Générer avec : php artisan webpush:vapid
+VAPID_PUBLIC_KEY=
+VAPID_PRIVATE_KEY=
+VAPID_SUBJECT=mailto:admin@royalleadpro.com
 ```
 
----
-
-## 📊 Fonctionnalités Détaillées
-
-### 1. Tracking Enrichi (23 champs)
-
-```
-Device & Navigateur:
-├── device_type (mobile/tablet/desktop)
-├── browser + browser_version
-├── os + os_version
-├── screen_resolution
-└── language
-
-Géolocalisation:
-├── country, city, region
-├── timezone
-├── latitude, longitude
-└── ip_address
-
-Comportement:
-├── time_on_page
-├── scroll_depth
-├── events_count
-└── last_activity_at
-```
-
-### 2. Auto-Tagging
-
-| Trigger | Tag Assigné |
-|---------|-------------|
-| Vidéo vue 100% | `video_complete` |
-| Clic WhatsApp | `whatsapp_click` |
-| Score ≥ 31 | `hot_lead` |
-| Score ≥ 61 | `ultra_hot` |
-| Inactif 7 jours | `relance_7j` |
-
-### 3. Scoring Automatique
-
-| Action | Points |
-|--------|--------|
-| Page vue | +1 |
-| Vidéo 50% | +5 |
-| Vidéo 100% | +15 |
-| Formulaire soumis | +10 |
-| Clic WhatsApp | +25 |
-| Achat | +100 |
-
----
-
-## 🔧 Commandes Artisan
+### 4. Générer la clé et préparer la base de données
 
 ```bash
-# Vérifier les leads inactifs (cron quotidien)
-php artisan leads:check-inactive
-
-# Attribuer les leads existants aux commerciaux
-php artisan leads:attribute-existing
-
-# Vider le cache de géolocalisation
-php artisan cache:clear
-```
-
-### Scheduler (Crontab)
-
-```bash
-* * * * * cd /path/to/project && php artisan schedule:run >> /dev/null 2>&1
-```
-
----
-
-## 🌐 URLs & Routes
-
-### Admin Filament
-```
-/admin                    → Dashboard Admin
-/admin/leads              → Gestion Leads
-/admin/tags               → Gestion Tags
-/admin/email-sequences    → Séquences Email
-/admin/funnels            → Tunnels de Vente
-```
-
-### Dashboard Commercial
-```
-/commercial/dashboard     → Dashboard Commercial
-/commercial/leads         → Liste Leads (+ Kanban)
-/commercial/alerts        → Alertes
-/commercial/funnels       → Configuration Liens
-/commercial/profile       → Profil
-```
-
-### Pages Publiques (Funnels)
-```
-/f/{slug}                           → Funnel par slug
-{subdomain}.royalleadpro.com        → Funnel par sous-domaine
-```
-
-### API Tracking
-```
-POST /api/track/event     → Enregistrer événement
-POST /api/track/pageview  → Enregistrer page vue
-```
-
----
-
-## 📈 Dashboard Analytics
-
-### 6 Widgets Disponibles
-
-1. **LeadOverviewWidget** - 4 KPIs globaux
-2. **TagsStatsWidget** - Stats tags auto/manuels
-3. **EngagementStatsWidget** - Courbes engagement 7j
-4. **LeadsByDeviceWidget** - Répartition devices
-5. **ConversionByCountryWidget** - Top 10 pays
-6. **RecentActivityWidget** - 50 derniers événements
-
----
-
-## 🔐 Rôles & Permissions
-
-| Rôle | Accès |
-|------|-------|
-| **Super Admin** | Tout accès |
-| **Admin** | Filament complet |
-| **Commercial** | Dashboard commercial uniquement |
-
----
-
-## 📝 Documentation
-
-| Document | Description |
-|----------|-------------|
-| `audit.md` | Audit 360° du projet |
-| `LEAD_ATTRIBUTION_GUIDE.md` | Guide attribution leads |
-| `CONFIGURATION_WILDCARD_ROYALLEADPRO.md` | Config subdomains |
-| `docs/IMPLEMENTATION_PLAN.md` | Plan d'implémentation |
-
----
-
-## 🚀 Déploiement
-
-### FTP (Script inclus)
-
-```bash
-./deploy.sh
-```
-
-### Manuel
-
-```bash
-# Sur le serveur
-git pull origin main
+php artisan key:generate
 php artisan migrate --force
-php artisan optimize:clear
+php artisan storage:link
+```
+
+### 5. Optimiser pour la production
+
+```bash
 php artisan config:cache
 php artisan route:cache
+php artisan view:cache
+php artisan event:cache
 ```
 
----
-
-## 🐛 Troubleshooting
-
-### Géolocalisation échoue (429)
-
-Les APIs de géolocalisation ont des limites. Le système utilise 4 fallbacks :
-1. ipapi.co (1000/jour)
-2. ip-api.com (45/min)
-3. ipwho.is (illimité)
-4. freeipapi.com (60/min)
-
-### Leads non visibles pour commerciaux
+### 6. Permissions fichiers
 
 ```bash
-php artisan leads:attribute-existing
+chown -R www-data:www-data storage bootstrap/cache
+chmod -R 775 storage bootstrap/cache
 ```
 
-### Cache géolocalisation
+---
+
+## Configuration DNS
+
+Dans le panneau DNS de ton registrar, ajouter :
+
+| Type  | Nom   | Valeur          |
+|-------|-------|-----------------|
+| A     | `@`   | IP de ton VPS   |
+| A     | `*`   | IP de ton VPS   |
+| CNAME | `www` | `royalleadpro.com` |
+
+Le `*` (wildcard) est indispensable — il fait que `comtest01.royalleadpro.com` pointe vers ton VPS.
+
+---
+
+## Configuration Nginx
+
+Créer le fichier `/etc/nginx/sites-available/royalleadpro.com` :
+
+```nginx
+server {
+    listen 80;
+    server_name royalleadpro.com *.royalleadpro.com;
+    return 301 https://$host$request_uri;
+}
+
+server {
+    listen 443 ssl;
+    server_name royalleadpro.com *.royalleadpro.com;
+
+    ssl_certificate     /etc/letsencrypt/live/royalleadpro.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/royalleadpro.com/privkey.pem;
+
+    root /var/www/royalleadpro/public;
+    index index.php;
+
+    location / {
+        try_files $uri $uri/ /index.php?$query_string;
+    }
+
+    location ~ \.php$ {
+        fastcgi_pass unix:/run/php/php8.2-fpm.sock;
+        fastcgi_param SCRIPT_FILENAME $realpath_root$fastcgi_script_name;
+        include fastcgi_params;
+    }
+
+    location ~ /\.(?!well-known).* {
+        deny all;
+    }
+}
+```
 
 ```bash
-php artisan cache:clear
+ln -s /etc/nginx/sites-available/royalleadpro.com /etc/nginx/sites-enabled/
+nginx -t && systemctl reload nginx
+```
+
+### SSL wildcard avec Let's Encrypt
+
+Le certificat wildcard couvre `*.royalleadpro.com` (tous les sous-domaines commerciaux). La validation se fait par DNS :
+
+```bash
+certbot certonly --manual --preferred-challenges dns \
+  -d royalleadpro.com \
+  -d *.royalleadpro.com
+```
+
+Certbot affichera un enregistrement `TXT` à ajouter chez ton registrar — ajoute-le puis valide.
+
+---
+
+## Queue Worker
+
+Les séquences email sont envoyées via la queue Laravel. Créer un service systemd pour qu'il tourne en permanence :
+
+```bash
+nano /etc/systemd/system/royal-queue.service
+```
+
+```ini
+[Unit]
+Description=Royal LeadMagnet Queue Worker
+After=network.target
+
+[Service]
+User=www-data
+Group=www-data
+WorkingDirectory=/var/www/royalleadpro
+ExecStart=/usr/bin/php artisan queue:work --sleep=3 --tries=3 --max-time=3600
+Restart=on-failure
+RestartSec=5
+StandardOutput=append:/var/log/royal-queue.log
+StandardError=append:/var/log/royal-queue.log
+
+[Install]
+WantedBy=multi-user.target
+```
+
+```bash
+systemctl enable royal-queue
+systemctl start royal-queue
+systemctl status royal-queue    # vérifier qu'il tourne
 ```
 
 ---
 
-## 📞 Support
+## Scheduler — séquences email automatiques
 
-- **Email** : support@royalleadpro.com
-- **Documentation** : Voir dossier `docs/`
+Un seul cron suffit. Laravel gère lui-même le planning défini dans `routes/console.php`.
+
+```bash
+crontab -e -u www-data
+```
+
+Ajouter cette ligne :
+
+```
+* * * * * cd /var/www/royalleadpro && php artisan schedule:run >> /dev/null 2>&1
+```
+
+**Tâches planifiées automatiquement :**
+
+| Commande | Fréquence | Rôle |
+|----------|-----------|------|
+| `email:process-sequences` | Toutes les 5 min | Envoie les emails des séquences en attente |
+| `leads:check-inactive` | Tous les jours à 09h00 | Détecte les leads inactifs et déclenche les séquences d'inactivité |
+
+**Tester manuellement :**
+
+```bash
+php artisan schedule:list                   # voir les tâches et leur prochain déclenchement
+php artisan schedule:run                    # simuler un tick du cron
+php artisan email:process-sequences         # lancer l'envoi email directement
+php artisan leads:check-inactive            # lancer la vérification inactivité
+```
 
 ---
 
-## 📄 License
+## Déploiement des mises à jour
 
-Ce projet est sous licence propriétaire. Tous droits réservés.
+À chaque nouvelle version, se connecter au VPS et exécuter :
+
+```bash
+cd /var/www/royalleadpro
+git pull origin main
+composer install --no-dev --optimize-autoloader
+npm run build
+php artisan migrate --force
+php artisan config:cache && php artisan route:cache && php artisan view:cache
+systemctl restart royal-queue
+```
 
 ---
 
-<p align="center">
-  Made with ❤️ by <strong>Genius Groups</strong>
-</p>
+## Lancement en local (développement)
 
-<p align="center">
-  <sub>Royal LeadMagnet v1.0.0 - Janvier 2026</sub>
-</p>
+```bash
+git clone ...
+cd royalleadpro
+composer install
+npm install
+
+cp .env.example .env
+# Renseigner DB_*, puis :
+# APP_URL=http://lvh.me:8000
+# APP_SUBDOMAIN_BASE=lvh.me
+# SESSION_DOMAIN=   (laisser vide)
+
+php artisan key:generate
+php artisan migrate
+php artisan storage:link
+
+# Dans des terminaux séparés :
+npm run dev
+php artisan serve --host=0.0.0.0 --port=8000
+php artisan queue:work
+```
+
+Les sous-domaines commerciaux fonctionnent via `lvh.me` (DNS wildcard → `127.0.0.1`) : `http://comtest01.lvh.me:8000/f/mon-tunnel`
+
+Pour émuler le scheduler en local :
+
+```bash
+php artisan schedule:work
+```
+
+---
+
+## Créer le premier compte admin
+
+```bash
+php artisan make:filament-user
+```
+
+---
+
+## Structure des accès
+
+| URL | Description |
+|-----|-------------|
+| `/admin` | Panel administrateur Filament |
+| `/commercial` | Dashboard commercial |
+| `/f/{slug}` | Tunnel public (sans sous-domaine) |
+| `{subdomain}.royalleadpro.com/f/{slug}` | Tunnel via sous-domaine commercial |

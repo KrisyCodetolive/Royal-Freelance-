@@ -195,7 +195,12 @@ class CommercialService
      */
     public function canAccessFunnel(User $commercial, Funnel $funnel): bool
     {
-        // Check direct assignment
+        // Check direct column assignment (assigned_to)
+        if ($funnel->assigned_to === $commercial->id) {
+            return true;
+        }
+
+        // Check via pivot table (usableFunnels)
         if ($commercial->usableFunnels()->where('funnel_id', $funnel->id)->exists()) {
             return true;
         }

@@ -139,9 +139,9 @@ class CommercialDashboardController extends Controller
     {
         $user = Auth::user();
 
-        // Tunnels via les groupes commerciaux
+        // Tunnels via les groupes commerciaux (exclure les templates)
         $availableFunnels = $user->availableFunnels()
-            ->active()
+            ->where('is_template', false)
             ->withCount(['pages'])
             // Compter uniquement les leads apportés par ce commercial pour ce tunnel
             ->withCount([
@@ -160,7 +160,11 @@ class CommercialDashboardController extends Controller
             }
         });
 
-        $activatedFunnelIds = $user->usableFunnels()->pluck('funnels.id')->toArray();
+        $activatedFunnelIds = $user->usableFunnels()
+            ->pluck('funnels.id')
+            ->merge($user->assignedFunnels()->active()->pluck('id'))
+            ->unique()
+            ->toArray();
 
         return view('commercial.funnels.index', [
             'user' => $user,

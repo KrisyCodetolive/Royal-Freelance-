@@ -126,6 +126,17 @@ class FunnelTemplatesTable
                             ->suffix('.' . config('app.subdomain_base', 'votredomaine.com'))
                             ->placeholder('mon-tunnel')
                             ->helperText('URL de votre tunnel.'),
+                        Select::make('assigned_to')
+                            ->label('Assigner à un commercial')
+                            ->placeholder('Aucun commercial assigné')
+                            ->options(
+                                \App\Models\User::role('commercial')
+                                    ->active()
+                                    ->get()
+                                    ->mapWithKeys(fn($u) => [$u->id => $u->name . ' — ' . $u->email])
+                            )
+                            ->searchable()
+                            ->nullable(),
                         Select::make('offer_id')
                             ->label('Offre associée')
                             ->options(\App\Models\Offer::pluck('name', 'id'))
@@ -139,7 +150,6 @@ class FunnelTemplatesTable
                             $data['offer_id'] ?? null
                         );
 
-                        // Mettre à jour le sous-domaine si fourni
                         if (!empty($data['subdomain'])) {
                             $subdomainService = app(\App\Services\SubdomainService::class);
                             $subdomain = strtolower(preg_replace('/[^a-z0-9-]/', '', $data['subdomain']));
@@ -148,6 +158,11 @@ class FunnelTemplatesTable
                                 $funnel->subdomain = $subdomain;
                                 $funnel->save();
                             }
+                        }
+
+                        if (!empty($data['assigned_to'])) {
+                            $funnel->assigned_to = $data['assigned_to'];
+                            $funnel->save();
                         }
 
                         Notification::make()

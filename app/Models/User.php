@@ -149,7 +149,7 @@ class User extends Authenticatable implements FilamentUser
             return Funnel::where('tenant_id', $this->tenant_id);
         }
 
-        // Get funnel IDs from commercial groups
+        // Funnels via groupes commerciaux
         $groupFunnelIds = $this->commercialGroups()
             ->with('funnels')
             ->get()
@@ -158,10 +158,15 @@ class User extends Authenticatable implements FilamentUser
             ->pluck('id')
             ->unique();
 
-        // Also include directly assigned funnels
+        // Funnels assignés directement (colonne assigned_to)
         $assignedIds = $this->assignedFunnels()->pluck('id');
 
-        return Funnel::whereIn('id', $groupFunnelIds->merge($assignedIds));
+        // Funnels ajoutés manuellement via la table pivot funnel_user
+        $usableIds = $this->usableFunnels()->pluck('funnels.id');
+
+        $allIds = $groupFunnelIds->merge($assignedIds)->merge($usableIds)->unique();
+
+        return Funnel::whereIn('id', $allIds);
     }
 
     // Scopes
@@ -324,7 +329,7 @@ class User extends Authenticatable implements FilamentUser
             'total_leads' => $this->broughtLeads()->withoutGlobalScope('tenant')->count(),
             'hot_leads' => $this->broughtLeads()->withoutGlobalScope('tenant')->hot()->count(),
             'conversions' => $this->broughtLeads()->withoutGlobalScope('tenant')->converted()->count(),
-            'active_funnels' => $this->usableFunnels()->wherePivot('is_active', true)->count(),
+            'active_funnels' => $this->availableFunnels()->count(),
         ];
     }
 }

@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\FunnelTemplates\Schemas;
 
 use App\Enums\FunnelStatus;
+use App\Models\User;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TagsInput;
@@ -130,6 +131,21 @@ class FunnelTemplateForm
                                             ->label('URL de paiement par défaut')
                                             ->url()
                                             ->placeholder('https://...'),
+                                    ]),
+
+                                Section::make('Attribution')
+                                    ->schema([
+                                        Select::make('assigned_to')
+                                            ->label('Assigner à un commercial')
+                                            ->placeholder('Aucun commercial assigné')
+                                            ->options(
+                                                User::role('commercial')
+                                                    ->active()
+                                                    ->get()
+                                                    ->mapWithKeys(fn($u) => [$u->id => $u->name . ' — ' . $u->email])
+                                            )
+                                            ->searchable()
+                                            ->nullable(),
                                     ]),
 
                                 Section::make('Options')

@@ -1,6 +1,17 @@
 *.log
 .DS_Store
 .env
+ftp-config
+ngrok.zip
+deploy-logs/
+fix-existing-blocks.php
+test-page-blocks.php
+SEQUENCES_EMAIL.md
+score
+status-
+value
+"core . *"
+"ervice = *"
 .env.backup
 .env.production
 .phpactor.json

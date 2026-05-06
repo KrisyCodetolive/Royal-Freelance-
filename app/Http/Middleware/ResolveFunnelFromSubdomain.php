@@ -166,7 +166,12 @@ class ResolveFunnelFromSubdomain
             return $next($request);
         }
 
-        // Sous-domaine non trouvé
+        // Sous-domaine non trouvé comme funnel — vérifier si c'est un sous-domaine commercial
+        // Dans ce cas le controller résoudra le funnel via le slug dans le path (/f/{slug})
+        if (\App\Models\User::where('subdomain', $subdomain)->exists()) {
+            return $next($request);
+        }
+
         abort(404, 'Tunnel non trouvé');
     }
 }

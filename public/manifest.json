@@ -1,0 +1,50 @@
+{
+    "name": "Royal LeadMagnet",
+    "short_name": "LeadMagnet",
+    "description": "Espace commercial — Gestion de leads & tunnels",
+    "start_url": "/commercial",
+    "scope": "/commercial",
+    "display": "standalone",
+    "orientation": "portrait",
+    "background_color": "#0f172a",
+    "theme_color": "#f59e0b",
+    "lang": "fr",
+    "icons": [
+        {
+            "src": "/assets/icons/icon-192.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "any"
+        },
+        {
+            "src": "/assets/icons/icon-192.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "maskable"
+        },
+        {
+            "src": "/assets/icons/icon-512.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "any"
+        },
+        {
+            "src": "/assets/icons/icon-512.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "maskable"
+        }
+    ],
+    "shortcuts": [
+        {
+            "name": "Mes Leads",
+            "url": "/commercial/leads",
+            "icons": [{ "src": "/assets/icons/icon-192.png", "sizes": "192x192" }]
+        },
+        {
+            "name": "Alertes",
+            "url": "/commercial/alerts",
+            "icons": [{ "src": "/assets/icons/icon-192.png", "sizes": "192x192" }]
+        }
+    ]
+}

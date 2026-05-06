@@ -412,6 +412,17 @@
                             @yield('header', 'Dashboard')</h1>
                     </div>
                     <div class="flex items-center gap-x-4 lg:gap-x-6">
+                        <!-- PWA Refresh Button -->
+                        <button id="pwa-refresh-btn" type="button"
+                            title="Actualiser l'application"
+                            class="hidden -m-2.5 p-2.5 text-slate-400 hover:text-amber-600 transition-all active:scale-90"
+                            onclick="pwaRefresh()">
+                            <span class="sr-only">Actualiser</span>
+                            <svg id="pwa-refresh-icon" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" />
+                            </svg>
+                        </button>
+
                         <!-- Notifications -->
                         <a href="{{ route('commercial.alerts') }}" class="relative -m-2.5 p-2.5 text-slate-400 hover:text-amber-600 transition-colors">
                             <span class="sr-only">Voir les alertes</span>
@@ -559,6 +570,35 @@
                 }
             });
         }
+
+        // Show refresh button in PWA standalone mode
+        (function showPwaRefreshBtn() {
+            const btn = document.getElementById('pwa-refresh-btn');
+            if (!btn) return;
+            const isStandalone = window.matchMedia('(display-mode: standalone)').matches
+                || window.navigator.standalone === true;
+            if (isStandalone) {
+                btn.classList.remove('hidden');
+            }
+        })();
+
+        window.pwaRefresh = async function () {
+            const btn = document.getElementById('pwa-refresh-btn');
+            const icon = document.getElementById('pwa-refresh-icon');
+            if (icon) icon.classList.add('animate-spin');
+            if (btn) btn.disabled = true;
+
+            try {
+                if ('serviceWorker' in navigator) {
+                    const reg = await navigator.serviceWorker.getRegistration('/sw.js');
+                    if (reg) await reg.update();
+                }
+            } catch (e) {
+                console.warn('SW update failed:', e);
+            }
+
+            window.location.reload();
+        };
     })();
     </script>
 

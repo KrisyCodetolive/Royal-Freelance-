@@ -55,23 +55,42 @@ class EmailSequencesRelationManager extends RelationManager
                     ->required()
                     ->default(EmailSequenceStatus::DRAFT),
 
-                Forms\Components\KeyValue::make('trigger_conditions')
-                    ->label('Conditions du déclencheur')
-                    ->visible(fn($get) => $get('trigger') && $get('trigger')->requiredConditions())
-                    ->helperText(function ($get) {
-                        $trigger = $get('trigger');
-                        if (!$trigger) return null;
-                        
-                        $conditions = $trigger->requiredConditions();
-                        if (empty($conditions)) return 'Aucune condition supplémentaire requise';
-                        
-                        $help = 'Conditions requises: ' . implode(', ', $conditions);
-                        
-                        return $help;
-                    }),
+                // Condition : Statut du lead (STATUS_CHANGED)
+                Forms\Components\Select::make('trigger_conditions.status')
+                    ->label('Statut du lead')
+                    ->options([
+                        'cold'      => '❄️ Froid',
+                        'warm'      => '☀️ Tiède',
+                        'hot'       => '🔥 Chaud',
+                        'ultra_hot' => '⚡ Ultra Chaud',
+                        'client'    => '✅ Client',
+                        'member'    => '👤 Membre',
+                    ])
+                    ->visible(fn($get) => $this->isTrigger($get('trigger'), EmailSequenceTrigger::STATUS_CHANGED))
+                    ->required(fn($get) => $this->isTrigger($get('trigger'), EmailSequenceTrigger::STATUS_CHANGED))
+                    ->helperText('Email déclenché dès que le lead atteint ce statut')
+                    ->columnSpanFull(),
 
-                Forms\Components\KeyValue::make('settings')
-                    ->label('Paramètres avancés')
+                // Condition : Score minimum (SCORE_THRESHOLD)
+                Forms\Components\TextInput::make('trigger_conditions.min_score')
+                    ->label('Score minimum')
+                    ->numeric()
+                    ->default(10)
+                    ->minValue(1)
+                    ->maxValue(100)
+                    ->visible(fn($get) => $this->isTrigger($get('trigger'), EmailSequenceTrigger::SCORE_THRESHOLD))
+                    ->helperText('Score à atteindre pour déclencher la séquence')
+                    ->columnSpanFull(),
+
+                // Condition : Jours d'inactivité (INACTIVITY)
+                Forms\Components\TextInput::make('trigger_conditions.days')
+                    ->label("Jours d'inactivité")
+                    ->numeric()
+                    ->default(7)
+                    ->minValue(1)
+                    ->maxValue(365)
+                    ->visible(fn($get) => $this->isTrigger($get('trigger'), EmailSequenceTrigger::INACTIVITY))
+                    ->helperText("Nombre de jours sans activité avant déclenchement")
                     ->columnSpanFull(),
             ])
             ->columns(2);
@@ -320,5 +339,10 @@ class EmailSequencesRelationManager extends RelationManager
     public function isReadOnly(): bool
     {
         return false;
+    }
+
+    private function isTrigger(mixed $value, EmailSequenceTrigger $trigger): bool
+    {
+        return $value === $trigger || $value === $trigger->value;
     }
 }

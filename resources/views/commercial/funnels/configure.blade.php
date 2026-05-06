@@ -158,10 +158,13 @@
                 </h4>
 
                 @php
-                    // Utiliser le slug personnalisé du commercial s'il existe, sinon le slug du tunnel
-                    $customSlug = $config['custom_slug'] ?: $funnel->slug;
+                    $customSlug  = $config['custom_slug'] ?: $funnel->slug;
+                    $parsed      = parse_url(config('app.url'));
+                    $scheme      = $parsed['scheme'] ?? 'https';
+                    $port        = isset($parsed['port']) ? ':' . $parsed['port'] : '';
+                    $baseDomain  = config('app.subdomain_base');
                     $commercialUrl = $user->subdomain
-                        ? 'https://' . $user->subdomain . '.' . config('app.subdomain_base') . '/f/' . $customSlug
+                        ? $scheme . '://' . $user->subdomain . '.' . $baseDomain . $port . '/f/' . $customSlug
                         : url('/f/' . $customSlug . '?ref=' . $user->id);
                 @endphp
 

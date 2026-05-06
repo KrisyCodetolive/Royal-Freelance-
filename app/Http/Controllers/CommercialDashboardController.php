@@ -455,12 +455,16 @@ class CommercialDashboardController extends Controller
      */
     protected function getCommercialFunnelUrl($user, Funnel $funnel): string
     {
-        // Récupérer le slug personnalisé s'il existe
         $pivot = $user->usableFunnels()->where('funnel_id', $funnel->id)->first()?->pivot;
         $slug = $pivot?->custom_slug ?: $funnel->slug;
 
         if ($user->subdomain) {
-            return 'https://' . $user->subdomain . '.' . config('app.subdomain_base') . '/f/' . $slug;
+            $parsed     = parse_url(config('app.url'));
+            $scheme     = $parsed['scheme'] ?? 'https';
+            $port       = isset($parsed['port']) ? ':' . $parsed['port'] : '';
+            $baseDomain = config('app.subdomain_base');
+
+            return $scheme . '://' . $user->subdomain . '.' . $baseDomain . $port . '/f/' . $slug;
         }
 
         return url('/f/' . $slug . '?ref=' . $user->id);

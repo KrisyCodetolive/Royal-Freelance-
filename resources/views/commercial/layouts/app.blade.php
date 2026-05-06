@@ -563,6 +563,44 @@
     </script>
 
     <script>
+    (function () {
+        var lastCount = {{ $unreadCount }};
+
+        function updateBadges(count) {
+            var ids = ['bell-badge', 'alerts-badge-desktop', 'alerts-badge-mobile'];
+            ids.forEach(function (id) {
+                var el = document.getElementById(id);
+                if (!el) return;
+                if (count > 0) {
+                    el.textContent = count > 9 ? '9+' : count;
+                    el.classList.remove('hidden');
+                    if (count > lastCount) {
+                        // Nouvelle alerte — animation pulse
+                        el.classList.add('animate-ping-once');
+                        setTimeout(function () { el.classList.remove('animate-ping-once'); }, 600);
+                    }
+                } else {
+                    el.classList.add('hidden');
+                }
+            });
+            lastCount = count;
+        }
+
+        function pollUnreadCount() {
+            fetch('{{ route("commercial.alerts.unread-count") }}', {
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            })
+            .then(function (r) { return r.json(); })
+            .then(function (data) { updateBadges(data.count); })
+            .catch(function () {});
+        }
+
+        // Toutes les 30 secondes
+        setInterval(pollUnreadCount, 30000);
+    })();
+    </script>
+
+    <script>
         (function () {
             var loader = document.getElementById('page-loader');
             if (!loader) return;

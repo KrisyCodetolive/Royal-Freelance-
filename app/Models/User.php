@@ -60,7 +60,8 @@ class User extends Authenticatable implements FilamentUser
         return SlugOptions::create()
             ->generateSlugsFrom('shop_name')
             ->saveSlugsTo('subdomain')
-            ->slugsShouldBeNoLongerThan(30);
+            ->slugsShouldBeNoLongerThan(30)
+            ->doNotGenerateSlugsOnUpdate();
     }
 
     protected static function boot(): void

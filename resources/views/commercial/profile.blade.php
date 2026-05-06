@@ -49,6 +49,25 @@
                         </div>
 
                         <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                            <!-- Nom complet -->
+                            <div class="col-span-2">
+                                <label for="name" class="block text-sm font-medium text-slate-700">Nom complet</label>
+                                <div class="mt-2 relative rounded-md shadow-sm">
+                                    <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                                        <svg class="h-5 w-5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                        </svg>
+                                    </div>
+                                    <input type="text" name="name" id="name"
+                                        value="{{ old('name', $user->name) }}"
+                                        class="block w-full rounded-lg border-gray-300 pl-10 focus:border-amber-500 focus:ring-amber-500 sm:text-sm py-2.5"
+                                        placeholder="Votre nom complet">
+                                </div>
+                                @error('name')
+                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                @enderror
+                            </div>
+
                             <!-- Shop Name -->
                             <div class="col-span-2">
                                 <label for="shop_name" class="block text-sm font-medium text-slate-700">Nom de la boutique / Marque</label>

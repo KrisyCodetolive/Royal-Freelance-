@@ -293,10 +293,11 @@ class CommercialDashboardController extends Controller
         $user = Auth::user();
 
         $validated = $request->validate([
-            'shop_name' => 'nullable|string|max:255',
-            'bio' => 'nullable|string|max:1000',
+            'name'            => 'required|string|max:255',
+            'shop_name'       => 'nullable|string|max:255',
+            'bio'             => 'nullable|string|max:1000',
             'whatsapp_number' => 'nullable|string|max:20',
-            'avatar' => 'nullable|image|max:2048',
+            'avatar'          => 'nullable|image|max:2048',
         ]);
 
         if ($request->hasFile('avatar')) {

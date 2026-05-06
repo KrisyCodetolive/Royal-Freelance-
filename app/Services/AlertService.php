@@ -179,6 +179,9 @@ class AlertService
         }
 
         try {
+            // Suppress E_USER_NOTICE/WARNING from minishlink when GMP/BCMath absent
+            // The library falls back to a pure-PHP implementation (slower but functional)
+            $prev = set_error_handler(static fn() => true);
             $webPush = new WebPush([
                 'VAPID' => [
                     'subject'    => config('services.vapid.subject'),
@@ -186,6 +189,7 @@ class AlertService
                     'privateKey' => config('services.vapid.private_key'),
                 ],
             ]);
+            set_error_handler($prev);
 
             $payload = json_encode([
                 'title' => $alert->title,

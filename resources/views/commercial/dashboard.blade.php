@@ -18,89 +18,89 @@
 @section('content')
 
 {{-- ===== KPI CARDS ===== --}}
-<div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-5 mb-8">
+<div class="grid grid-cols-2 gap-3 sm:gap-5 sm:grid-cols-2 lg:grid-cols-5 mb-6 sm:mb-8">
 
     {{-- Total Leads --}}
-    <div class="bg-white rounded-xl shadow-sm border border-slate-100 p-5 hover:shadow-md transition-all">
-        <div class="flex items-center justify-between mb-3">
-            <div class="flex items-center justify-center h-10 w-10 rounded-lg bg-blue-50 text-blue-600">
-                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+    <div class="bg-white rounded-xl shadow-sm border border-slate-100 p-4 sm:p-5 hover:shadow-md transition-all">
+        <div class="flex items-center justify-between mb-2 sm:mb-3">
+            <div class="flex items-center justify-center h-8 w-8 sm:h-10 sm:w-10 rounded-lg bg-blue-50 text-blue-600">
+                <svg class="h-4 w-4 sm:h-5 sm:w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
             </div>
             @if($leadsTrend !== null)
-                <span class="text-xs font-semibold {{ $leadsTrend >= 0 ? 'text-emerald-600 bg-emerald-50' : 'text-rose-600 bg-rose-50' }} px-2 py-1 rounded-full">
+                <span class="text-xs font-semibold {{ $leadsTrend >= 0 ? 'text-emerald-600 bg-emerald-50' : 'text-rose-600 bg-rose-50' }} px-1.5 py-0.5 rounded-full">
                     {{ $leadsTrend >= 0 ? '↑' : '↓' }} {{ abs($leadsTrend) }}%
                 </span>
             @endif
         </div>
-        <div class="text-2xl font-bold text-slate-900">{{ $stats['total_leads'] }}</div>
-        <div class="text-xs text-slate-500 mt-1">Total Leads</div>
-        <a href="{{ route('commercial.leads') }}" class="text-xs text-blue-600 hover:underline mt-2 block">Voir tous →</a>
+        <div class="text-xl sm:text-2xl font-bold text-slate-900">{{ $stats['total_leads'] }}</div>
+        <div class="text-xs text-slate-500 mt-0.5">Total Leads</div>
+        <a href="{{ route('commercial.leads') }}" class="text-xs text-blue-600 hover:underline mt-1.5 block">Voir tous →</a>
     </div>
 
     {{-- Leads Chauds --}}
-    <div class="bg-white rounded-xl shadow-sm border border-slate-100 p-5 hover:shadow-md transition-all">
-        <div class="flex items-center justify-between mb-3">
-            <div class="flex items-center justify-center h-10 w-10 rounded-lg bg-rose-50 text-rose-600">
-                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 18.657A8 8 0 016.343 7.343S7 9 9 10c0-2 .5-5 2.986-7C14 5 16.09 5.777 17.656 7.343A7.975 7.975 0 0120 13a7.975 7.975 0 01-2.343 5.657z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.879 16.121A3 3 0 1012.015 11L11 14H9c0 .768.293 1.536.879 2.121z"/></svg>
+    <div class="bg-white rounded-xl shadow-sm border border-slate-100 p-4 sm:p-5 hover:shadow-md transition-all">
+        <div class="flex items-center justify-between mb-2 sm:mb-3">
+            <div class="flex items-center justify-center h-8 w-8 sm:h-10 sm:w-10 rounded-lg bg-rose-50 text-rose-600">
+                <svg class="h-4 w-4 sm:h-5 sm:w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 18.657A8 8 0 016.343 7.343S7 9 9 10c0-2 .5-5 2.986-7C14 5 16.09 5.777 17.656 7.343A7.975 7.975 0 0120 13a7.975 7.975 0 01-2.343 5.657z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.879 16.121A3 3 0 1012.015 11L11 14H9c0 .768.293 1.536.879 2.121z"/></svg>
             </div>
             @if($leadsToFollowUp->count() > 0)
-                <span class="text-xs font-semibold text-amber-600 bg-amber-50 px-2 py-1 rounded-full">
-                    {{ $leadsToFollowUp->count() }} à relancer
+                <span class="text-xs font-semibold text-amber-600 bg-amber-50 px-1.5 py-0.5 rounded-full hidden sm:inline">
+                    {{ $leadsToFollowUp->count() }} relancer
                 </span>
             @endif
         </div>
-        <div class="text-2xl font-bold text-slate-900">{{ $stats['hot_leads'] }}</div>
-        <div class="text-xs text-slate-500 mt-1">Leads Chauds</div>
-        <a href="{{ route('commercial.leads.kanban') }}" class="text-xs text-rose-600 hover:underline mt-2 block">Voir pipeline →</a>
+        <div class="text-xl sm:text-2xl font-bold text-slate-900">{{ $stats['hot_leads'] }}</div>
+        <div class="text-xs text-slate-500 mt-0.5">Leads Chauds</div>
+        <a href="{{ route('commercial.leads.kanban') }}" class="text-xs text-rose-600 hover:underline mt-1.5 block">Pipeline →</a>
     </div>
 
     {{-- Clients Convertis --}}
-    <div class="bg-white rounded-xl shadow-sm border border-slate-100 p-5 hover:shadow-md transition-all">
-        <div class="flex items-center justify-between mb-3">
-            <div class="flex items-center justify-center h-10 w-10 rounded-lg bg-emerald-50 text-emerald-600">
-                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+    <div class="bg-white rounded-xl shadow-sm border border-slate-100 p-4 sm:p-5 hover:shadow-md transition-all">
+        <div class="flex items-center justify-between mb-2 sm:mb-3">
+            <div class="flex items-center justify-center h-8 w-8 sm:h-10 sm:w-10 rounded-lg bg-emerald-50 text-emerald-600">
+                <svg class="h-4 w-4 sm:h-5 sm:w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
             </div>
             @if($conversionsTrend !== null)
-                <span class="text-xs font-semibold {{ $conversionsTrend >= 0 ? 'text-emerald-600 bg-emerald-50' : 'text-rose-600 bg-rose-50' }} px-2 py-1 rounded-full">
+                <span class="text-xs font-semibold {{ $conversionsTrend >= 0 ? 'text-emerald-600 bg-emerald-50' : 'text-rose-600 bg-rose-50' }} px-1.5 py-0.5 rounded-full">
                     {{ $conversionsTrend >= 0 ? '↑' : '↓' }} {{ abs($conversionsTrend) }}%
                 </span>
             @endif
         </div>
-        <div class="text-2xl font-bold text-slate-900">{{ $stats['conversions'] }}</div>
-        <div class="text-xs text-slate-500 mt-1">Clients Convertis</div>
-        <a href="{{ route('commercial.leads') }}?status=converted" class="text-xs text-emerald-600 hover:underline mt-2 block">Voir clients →</a>
+        <div class="text-xl sm:text-2xl font-bold text-slate-900">{{ $stats['conversions'] }}</div>
+        <div class="text-xs text-slate-500 mt-0.5">Convertis</div>
+        <a href="{{ route('commercial.leads') }}?status=converted" class="text-xs text-emerald-600 hover:underline mt-1.5 block">Voir →</a>
     </div>
 
     {{-- Taux de Conversion --}}
-    <div class="bg-white rounded-xl shadow-sm border border-slate-100 p-5 hover:shadow-md transition-all">
-        <div class="flex items-center justify-between mb-3">
-            <div class="flex items-center justify-center h-10 w-10 rounded-lg bg-indigo-50 text-indigo-600">
-                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
+    <div class="bg-white rounded-xl shadow-sm border border-slate-100 p-4 sm:p-5 hover:shadow-md transition-all">
+        <div class="flex items-center justify-between mb-2 sm:mb-3">
+            <div class="flex items-center justify-center h-8 w-8 sm:h-10 sm:w-10 rounded-lg bg-indigo-50 text-indigo-600">
+                <svg class="h-4 w-4 sm:h-5 sm:w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
             </div>
         </div>
-        <div class="text-2xl font-bold text-slate-900">{{ $conversionRate }}%</div>
-        <div class="text-xs text-slate-500 mt-1">Taux de Conversion</div>
+        <div class="text-xl sm:text-2xl font-bold text-slate-900">{{ $conversionRate }}%</div>
+        <div class="text-xs text-slate-500 mt-0.5">Taux Conv.</div>
         <div class="mt-2 w-full bg-slate-100 rounded-full h-1.5">
             <div class="bg-indigo-500 h-1.5 rounded-full transition-all" style="width: {{ min($conversionRate, 100) }}%"></div>
         </div>
     </div>
 
     {{-- Tunnels Actifs --}}
-    <div class="bg-white rounded-xl shadow-sm border border-slate-100 p-5 hover:shadow-md transition-all">
-        <div class="flex items-center justify-between mb-3">
-            <div class="flex items-center justify-center h-10 w-10 rounded-lg bg-amber-50 text-amber-600">
-                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.384-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/></svg>
+    <div class="col-span-2 sm:col-span-1 bg-white rounded-xl shadow-sm border border-slate-100 p-4 sm:p-5 hover:shadow-md transition-all">
+        <div class="flex items-center justify-between mb-2 sm:mb-3">
+            <div class="flex items-center justify-center h-8 w-8 sm:h-10 sm:w-10 rounded-lg bg-amber-50 text-amber-600">
+                <svg class="h-4 w-4 sm:h-5 sm:w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.384-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/></svg>
             </div>
         </div>
-        <div class="text-2xl font-bold text-slate-900">{{ $stats['active_funnels'] }}</div>
-        <div class="text-xs text-slate-500 mt-1">Tunnels Actifs</div>
-        <a href="{{ route('commercial.funnels') }}" class="text-xs text-amber-600 hover:underline mt-2 block">Gérer mes liens →</a>
+        <div class="text-xl sm:text-2xl font-bold text-slate-900">{{ $stats['active_funnels'] }}</div>
+        <div class="text-xs text-slate-500 mt-0.5">Tunnels Actifs</div>
+        <a href="{{ route('commercial.funnels') }}" class="text-xs text-amber-600 hover:underline mt-1.5 block">Gérer →</a>
     </div>
 </div>
 
 {{-- ===== RÉPARTITION PAR STATUT ===== --}}
 @if($totalStatusLeads > 0)
-<div class="bg-white rounded-xl shadow-sm border border-slate-100 p-6 mb-8">
+<div class="bg-white rounded-xl shadow-sm border border-slate-100 p-4 sm:p-6 mb-6 sm:mb-8">
     <h3 class="text-sm font-semibold text-slate-700 mb-4">Répartition du Pipeline</h3>
     <div class="flex rounded-full overflow-hidden h-3 mb-4">
         @foreach($statusConfig as $key => $cfg)
@@ -127,15 +127,15 @@
 <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
 
     {{-- Graphique --}}
-    <div class="lg:col-span-2 bg-white rounded-xl shadow-sm border border-slate-100 p-6">
-        <div class="flex items-center justify-between mb-6">
+    <div class="lg:col-span-2 bg-white rounded-xl shadow-sm border border-slate-100 p-4 sm:p-6">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-4 sm:mb-6">
             <h3 class="text-base font-semibold text-slate-900">Performance (30 jours)</h3>
-            <div class="flex items-center gap-4 text-xs text-slate-500">
-                <span class="flex items-center gap-1"><span class="w-3 h-0.5 bg-amber-400 inline-block rounded"></span> Nouveaux leads</span>
-                <span class="flex items-center gap-1"><span class="w-3 h-0.5 bg-emerald-500 inline-block rounded"></span> Conversions</span>
+            <div class="flex items-center gap-3 text-xs text-slate-500">
+                <span class="flex items-center gap-1.5"><span class="w-3 h-0.5 bg-amber-400 inline-block rounded"></span> Nouveaux leads</span>
+                <span class="flex items-center gap-1.5"><span class="w-3 h-0.5 bg-emerald-500 inline-block rounded"></span> Conversions</span>
             </div>
         </div>
-        <div class="h-72 relative w-full">
+        <div class="h-48 sm:h-72 relative w-full">
             <canvas id="leadsChart"></canvas>
         </div>
     </div>

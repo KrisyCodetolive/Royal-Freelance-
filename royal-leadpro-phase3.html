@@ -1,0 +1,851 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Phase 3 — SaaS • Royal LeadPro</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --gold:   #C9A84C;
+    --gold-light: #E8C96A;
+    --gold-dim: rgba(201,168,76,0.15);
+    --black:  #0A0A0A;
+    --dark:   #111111;
+    --card:   #161616;
+    --border: rgba(201,168,76,0.2);
+    --text:   #E8E8E8;
+    --muted:  #888;
+    --white:  #FFFFFF;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--black);
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    overflow-x: hidden;
+  }
+
+  /* ── NAV ── */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 18px 48px;
+    background: rgba(10,10,10,0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+  }
+  nav img { height: 36px; }
+  .nav-badge {
+    display: flex; align-items: center; gap: 8px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px; color: var(--gold);
+    border: 1px solid var(--border); border-radius: 20px;
+    padding: 6px 14px;
+  }
+  .nav-badge span { width: 6px; height: 6px; background: var(--gold); border-radius: 50%; animation: pulse 2s infinite; }
+
+  /* ── HERO ── */
+  .hero {
+    min-height: 100vh;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    text-align: center;
+    padding: 140px 24px 80px;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse 80% 60% at 50% 30%, rgba(201,168,76,0.08) 0%, transparent 70%);
+  }
+  .hero-line {
+    width: 1px; height: 80px;
+    background: linear-gradient(to bottom, transparent, var(--gold), transparent);
+    margin: 0 auto 40px;
+  }
+  .hero-eyebrow {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px; letter-spacing: 3px; text-transform: uppercase;
+    color: var(--gold); margin-bottom: 24px;
+  }
+  .hero h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(44px, 7vw, 88px);
+    font-weight: 900; line-height: 1.05;
+    color: var(--white); margin-bottom: 16px;
+  }
+  .hero h1 em { font-style: normal; color: var(--gold); }
+  .hero-sub {
+    font-size: clamp(16px, 2vw, 20px);
+    color: var(--muted); max-width: 640px;
+    margin: 0 auto 48px;
+    font-weight: 300;
+  }
+  .hero-cta-row {
+    display: flex; gap: 16px; flex-wrap: wrap; justify-content: center;
+  }
+  .btn-gold {
+    background: var(--gold); color: var(--black);
+    font-weight: 700; font-size: 13px; letter-spacing: 1px;
+    text-transform: uppercase; text-decoration: none;
+    padding: 14px 32px; border-radius: 4px;
+    transition: background .2s, transform .2s;
+  }
+  .btn-gold:hover { background: var(--gold-light); transform: translateY(-2px); }
+  .btn-outline {
+    border: 1px solid var(--border); color: var(--text);
+    font-size: 13px; letter-spacing: 1px; text-transform: uppercase;
+    text-decoration: none; padding: 14px 32px; border-radius: 4px;
+    transition: border-color .2s;
+  }
+  .btn-outline:hover { border-color: var(--gold); color: var(--gold); }
+
+  .hero-stats {
+    display: flex; gap: 48px; flex-wrap: wrap; justify-content: center;
+    margin-top: 72px;
+    padding-top: 48px;
+    border-top: 1px solid var(--border);
+    width: 100%; max-width: 800px;
+  }
+  .stat-item { text-align: center; }
+  .stat-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 36px; font-weight: 700; color: var(--gold);
+    display: block;
+  }
+  .stat-label { font-size: 11px; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; }
+
+  /* ── SECTIONS ── */
+  section { padding: 100px 24px; }
+  .container { max-width: 1100px; margin: 0 auto; }
+
+  .section-eyebrow {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px; letter-spacing: 3px; text-transform: uppercase;
+    color: var(--gold); margin-bottom: 16px;
+  }
+  .section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(32px, 4vw, 52px);
+    font-weight: 700; color: var(--white);
+    line-height: 1.15; margin-bottom: 20px;
+  }
+  .section-title em { font-style: normal; color: var(--gold); }
+  .section-desc { color: var(--muted); max-width: 560px; font-size: 17px; }
+
+  /* ── ROADMAP TIMELINE ── */
+  .roadmap { background: var(--dark); }
+  .timeline {
+    position: relative;
+    margin-top: 64px;
+    padding-left: 0;
+  }
+  .timeline::before {
+    content: '';
+    position: absolute; left: 50%; top: 0; bottom: 0;
+    width: 1px; background: var(--border);
+    transform: translateX(-50%);
+  }
+  .tl-item {
+    display: flex; gap: 48px; align-items: flex-start;
+    margin-bottom: 64px; position: relative;
+  }
+  .tl-item:nth-child(even) { flex-direction: row-reverse; }
+  .tl-content {
+    flex: 1;
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 8px; padding: 32px;
+  }
+  .tl-item:nth-child(odd) .tl-content { text-align: right; }
+  .tl-dot {
+    position: absolute; left: 50%; top: 32px;
+    width: 14px; height: 14px; background: var(--gold);
+    border-radius: 50%; transform: translateX(-50%);
+    box-shadow: 0 0 0 4px var(--black), 0 0 0 6px var(--border);
+    flex-shrink: 0;
+  }
+  .tl-phase {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px; letter-spacing: 2px; text-transform: uppercase;
+    color: var(--gold); margin-bottom: 8px;
+  }
+  .tl-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px; color: var(--white);
+    margin-bottom: 10px;
+  }
+  .tl-desc { font-size: 14px; color: var(--muted); }
+  .tl-check { color: var(--gold); margin-right: 6px; }
+  .tl-status {
+    display: inline-block; margin-top: 12px;
+    font-size: 11px; padding: 4px 12px; border-radius: 20px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .status-done { background: rgba(74,222,128,0.1); color: #4ade80; border: 1px solid rgba(74,222,128,0.3); }
+  .status-active { background: var(--gold-dim); color: var(--gold); border: 1px solid var(--border); }
+
+  /* ── FEATURES GRID ── */
+  .features-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 24px; margin-top: 60px;
+  }
+  .feat-card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 8px; padding: 32px;
+    transition: border-color .25s, transform .25s;
+    position: relative; overflow: hidden;
+  }
+  .feat-card::after {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    opacity: 0; transition: opacity .25s;
+  }
+  .feat-card:hover { border-color: var(--gold); transform: translateY(-4px); }
+  .feat-card:hover::after { opacity: 1; }
+  .feat-icon {
+    width: 44px; height: 44px; border-radius: 8px;
+    background: var(--gold-dim); border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px; margin-bottom: 20px;
+  }
+  .feat-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 20px; color: var(--white); margin-bottom: 10px;
+  }
+  .feat-desc { font-size: 14px; color: var(--muted); line-height: 1.7; }
+  .feat-badge {
+    display: inline-block; margin-top: 16px;
+    font-size: 10px; letter-spacing: 1px; text-transform: uppercase;
+    padding: 4px 10px; border-radius: 20px;
+    background: var(--gold-dim); color: var(--gold);
+    font-family: 'JetBrains Mono', monospace;
+    border: 1px solid var(--border);
+  }
+
+  /* ── PLANS ── */
+  .plans { background: var(--dark); }
+  .plans-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 24px; margin-top: 60px; align-items: start;
+  }
+  .plan-card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 8px; padding: 36px 28px;
+    position: relative;
+  }
+  .plan-card.featured {
+    border-color: var(--gold);
+    transform: scale(1.03);
+  }
+  .plan-card.featured::before {
+    content: '★ RECOMMANDÉ';
+    position: absolute; top: -14px; left: 50%; transform: translateX(-50%);
+    background: var(--gold); color: var(--black);
+    font-size: 10px; font-weight: 700; letter-spacing: 2px;
+    padding: 4px 16px; border-radius: 20px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .plan-name {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px; letter-spacing: 3px; text-transform: uppercase;
+    color: var(--gold); margin-bottom: 16px;
+  }
+  .plan-price {
+    font-family: 'Playfair Display', serif;
+    font-size: 42px; font-weight: 700; color: var(--white);
+    line-height: 1;
+  }
+  .plan-price span { font-size: 16px; color: var(--muted); font-family: 'Inter', sans-serif; font-weight: 400; }
+  .plan-annual { font-size: 12px; color: var(--muted); margin: 8px 0 24px; }
+  .plan-annual strong { color: var(--gold); }
+  .plan-divider { border: none; border-top: 1px solid var(--border); margin: 24px 0; }
+  .plan-features { list-style: none; display: flex; flex-direction: column; gap: 12px; }
+  .plan-features li {
+    font-size: 14px; color: var(--text);
+    display: flex; align-items: flex-start; gap: 10px;
+  }
+  .plan-features li::before { content: '✦'; color: var(--gold); font-size: 10px; margin-top: 4px; flex-shrink: 0; }
+  .plan-cta {
+    display: block; text-align: center; margin-top: 28px;
+    padding: 13px; border-radius: 4px;
+    font-size: 12px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase;
+    text-decoration: none; transition: .2s;
+    font-family: 'Inter', sans-serif;
+  }
+  .plan-cta-gold { background: var(--gold); color: var(--black); }
+  .plan-cta-gold:hover { background: var(--gold-light); }
+  .plan-cta-outline { border: 1px solid var(--border); color: var(--text); }
+  .plan-cta-outline:hover { border-color: var(--gold); color: var(--gold); }
+
+  /* ── ARCHITECTURE ── */
+  .arch-diagram {
+    margin-top: 60px; border: 1px solid var(--border);
+    border-radius: 8px; padding: 48px;
+    background: var(--card);
+    position: relative; overflow: hidden;
+  }
+  .arch-diagram::before {
+    content: ''; position: absolute; inset: 0;
+    background: radial-gradient(ellipse 60% 40% at 50% 50%, rgba(201,168,76,0.04) 0%, transparent 70%);
+  }
+  .arch-grid {
+    display: grid; grid-template-columns: 1fr auto 1fr auto 1fr;
+    gap: 24px; align-items: center; position: relative;
+  }
+  .arch-node {
+    background: var(--dark); border: 1px solid var(--border);
+    border-radius: 8px; padding: 20px 16px; text-align: center;
+  }
+  .arch-node.highlight { border-color: var(--gold); }
+  .arch-node-icon { font-size: 24px; margin-bottom: 8px; }
+  .arch-node-name { font-size: 12px; font-weight: 700; color: var(--white); margin-bottom: 4px; }
+  .arch-node-desc { font-size: 11px; color: var(--muted); }
+  .arch-arrow { color: var(--gold); font-size: 20px; text-align: center; }
+
+  /* ── ROLES ── */
+  .roles-grid {
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    gap: 16px; margin-top: 60px;
+  }
+  .role-card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 8px; padding: 28px 20px; text-align: center;
+  }
+  .role-icon { font-size: 28px; margin-bottom: 12px; }
+  .role-name { font-family: 'Playfair Display', serif; font-size: 18px; color: var(--white); margin-bottom: 8px; }
+  .role-desc { font-size: 12px; color: var(--muted); }
+  .role-perm {
+    list-style: none; margin-top: 16px; text-align: left; display: flex; flex-direction: column; gap: 8px;
+  }
+  .role-perm li { font-size: 12px; color: var(--text); display: flex; align-items: center; gap: 6px; }
+  .perm-yes { color: #4ade80; }
+  .perm-no  { color: #f87171; }
+
+  /* ── DELIVERABLES ── */
+  .deliverables { background: var(--dark); }
+  .deliv-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 24px; margin-top: 60px;
+  }
+  .deliv-card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 8px; padding: 32px;
+  }
+  .deliv-cat {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px; letter-spacing: 2px; text-transform: uppercase;
+    color: var(--gold); margin-bottom: 16px;
+  }
+  .deliv-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 20px; color: var(--white); margin-bottom: 16px;
+  }
+  .deliv-list { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+  .deliv-list li { font-size: 13px; color: var(--muted); display: flex; align-items: flex-start; gap: 8px; }
+  .deliv-list li::before { content: '→'; color: var(--gold); flex-shrink: 0; }
+
+  /* ── CTA FINAL ── */
+  .cta-final {
+    text-align: center; padding: 120px 24px;
+    position: relative; overflow: hidden;
+  }
+  .cta-final::before {
+    content: ''; position: absolute; inset: 0;
+    background: radial-gradient(ellipse 70% 50% at 50% 50%, rgba(201,168,76,0.07) 0%, transparent 70%);
+  }
+  .cta-final .section-title { margin-bottom: 20px; }
+  .cta-final .section-desc { margin: 0 auto 48px; }
+
+  /* ── FOOTER ── */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 40px 24px;
+    text-align: center;
+    display: flex; flex-direction: column; align-items: center; gap: 12px;
+  }
+  footer img { height: 28px; opacity: .7; }
+  footer p { font-size: 12px; color: var(--muted); }
+
+  /* ── ANIMATIONS ── */
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: .4; }
+  }
+  .fade-up {
+    opacity: 0; transform: translateY(24px);
+    transition: opacity .6s ease, transform .6s ease;
+  }
+  .fade-up.visible { opacity: 1; transform: none; }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 900px) {
+    nav { padding: 16px 24px; }
+    .timeline::before { left: 20px; }
+    .tl-item, .tl-item:nth-child(even) { flex-direction: column; padding-left: 48px; }
+    .tl-item:nth-child(odd) .tl-content { text-align: left; }
+    .tl-dot { left: 20px; top: 16px; }
+    .plans-grid { grid-template-columns: 1fr; }
+    .plan-card.featured { transform: none; }
+    .arch-grid { grid-template-columns: 1fr; }
+    .arch-arrow { transform: rotate(90deg); }
+    .roles-grid { grid-template-columns: 1fr 1fr; }
+    .deliv-grid { grid-template-columns: 1fr; }
+    .hero-stats { gap: 32px; }
+  }
+  @media (max-width: 600px) {
+    .roles-grid { grid-template-columns: 1fr; }
+    .features-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <img src="https://royalleadpro.com/assets/logowhite.png" alt="Royal LeadPro">
+  <div class="nav-badge"><span></span> Phase 3 — SaaS</div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div style="position:relative;z-index:1;width:100%">
+    <div class="hero-line"></div>
+    <div class="hero-eyebrow">Présentation Client · Genius Groups SAS</div>
+    <h1>Phase 3 —<br>La <em>SaaS-ification</em><br>de Royal LeadPro</h1>
+    <p class="hero-sub">Transformer votre outil interne en plateforme SaaS multi-utilisateurs, monétisable et collaborative — à la hauteur de vos ambitions.</p>
+    <div class="hero-cta-row">
+      <a href="#plans" class="btn-gold">Voir les Plans</a>
+      <a href="#features" class="btn-outline">Explorer les Features</a>
+    </div>
+    <div class="hero-stats">
+      <div class="stat-item">
+        <span class="stat-num">3</span>
+        <span class="stat-label">Plans tarifaires</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-num">∞</span>
+        <span class="stat-label">Tunnels partagés</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-num">Multi</span>
+        <span class="stat-label">Tenant Architecture</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-num">4</span>
+        <span class="stat-label">Niveaux de rôles</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ROADMAP -->
+<section class="roadmap">
+  <div class="container">
+    <div class="section-eyebrow">Contexte</div>
+    <h2 class="section-title">Là où nous en sommes</h2>
+    <p class="section-desc">Phases 1 & 2 livrées avec succès. La Phase 3 finalise la transformation de Royal LeadPro en vrai produit SaaS.</p>
+
+    <div class="timeline">
+      <div class="tl-item fade-up">
+        <div class="tl-content">
+          <div class="tl-phase">Phase 1</div>
+          <div class="tl-title">MVP & Infrastructure</div>
+          <div class="tl-desc">Architecture Laravel 12 + Filament v4. Tunnels de vente, tracking 23 datapoints, dashboard commercial, attribution automatique.</div>
+          <span class="tl-status status-done">✓ Livré</span>
+        </div>
+        <div class="tl-dot"></div>
+        <div style="flex:1"></div>
+      </div>
+      <div class="tl-item fade-up">
+        <div style="flex:1"></div>
+        <div class="tl-dot"></div>
+        <div class="tl-content">
+          <div class="tl-phase">Phase 2</div>
+          <div class="tl-title">Email Marketing & PWA</div>
+          <div class="tl-desc">Séquences email automatiques, builder visuel par blocs, app mobile PWA installable, scoring intelligent des leads, pipeline Kanban.</div>
+          <span class="tl-status status-done">✓ Livré</span>
+        </div>
+      </div>
+      <div class="tl-item fade-up">
+        <div class="tl-content">
+          <div class="tl-phase">Phase 3 — En cours</div>
+          <div class="tl-title">SaaS & Monétisation</div>
+          <div class="tl-desc">Multi-tenant, gestion d'abonnements, partage de tunnels entre utilisateurs, quotas par plan, super admin, facturation automatisée.</div>
+          <span class="tl-status status-active">● En construction</span>
+        </div>
+        <div class="tl-dot" style="background:var(--gold-light);box-shadow:0 0 12px var(--gold)"></div>
+        <div style="flex:1"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section id="features">
+  <div class="container">
+    <div class="section-eyebrow">Backend SaaS</div>
+    <h2 class="section-title">Ce que la Phase 3<br>va <em>construire</em></h2>
+    <p class="section-desc">7 modules interdépendants pour une plateforme SaaS robuste, scalable et monétisable dès le jour 1.</p>
+
+    <div class="features-grid">
+      <div class="feat-card fade-up">
+        <div class="feat-icon">🏗️</div>
+        <div class="feat-title">Architecture Multi-Tenant</div>
+        <div class="feat-desc">Chaque client est un tenant isolé. Données strictement séparées : tunnels, leads, listes mailing, utilisateurs. Zéro interférence entre comptes.</div>
+        <span class="feat-badge">Core infrastructure</span>
+      </div>
+      <div class="feat-card fade-up">
+        <div class="feat-icon">🔗</div>
+        <div class="feat-title">Partage de Tunnels</div>
+        <div class="feat-desc">Créez un tunnel, choisissez qui y accède. Privé, partagé avec votre équipe ou assigné à des utilisateurs spécifiques. Table pivot avec permissions granulaires.</div>
+        <span class="feat-badge">★ Valeur ajoutée clé</span>
+      </div>
+      <div class="feat-card fade-up">
+        <div class="feat-icon">👥</div>
+        <div class="feat-title">Rôles & Permissions</div>
+        <div class="feat-desc">Système de workspace avec 4 niveaux : Owner, Admin, Editor, Viewer. Contrôle précis de ce que chaque utilisateur peut voir et faire.</div>
+        <span class="feat-badge">Gestion utilisateurs</span>
+      </div>
+      <div class="feat-card fade-up">
+        <div class="feat-icon">📦</div>
+        <div class="feat-title">Quotas par Plan</div>
+        <div class="feat-desc">Middleware de contrôle avant chaque création. Tunnels, listes mailing, leads, tunnels partagés — chaque limite est vérifiée en temps réel avec prompt d'upgrade.</div>
+        <span class="feat-badge">Enforcement automatique</span>
+      </div>
+      <div class="feat-card fade-up">
+        <div class="feat-icon">💳</div>
+        <div class="feat-title">Billing & Abonnements</div>
+        <div class="feat-desc">Plans Free / Starter / Prestige. Cycles mensuel et annuel. Activation, expiration, suspension automatique. États gérés : active, expired, suspended.</div>
+        <span class="feat-badge">Monétisation</span>
+      </div>
+      <div class="feat-card fade-up">
+        <div class="feat-icon">📊</div>
+        <div class="feat-title">Dashboard SaaS</div>
+        <div class="feat-desc">Vue utilisateur dédiée : tunnels utilisés, leads restants, listes actives, plan en cours. CTA d'upgrade contextuel selon les limites atteintes.</div>
+        <span class="feat-badge">UX utilisateur</span>
+      </div>
+      <div class="feat-card fade-up">
+        <div class="feat-icon">👑</div>
+        <div class="feat-title">Super Admin Royal LeadPro</div>
+        <div class="feat-desc">Gestion globale des utilisateurs, des plans, monitoring d'usage, activation / suspension de comptes, analytics SaaS.</div>
+        <span class="feat-badge">Super admin</span>
+      </div>
+      <div class="feat-card fade-up">
+        <div class="feat-icon">🌐</div>
+        <div class="feat-title">Pages Front-Office</div>
+        <div class="feat-desc">Nouvelles pages marketing : "Pourquoi choisir Royal LeadPro ?", "Fonctionnalités", et page Tarifs dynamique — pour convertir les visiteurs en abonnés.</div>
+        <span class="feat-badge">Acquisition</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ARCHITECTURE -->
+<section style="background:var(--dark)">
+  <div class="container">
+    <div class="section-eyebrow">Architecture</div>
+    <h2 class="section-title">Flux <em>Multi-Tenant</em></h2>
+    <p class="section-desc">De l'inscription à la facturation, chaque étape est automatisée et isolée par tenant.</p>
+
+    <div class="arch-diagram fade-up">
+      <div class="arch-grid">
+        <div class="arch-node highlight">
+          <div class="arch-node-icon">🙋</div>
+          <div class="arch-node-name">Utilisateur</div>
+          <div class="arch-node-desc">S'inscrit, choisit son plan</div>
+        </div>
+        <div class="arch-arrow">→</div>
+        <div class="arch-node highlight">
+          <div class="arch-node-icon">🏢</div>
+          <div class="arch-node-name">Tenant Isolé</div>
+          <div class="arch-node-desc">Workspace dédié, données cloisonnées</div>
+        </div>
+        <div class="arch-arrow">→</div>
+        <div class="arch-node highlight">
+          <div class="arch-node-icon">⚡</div>
+          <div class="arch-node-name">Quota Middleware</div>
+          <div class="arch-node-desc">Vérifie limites avant création</div>
+        </div>
+      </div>
+      <div style="display:flex;justify-content:space-around;margin-top:32px;padding-top:32px;border-top:1px solid var(--border)">
+        <div style="text-align:center">
+          <div style="font-size:20px;margin-bottom:6px">🔗</div>
+          <div style="font-size:12px;color:var(--white);font-weight:600">Partage Tunnels</div>
+          <div style="font-size:11px;color:var(--muted)">Privé / Équipe / Utilisateur</div>
+        </div>
+        <div style="text-align:center">
+          <div style="font-size:20px;margin-bottom:6px">💳</div>
+          <div style="font-size:12px;color:var(--white);font-weight:600">Billing Automatique</div>
+          <div style="font-size:11px;color:var(--muted)">Mensuel / Annuel / Expiration</div>
+        </div>
+        <div style="text-align:center">
+          <div style="font-size:20px;margin-bottom:6px">🔔</div>
+          <div style="font-size:12px;color:var(--white);font-weight:600">Alerts Upgrade</div>
+          <div style="font-size:11px;color:var(--muted)">Limites atteintes → prompt</div>
+        </div>
+        <div style="text-align:center">
+          <div style="font-size:20px;margin-bottom:6px">👑</div>
+          <div style="font-size:12px;color:var(--white);font-weight:600">Super Admin</div>
+          <div style="font-size:11px;color:var(--muted)">Monitoring global</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ROLES -->
+<section>
+  <div class="container">
+    <div class="section-eyebrow">Collaboration</div>
+    <h2 class="section-title">4 Rôles, une <em>plateforme</em></h2>
+    <p class="section-desc">Le vrai différenciateur SaaS : chaque utilisateur dispose d'un niveau d'accès adapté à sa mission.</p>
+
+    <div class="roles-grid">
+      <div class="role-card fade-up">
+        <div class="role-icon">👑</div>
+        <div class="role-name">Owner</div>
+        <div class="role-desc">Propriétaire du workspace</div>
+        <ul class="role-perm">
+          <li><span class="perm-yes">✓</span> Gérer l'abonnement</li>
+          <li><span class="perm-yes">✓</span> Créer / supprimer des tunnels</li>
+          <li><span class="perm-yes">✓</span> Partager des tunnels</li>
+          <li><span class="perm-yes">✓</span> Ajouter des membres</li>
+          <li><span class="perm-yes">✓</span> Accès total aux leads</li>
+        </ul>
+      </div>
+      <div class="role-card fade-up">
+        <div class="role-icon">⚙️</div>
+        <div class="role-name">Admin</div>
+        <div class="role-desc">Gestion opérationnelle</div>
+        <ul class="role-perm">
+          <li><span class="perm-no">✕</span> Gérer l'abonnement</li>
+          <li><span class="perm-yes">✓</span> Créer / supprimer des tunnels</li>
+          <li><span class="perm-yes">✓</span> Partager des tunnels</li>
+          <li><span class="perm-yes">✓</span> Ajouter des membres</li>
+          <li><span class="perm-yes">✓</span> Accès total aux leads</li>
+        </ul>
+      </div>
+      <div class="role-card fade-up">
+        <div class="role-icon">✏️</div>
+        <div class="role-name">Editor</div>
+        <div class="role-desc">Création & édition</div>
+        <ul class="role-perm">
+          <li><span class="perm-no">✕</span> Gérer l'abonnement</li>
+          <li><span class="perm-yes">✓</span> Créer des tunnels assignés</li>
+          <li><span class="perm-no">✕</span> Partager des tunnels</li>
+          <li><span class="perm-no">✕</span> Ajouter des membres</li>
+          <li><span class="perm-yes">✓</span> Accès leads assignés</li>
+        </ul>
+      </div>
+      <div class="role-card fade-up">
+        <div class="role-icon">👁️</div>
+        <div class="role-name">Viewer</div>
+        <div class="role-desc">Lecture seule</div>
+        <ul class="role-perm">
+          <li><span class="perm-no">✕</span> Gérer l'abonnement</li>
+          <li><span class="perm-no">✕</span> Créer des tunnels</li>
+          <li><span class="perm-no">✕</span> Partager des tunnels</li>
+          <li><span class="perm-no">✕</span> Ajouter des membres</li>
+          <li><span class="perm-yes">✓</span> Visualiser leads partagés</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PLANS -->
+<section class="plans" id="plans">
+  <div class="container">
+    <div class="section-eyebrow">Tarification</div>
+    <h2 class="section-title">3 Plans, <em>toutes les tailles</em></h2>
+    <p class="section-desc">De l'entrepreneur solo à l'agence marketing — une offre adaptée à chaque étape de croissance.</p>
+
+    <div class="plans-grid">
+      <!-- FREE -->
+      <div class="plan-card fade-up">
+        <div class="plan-name">Gratuit</div>
+        <div class="plan-price">0 <span>FCFA / mois</span></div>
+        <div class="plan-annual">Accès permanent, sans engagement</div>
+        <hr class="plan-divider">
+        <ul class="plan-features">
+          <li>2 tunnels de vente</li>
+          <li>1 liste mailing</li>
+          <li>1 000 leads autorisés</li>
+          <li>Dashboard standard</li>
+          <li>Support communautaire</li>
+        </ul>
+        <a href="#" class="plan-cta plan-cta-outline">Démarrer Gratuitement</a>
+      </div>
+
+      <!-- STARTER -->
+      <div class="plan-card featured fade-up">
+        <div class="plan-name">Starter</div>
+        <div class="plan-price">5 000 <span>FCFA / mois</span></div>
+        <div class="plan-annual">ou <strong>50 000 FCFA / an</strong> — 2 mois offerts</div>
+        <hr class="plan-divider">
+        <ul class="plan-features">
+          <li>10 tunnels de vente</li>
+          <li>10 listes mailing</li>
+          <li>+1 000 leads supplémentaires</li>
+          <li><strong style="color:var(--gold)">5 tunnels partagés</strong></li>
+          <li>Rôles Owner / Admin / Editor</li>
+          <li>Dashboard SaaS avancé</li>
+          <li>Support prioritaire</li>
+        </ul>
+        <a href="#" class="plan-cta plan-cta-gold">Choisir Starter</a>
+      </div>
+
+      <!-- PRESTIGE -->
+      <div class="plan-card fade-up">
+        <div class="plan-name">Prestige</div>
+        <div class="plan-price">20 000 <span>FCFA / mois</span></div>
+        <div class="plan-annual">ou <strong>200 000 FCFA / an</strong> — 2 mois offerts</div>
+        <hr class="plan-divider">
+        <ul class="plan-features">
+          <li>Tunnels illimités</li>
+          <li>+10 listes mailing supplémentaires</li>
+          <li>+1 000 leads supplémentaires</li>
+          <li><strong style="color:var(--gold)">5+ tunnels partagés</strong></li>
+          <li>4 rôles complets (+ Viewer)</li>
+          <li>Super dashboard analytics</li>
+          <li>Support dédié 24/7</li>
+          <li>Accès fonctionnalités bêta</li>
+        </ul>
+        <a href="#" class="plan-cta plan-cta-outline">Choisir Prestige</a>
+      </div>
+    </div>
+
+    <!-- Comparatif quotas -->
+    <div style="margin-top:48px;background:var(--card);border:1px solid var(--border);border-radius:8px;overflow:hidden">
+      <table style="width:100%;border-collapse:collapse">
+        <thead>
+          <tr style="border-bottom:1px solid var(--border)">
+            <th style="padding:16px 24px;text-align:left;font-size:12px;color:var(--muted);font-weight:500">Quota</th>
+            <th style="padding:16px;text-align:center;font-size:12px;color:var(--muted);font-weight:500">Gratuit</th>
+            <th style="padding:16px;text-align:center;font-size:12px;color:var(--gold);font-weight:700">Starter</th>
+            <th style="padding:16px;text-align:center;font-size:12px;color:var(--muted);font-weight:500">Prestige</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr style="border-bottom:1px solid rgba(201,168,76,0.08)">
+            <td style="padding:14px 24px;font-size:13px;color:var(--text)">Tunnels</td>
+            <td style="padding:14px;text-align:center;font-size:13px;color:var(--muted)">2</td>
+            <td style="padding:14px;text-align:center;font-size:13px;color:var(--gold);font-weight:600">10</td>
+            <td style="padding:14px;text-align:center;font-size:13px;color:var(--text)">Illimités</td>
+          </tr>
+          <tr style="border-bottom:1px solid rgba(201,168,76,0.08)">
+            <td style="padding:14px 24px;font-size:13px;color:var(--text)">Listes mailing</td>
+            <td style="padding:14px;text-align:center;font-size:13px;color:var(--muted)">1</td>
+            <td style="padding:14px;text-align:center;font-size:13px;color:var(--gold);font-weight:600">10</td>
+            <td style="padding:14px;text-align:center;font-size:13px;color:var(--text)">+10</td>
+          </tr>
+          <tr style="border-bottom:1px solid rgba(201,168,76,0.08)">
+            <td style="padding:14px 24px;font-size:13px;color:var(--text)">Leads autorisés</td>
+            <td style="padding:14px;text-align:center;font-size:13px;color:var(--muted)">1 000</td>
+            <td style="padding:14px;text-align:center;font-size:13px;color:var(--gold);font-weight:600">+1 000</td>
+            <td style="padding:14px;text-align:center;font-size:13px;color:var(--text)">+1 000</td>
+          </tr>
+          <tr>
+            <td style="padding:14px 24px;font-size:13px;color:var(--text)">Tunnels partagés</td>
+            <td style="padding:14px;text-align:center;font-size:13px;color:var(--muted)">—</td>
+            <td style="padding:14px;text-align:center;font-size:13px;color:var(--gold);font-weight:600">5</td>
+            <td style="padding:14px;text-align:center;font-size:13px;color:var(--text)">5+</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- DELIVERABLES -->
+<section class="deliverables">
+  <div class="container">
+    <div class="section-eyebrow">Livrables Phase 3</div>
+    <h2 class="section-title">Ce que votre équipe<br>va <em>recevoir</em></h2>
+    <p class="section-desc">Trois catégories de livrables pour une transformation complète.</p>
+
+    <div class="deliv-grid">
+      <div class="deliv-card fade-up">
+        <div class="deliv-cat">🧩 Front-Office</div>
+        <div class="deliv-title">Pages Marketing & Dashboard</div>
+        <ul class="deliv-list">
+          <li>Page "Pourquoi Royal LeadPro ?"</li>
+          <li>Page Fonctionnalités détaillée</li>
+          <li>Page Tarifs dynamique</li>
+          <li>Dashboard SaaS utilisateur</li>
+          <li>CTA upgrade contextuel</li>
+        </ul>
+      </div>
+      <div class="deliv-card fade-up">
+        <div class="deliv-cat">⚙️ Backend SaaS</div>
+        <div class="deliv-title">Moteur Multi-Tenant</div>
+        <ul class="deliv-list">
+          <li>Architecture multi-tenant complète</li>
+          <li>Module abonnement & billing</li>
+          <li>Middleware de quotas</li>
+          <li>Système de partage de tunnels</li>
+          <li>Rôles & permissions (4 niveaux)</li>
+          <li>Super Admin Royal LeadPro</li>
+        </ul>
+      </div>
+      <div class="deliv-card fade-up">
+        <div class="deliv-cat">🧪 Tests & Déploiement</div>
+        <div class="deliv-title">Qualité & Migration</div>
+        <ul class="deliv-list">
+          <li>Tests de limitation par plan</li>
+          <li>Tests multi-utilisateur</li>
+          <li>Tests expiration abonnement</li>
+          <li>Migration Phase 2 → SaaS</li>
+          <li>Activation progressive des plans</li>
+          <li>Documentation mise à jour</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA FINAL -->
+<section class="cta-final">
+  <div style="position:relative;z-index:1">
+    <div class="section-eyebrow" style="text-align:center">Prochaine étape</div>
+    <h2 class="section-title" style="text-align:center">Royal LeadPro devient<br>une <em>plateforme SaaS</em></h2>
+    <p class="section-desc" style="text-align:center;color:var(--muted)">Rejoindre les plateformes comme Systeme.io, mais avec l'ADN Royal Freelance et le marché ivoirien en ligne de mire.</p>
+    <div class="hero-cta-row">
+      <a href="https://royalleadpro.com/admin" class="btn-gold">Accès Admin</a>
+      <a href="mailto:contact@geniusgroups.com" class="btn-outline">Contacter l'Équipe</a>
+    </div>
+    <p style="font-size:12px;color:var(--muted);margin-top:24px;font-family:'JetBrains Mono',monospace">
+      Développé par Genius Groups SAS · Coach Loukou KOFFI
+    </p>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <img src="https://royalleadpro.com/assets/logowhite.png" alt="Royal LeadPro">
+  <p>Phase 3 — SaaS · Présentation Client · Version 3.0.0</p>
+  <p>© 2026 Royal LeadPro · Une initiative Royal Freelance · Développé par <strong style="color:var(--gold)">Genius Groups SAS</strong></p>
+</footer>
+
+<script>
+  // Intersection Observer pour fade-up
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('visible');
+        observer.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.1 });
+
+  document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
+</script>
+</body>
+</html>

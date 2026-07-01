@@ -248,9 +248,12 @@ class User extends Authenticatable implements FilamentUser
             return null;
         }
 
-        $baseDomain = config('app.domain', 'royalleadmagnet.com');
+        $parsed = parse_url(config('app.url'));
+        $scheme = $parsed['scheme'] ?? 'https';
+        $port = isset($parsed['port']) ? ':' . $parsed['port'] : '';
+        $baseDomain = config('app.subdomain_base', 'royalleadmagnet.com');
 
-        return "https://{$this->subdomain}.{$baseDomain}";
+        return "{$scheme}://{$this->subdomain}.{$baseDomain}{$port}";
     }
 
     /**
@@ -263,8 +266,11 @@ class User extends Authenticatable implements FilamentUser
         $slug = $pivot?->custom_slug ?? $funnel->slug;
 
         if ($this->subdomain) {
-            $baseDomain = config('app.domain', 'royalleadmagnet.com');
-            return "https://{$this->subdomain}.{$baseDomain}/f/{$slug}";
+            $parsed = parse_url(config('app.url'));
+            $scheme = $parsed['scheme'] ?? 'https';
+            $port = isset($parsed['port']) ? ':' . $parsed['port'] : '';
+            $baseDomain = config('app.subdomain_base', 'royalleadmagnet.com');
+            return "{$scheme}://{$this->subdomain}.{$baseDomain}{$port}/f/{$slug}";
         }
 
         return url("/f/{$slug}");

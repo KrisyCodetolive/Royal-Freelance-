@@ -152,7 +152,7 @@ class FunnelController extends Controller
         // Gère : Cookie visiteur, création Lead anonyme, GeoIP, Event PageView
         $lead = $this->trackingService->trackVisitor($funnel, $page);
 
-        $funnel->increment('views_count');
+        Funnel::withoutEvents(fn () => $funnel->increment('views_count'));
 
         // 2. Préparation des données de la vue
         $branding = $this->builderService->getPageBranding($page);
@@ -486,16 +486,8 @@ class FunnelController extends Controller
         $successMessage = $formBlock->content['success_message'] ?? 'Inscription réussie !';
 
         if ($nextPage) {
-            // Utiliser l'URL appropriée selon le type d'accès
-            if ($request->attributes->get('funnel_access_type') === 'subdomain') {
-                return redirect($funnel->getPublicUrl($nextPage->slug))
-                    ->with('success', $successMessage);
-            }
-
-            return redirect()->route('funnel.page', [
-                'funnelSlug' => $funnel->slug,
-                'pageSlug' => $nextPage->slug,
-            ])->with('success', $successMessage);
+            $nextUrl = url('/f/' . $funnel->slug . '/' . $nextPage->slug);
+            return redirect($nextUrl)->with('success', $successMessage);
         }
 
         return back()->with('success', $formBlock->content['success_message'] ?? 'Merci, vos informations ont été reçues.');

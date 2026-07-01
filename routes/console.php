@@ -11,5 +11,9 @@ Artisan::command('inspire', function () {
 // Vérifier les leads inactifs quotidiennement à 9h00
 Schedule::command('leads:check-inactive')->dailyAt('09:00');
 
-// Traiter les séquences email actives toutes les 5 minutes
-Schedule::command('email:process-sequences')->everyFiveMinutes()->withoutOverlapping();
+// Traiter les séquences email actives (toutes les minutes en prod via cron)
+Schedule::command('email:process-sequences')->everyMinute()->before(function () {
+    \Illuminate\Support\Facades\Log::info('[CRON] email:process-sequences démarré', ['at' => now()->toDateTimeString()]);
+})->after(function () {
+    \Illuminate\Support\Facades\Log::info('[CRON] email:process-sequences terminé', ['at' => now()->toDateTimeString()]);
+});

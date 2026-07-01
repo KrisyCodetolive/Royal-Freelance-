@@ -258,9 +258,12 @@ class Funnel extends Model implements HasMedia
         $pivot = $this->users()->where('user_id', $commercial->id)->first()?->pivot;
         $slug = $pivot?->custom_slug ?? $this->slug;
 
-        $baseDomain = config('app.domain', 'royalleadmagnet.com');
+        $parsed = parse_url(config('app.url'));
+        $scheme = $parsed['scheme'] ?? 'https';
+        $port = isset($parsed['port']) ? ':' . $parsed['port'] : '';
+        $baseDomain = config('app.subdomain_base', 'royalleadmagnet.com');
 
-        return "https://{$commercial->subdomain}.{$baseDomain}/f/{$slug}";
+        return "{$scheme}://{$commercial->subdomain}.{$baseDomain}{$port}/f/{$slug}";
     }
 
     /**
@@ -419,7 +422,7 @@ class Funnel extends Model implements HasMedia
         $funnel->save();
 
         // Increment template usage count
-        $this->increment('template_uses_count');
+        static::withoutEvents(fn () => $this->increment('template_uses_count'));
 
         return $funnel;
     }

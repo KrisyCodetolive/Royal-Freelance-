@@ -25,7 +25,7 @@ use Spatie\Permission\Middleware\RoleMiddleware;
 |--------------------------------------------------------------------------
 */
 // Landing page — fallback sans contrainte de domaine (local dev + prod)
-Route::get('/', fn() => view('landing'))->name('home');
+// Route::get('/', fn() => view('landing'))->name('home');
 Route::get('/presentation-client', fn() => view('presentation.client'))->name('presentation.client.fallback');
 Route::get('/presentation-client/sequences-email', fn() => view('presentation.sequences-email'))->name('presentation.sequences-email');
 Route::get('/presentation-client/email-builder', fn() => view('presentation.email-builder'))->name('presentation.email-builder');

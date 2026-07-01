@@ -98,44 +98,83 @@
     </div>
 </div>
 
-{{-- ===== RÉPARTITION PAR STATUT ===== --}}
-@if($totalStatusLeads > 0)
-<div class="bg-white rounded-xl shadow-sm border border-slate-100 p-4 sm:p-6 mb-6 sm:mb-8">
-    <h3 class="text-sm font-semibold text-slate-700 mb-4">Répartition du Pipeline</h3>
-    <div class="flex rounded-full overflow-hidden h-3 mb-4">
-        @foreach($statusConfig as $key => $cfg)
-            @php $count = $leadsByStatus[$key] ?? 0; $pct = $totalStatusLeads > 0 ? $count / $totalStatusLeads * 100 : 0; @endphp
-            @if($pct > 0)
-                <div class="{{ $cfg['bar'] }} transition-all" style="width: {{ $pct }}%" title="{{ $cfg['label'] }}: {{ $count }}"></div>
-            @endif
-        @endforeach
-    </div>
-    <div class="flex flex-wrap gap-4">
-        @foreach($statusConfig as $key => $cfg)
-            @php $count = $leadsByStatus[$key] ?? 0; @endphp
-            <div class="flex items-center gap-2">
-                <span class="w-2 h-2 rounded-full {{ $cfg['bar'] }}"></span>
-                <span class="text-xs text-slate-600">{{ $cfg['icon'] }} {{ $cfg['label'] }}</span>
-                <span class="text-xs font-bold text-slate-900">{{ $count }}</span>
-            </div>
-        @endforeach
-    </div>
-</div>
-@endif
 
 {{-- ===== GRAPHIQUE + ALERTES ===== --}}
 <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
 
     {{-- Graphique --}}
     <div class="lg:col-span-2 bg-white rounded-xl shadow-sm border border-slate-100 p-4 sm:p-6">
-        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-4 sm:mb-6">
-            <h3 class="text-base font-semibold text-slate-900">Performance (30 jours)</h3>
-            <div class="flex items-center gap-3 text-xs text-slate-500">
-                <span class="flex items-center gap-1.5"><span class="w-3 h-0.5 bg-amber-400 inline-block rounded"></span> Nouveaux leads</span>
-                <span class="flex items-center gap-1.5"><span class="w-3 h-0.5 bg-emerald-500 inline-block rounded"></span> Conversions</span>
+
+        {{-- Filtres --}}
+        <form method="GET" action="{{ route('commercial.dashboard') }}" id="chartFilterForm">
+            <div class="flex flex-col gap-3 mb-5">
+
+                {{-- Titre + légende --}}
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                    <h3 class="text-base font-semibold text-slate-900">
+                        Performance
+                        @if($currentPeriod === 'today') — Aujourd'hui
+                        @elseif($currentPeriod === '7d') — 7 derniers jours
+                        @elseif($currentPeriod === '90d') — 90 derniers jours
+                        @elseif($currentPeriod === 'custom') — Du {{ \Carbon\Carbon::parse($dateFrom)->format('d/m/Y') }} au {{ \Carbon\Carbon::parse($dateTo)->format('d/m/Y') }}
+                        @else — 30 derniers jours
+                        @endif
+                    </h3>
+                    <div class="flex items-center gap-3 text-xs text-slate-500">
+                        <span class="flex items-center gap-1.5"><span class="w-3 h-0.5 bg-amber-400 inline-block rounded"></span> Leads</span>
+                        <span class="flex items-center gap-1.5"><span class="w-3 h-0.5 bg-emerald-500 inline-block rounded"></span> Conversions</span>
+                    </div>
+                </div>
+
+                {{-- Boutons période + filtre tunnel --}}
+                <div class="flex flex-wrap items-center gap-2">
+                    {{-- Input caché mis à jour par JS --}}
+                    <input type="hidden" name="period" id="periodInput" value="{{ $currentPeriod }}">
+                    <input type="hidden" name="date_from" id="dateFromHidden" value="{{ $dateFrom }}">
+                    <input type="hidden" name="date_to"   id="dateToHidden"   value="{{ $dateTo }}">
+
+                    @foreach(['today' => "Auj'hui", '7d' => '7j', '30d' => '30j', '90d' => '90j', 'custom' => 'Perso'] as $val => $label)
+                        <button type="button" data-period="{{ $val }}"
+                            class="period-btn px-3 py-1 rounded-full text-xs font-medium border transition-all
+                                {{ $currentPeriod === $val
+                                    ? 'bg-amber-500 text-white border-amber-500'
+                                    : 'bg-white text-slate-600 border-slate-200 hover:border-amber-400 hover:text-amber-600' }}">
+                            {{ $label }}
+                        </button>
+                    @endforeach
+
+                    {{-- Séparateur --}}
+                    <span class="text-slate-200">|</span>
+
+                    {{-- Filtre tunnel --}}
+                    <select name="funnel_id" id="funnelSelect"
+                        class="text-xs border border-slate-200 rounded-lg px-2 py-1 text-slate-600 bg-white focus:ring-1 focus:ring-amber-400 focus:border-amber-400 outline-none">
+                        <option value="">Tous les tunnels</option>
+                        @foreach($funnels as $funnel)
+                            <option value="{{ $funnel->id }}" {{ $currentFunnelId == $funnel->id ? 'selected' : '' }}>
+                                {{ $funnel->name }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+
+                {{-- Plage de dates personnalisée --}}
+                <div id="customDateRange" class="{{ $currentPeriod === 'custom' ? 'flex' : 'hidden' }} items-center gap-2 flex-wrap">
+                    <input type="date" value="{{ $dateFrom }}"
+                        class="text-xs border border-slate-200 rounded-lg px-2 py-1 text-slate-600 focus:ring-1 focus:ring-amber-400 outline-none"
+                        oninput="document.getElementById('dateFromHidden').value=this.value">
+                    <span class="text-xs text-slate-400">→</span>
+                    <input type="date" value="{{ $dateTo }}"
+                        class="text-xs border border-slate-200 rounded-lg px-2 py-1 text-slate-600 focus:ring-1 focus:ring-amber-400 outline-none"
+                        oninput="document.getElementById('dateToHidden').value=this.value">
+                    <button type="submit" class="px-3 py-1 bg-amber-500 text-white text-xs rounded-lg hover:bg-amber-600 transition">
+                        Appliquer
+                    </button>
+                </div>
             </div>
-        </div>
-        <div class="h-48 sm:h-72 relative w-full">
+        </form>
+
+        <div class="h-48 sm:h-64 relative w-full">
             <canvas id="leadsChart"></canvas>
         </div>
     </div>
@@ -297,20 +336,39 @@
 @push('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-    const rawLeads = @json($leadsByDay);
-    const rawConversions = @json($conversionsByDay);
-    const labels = [];
-    const leadsData = [];
-    const conversionsData = [];
+    const form        = document.getElementById('chartFilterForm');
+    const periodInput = document.getElementById('periodInput');
+    const customRange = document.getElementById('customDateRange');
 
-    for (let i = 29; i >= 0; i--) {
-        const date = new Date();
-        date.setDate(date.getDate() - i);
-        const dateStr = date.toISOString().split('T')[0];
-        labels.push(date.toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' }));
-        leadsData.push(rawLeads[dateStr] || 0);
-        conversionsData.push(rawConversions[dateStr] || 0);
-    }
+    // Boutons de période
+    document.querySelectorAll('.period-btn').forEach(btn => {
+        btn.addEventListener('click', function () {
+            const val = this.dataset.period;
+            periodInput.value = val;
+            customRange.classList.toggle('hidden', val !== 'custom');
+            customRange.classList.toggle('flex',   val === 'custom');
+            if (val !== 'custom') form.submit();
+        });
+    });
+
+    // Filtre tunnel — soumettre en conservant la période courante
+    document.getElementById('funnelSelect').addEventListener('change', function () {
+        form.submit();
+    });
+
+    // Champs date perso → sync vers les inputs cachés avant soumission
+    document.querySelectorAll('#customDateRange input[type="date"]').forEach(input => {
+        input.addEventListener('change', function () {
+            document.getElementById('dateFromHidden').value =
+                document.querySelector('#customDateRange input[name="date_from"]').value;
+            document.getElementById('dateToHidden').value =
+                document.querySelector('#customDateRange input[name="date_to"]').value;
+        });
+    });
+
+    const labels        = @json($chartLabels);
+    const leadsData     = @json($leadsByDay);
+    const conversionsData = @json($conversionsByDay);
 
     const ctx = document.getElementById('leadsChart').getContext('2d');
 
@@ -324,7 +382,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     data: leadsData,
                     borderColor: '#f59e0b',
                     backgroundColor: (ctx) => {
-                        const g = ctx.chart.ctx.createLinearGradient(0, 0, 0, 300);
+                        const g = ctx.chart.ctx.createLinearGradient(0, 0, 0, 260);
                         g.addColorStop(0, 'rgba(245,158,11,0.18)');
                         g.addColorStop(1, 'rgba(245,158,11,0)');
                         return g;
@@ -333,7 +391,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     pointBackgroundColor: '#fff',
                     pointBorderColor: '#f59e0b',
                     pointBorderWidth: 2,
-                    pointRadius: 3,
+                    pointRadius: leadsData.length > 30 ? 0 : 3,
                     pointHoverRadius: 5,
                     fill: true,
                     tension: 0.4,
@@ -343,7 +401,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     data: conversionsData,
                     borderColor: '#10b981',
                     backgroundColor: (ctx) => {
-                        const g = ctx.chart.ctx.createLinearGradient(0, 0, 0, 300);
+                        const g = ctx.chart.ctx.createLinearGradient(0, 0, 0, 260);
                         g.addColorStop(0, 'rgba(16,185,129,0.15)');
                         g.addColorStop(1, 'rgba(16,185,129,0)');
                         return g;
@@ -352,7 +410,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     pointBackgroundColor: '#fff',
                     pointBorderColor: '#10b981',
                     pointBorderWidth: 2,
-                    pointRadius: 3,
+                    pointRadius: leadsData.length > 30 ? 0 : 3,
                     pointHoverRadius: 5,
                     fill: true,
                     tension: 0.4,
@@ -376,12 +434,12 @@ document.addEventListener('DOMContentLoaded', function () {
                 y: {
                     beginAtZero: true,
                     grid: { color: '#f1f5f9', borderDash: [4, 4] },
-                    ticks: { stepSize: 1, font: { size: 11 }, color: '#94a3b8' },
+                    ticks: { stepSize: 1, font: { size: 11 }, color: '#94a3b8', precision: 0 },
                     border: { display: false },
                 },
                 x: {
                     grid: { display: false },
-                    ticks: { font: { size: 11 }, color: '#94a3b8', maxTicksLimit: 10 },
+                    ticks: { font: { size: 11 }, color: '#94a3b8', maxTicksLimit: 12 },
                     border: { display: false },
                 },
             },

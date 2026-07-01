@@ -247,12 +247,14 @@ class SubdomainService
     {
         $scheme = config('app.env') === 'production' ? 'https' : 'http';
         $baseDomain = $this->getBaseDomain();
+        $parsedAppUrl = parse_url(config('app.url'));
+        $port = isset($parsedAppUrl['port']) ? ':' . $parsedAppUrl['port'] : '';
 
         // Priorité : Custom Domain > Subdomain > Slug classique
         if ($funnel->custom_domain && $funnel->domain_verified_at) {
             $url = "{$scheme}://{$funnel->custom_domain}";
         } elseif ($funnel->subdomain) {
-            $url = "{$scheme}://{$funnel->subdomain}.{$baseDomain}";
+            $url = "{$scheme}://{$funnel->subdomain}.{$baseDomain}{$port}";
         } else {
             // Fallback vers l'URL classique
             return route('funnel.root', ['funnelSlug' => $funnel->slug]);

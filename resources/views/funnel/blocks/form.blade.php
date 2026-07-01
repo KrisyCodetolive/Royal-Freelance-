@@ -88,7 +88,7 @@
                 </h3>
             @endif
 
-            <form action="{{ route('funnel.submit', ['funnelSlug' => $funnel->slug, 'pageSlug' => $page->slug]) }}"
+            <form action="{{ url('/f/' . $funnel->slug . '/' . $page->slug . '/submit') }}"
                 method="POST" class="space-y-4">
                 @csrf
                 @if(session('commercial_ref'))

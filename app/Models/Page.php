@@ -130,12 +130,12 @@ class Page extends Model
 
     public function incrementViews(): void
     {
-        $this->increment('views_count');
+        static::withoutEvents(fn () => $this->increment('views_count'));
     }
 
     public function incrementSubmissions(): void
     {
-        $this->increment('submissions_count');
+        static::withoutEvents(fn () => $this->increment('submissions_count'));
     }
 
     /**

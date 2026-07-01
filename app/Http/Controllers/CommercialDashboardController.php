@@ -18,12 +18,23 @@ class CommercialDashboardController extends Controller
     /**
      * Dashboard principal du commercial
      */
-    public function index()
+    public function index(Request $request)
     {
         $user = Auth::user();
         $stats = $this->commercialService->getStats($user);
 
-        // Tendances : période courante vs précédente (30j)
+        // ── Filtres graphique ──────────────────────────────────────────────
+        $period    = $request->input('period', '30d');
+        $funnelId  = $request->input('funnel_id');
+        $dateFrom  = $request->input('date_from');
+        $dateTo    = $request->input('date_to');
+
+        [$startDate, $endDate] = $this->resolveDateRange($period, $dateFrom, $dateTo);
+
+        // Durée en jours pour construire les labels du graphique
+        $days = (int) $startDate->diffInDays($endDate) + 1;
+
+        // ── Tendances (toujours sur 30j, indépendantes du filtre) ──────────
         $currentLeads = Lead::withoutGlobalScope('tenant')
             ->where('brought_by', $user->id)
             ->where('created_at', '>=', now()->subDays(30))
@@ -49,11 +60,11 @@ class CommercialDashboardController extends Controller
         $leadsTrend = $prevLeads > 0 ? round(($currentLeads - $prevLeads) / $prevLeads * 100) : null;
         $conversionsTrend = $prevConversions > 0 ? round(($currentConversions - $prevConversions) / $prevConversions * 100) : null;
 
-        // Taux de conversion global
+        // ── Stats globales ─────────────────────────────────────────────────
         $totalLeads = $stats['total_leads'];
         $conversionRate = $totalLeads > 0 ? round($stats['conversions'] / $totalLeads * 100, 1) : 0;
 
-        // Répartition des leads par statut
+        // ── Pipeline par statut ────────────────────────────────────────────
         $leadsByStatus = Lead::withoutGlobalScope('tenant')
             ->where('brought_by', $user->id)
             ->selectRaw('status, COUNT(*) as count')
@@ -61,7 +72,7 @@ class CommercialDashboardController extends Controller
             ->pluck('count', 'status')
             ->toArray();
 
-        // Leads à relancer (chauds/tièdes inactifs depuis 3+ jours)
+        // ── Leads à relancer ───────────────────────────────────────────────
         $leadsToFollowUp = Lead::withoutGlobalScope('tenant')
             ->where('brought_by', $user->id)
             ->whereIn('status', [
@@ -78,27 +89,51 @@ class CommercialDashboardController extends Controller
             ->limit(6)
             ->get();
 
-        // Données graphique 30 derniers jours
-        $leadsByDay = Lead::withoutGlobalScope('tenant')
+        // ── Données graphique (avec filtres période + tunnel) ──────────────
+        $leadsQuery = Lead::withoutGlobalScope('tenant')
             ->where('brought_by', $user->id)
-            ->where('created_at', '>=', now()->subDays(30))
-            ->selectRaw('DATE(created_at) as date, COUNT(*) as count')
-            ->groupBy('date')
-            ->orderBy('date')
-            ->pluck('count', 'date')
-            ->toArray();
+            ->whereBetween('created_at', [$startDate->startOfDay(), $endDate->copy()->endOfDay()]);
 
-        $conversionsByDay = Lead::withoutGlobalScope('tenant')
+        $conversionsQuery = Lead::withoutGlobalScope('tenant')
             ->where('brought_by', $user->id)
             ->whereNotNull('converted_at')
-            ->where('converted_at', '>=', now()->subDays(30))
-            ->selectRaw('DATE(converted_at) as date, COUNT(*) as count')
-            ->groupBy('date')
-            ->orderBy('date')
-            ->pluck('count', 'date')
-            ->toArray();
+            ->whereBetween('converted_at', [$startDate->startOfDay(), $endDate->copy()->endOfDay()]);
 
-        // Alertes récentes
+        if ($funnelId) {
+            $leadsQuery->where('funnel_id', $funnelId);
+            $conversionsQuery->where('funnel_id', $funnelId);
+        }
+
+        $leadsByDayRaw = $leadsQuery
+            ->selectRaw('DATE(created_at) as date, COUNT(*) as count')
+            ->groupBy('date')->orderBy('date')
+            ->pluck('count', 'date')->toArray();
+
+        $conversionsByDayRaw = $conversionsQuery
+            ->selectRaw('DATE(converted_at) as date, COUNT(*) as count')
+            ->groupBy('date')->orderBy('date')
+            ->pluck('count', 'date')->toArray();
+
+        // Construire les tableaux complets (une entrée par jour, même à 0)
+        $chartLabels = [];
+        $leadsByDay  = [];
+        $conversionsByDay = [];
+
+        for ($i = 0; $i < $days; $i++) {
+            $date = $startDate->copy()->addDays($i);
+            $dateStr = $date->toDateString();
+            $chartLabels[]    = $date->translatedFormat('d M');
+            $leadsByDay[]     = $leadsByDayRaw[$dateStr] ?? 0;
+            $conversionsByDay[] = $conversionsByDayRaw[$dateStr] ?? 0;
+        }
+
+        // ── Liste des tunnels du commercial (pour le filtre) ───────────────
+        $funnels = $user->availableFunnels()
+            ->where('is_template', false)
+            ->select('funnels.id', 'funnels.name')
+            ->get();
+
+        // ── Alertes ────────────────────────────────────────────────────────
         $alerts = \App\Models\Alert::where('user_id', $user->id)
             ->where('is_read', false)
             ->with('lead:id,first_name,last_name,email,phone,score,funnel_id')
@@ -119,8 +154,14 @@ class CommercialDashboardController extends Controller
             'conversionsTrend' => $conversionsTrend,
             'leadsByStatus'    => $leadsByStatus,
             'leadsToFollowUp'  => $leadsToFollowUp,
+            'chartLabels'      => $chartLabels,
             'leadsByDay'       => $leadsByDay,
             'conversionsByDay' => $conversionsByDay,
+            'funnels'          => $funnels,
+            'currentPeriod'    => $period,
+            'currentFunnelId'  => $funnelId,
+            'dateFrom'         => $dateFrom ?? $startDate->toDateString(),
+            'dateTo'           => $dateTo   ?? $endDate->toDateString(),
             'recentLeads'      => Lead::withoutGlobalScope('tenant')
                 ->where('brought_by', $user->id)
                 ->with(['funnel:id,name'])
@@ -130,6 +171,20 @@ class CommercialDashboardController extends Controller
             'alerts'      => $alerts,
             'unreadCount' => $unreadAlertsCount,
         ]);
+    }
+
+    private function resolveDateRange(string $period, ?string $dateFrom, ?string $dateTo): array
+    {
+        return match ($period) {
+            'today'  => [now()->startOfDay(), now()],
+            '7d'     => [now()->subDays(6)->startOfDay(), now()],
+            '90d'    => [now()->subDays(89)->startOfDay(), now()],
+            'custom' => [
+                \Carbon\Carbon::parse($dateFrom ?? now()->subDays(29))->startOfDay(),
+                \Carbon\Carbon::parse($dateTo   ?? now())->endOfDay(),
+            ],
+            default  => [now()->subDays(29)->startOfDay(), now()], // 30d
+        };
     }
 
     /**

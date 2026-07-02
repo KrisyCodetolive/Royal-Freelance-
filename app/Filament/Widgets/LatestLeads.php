@@ -21,7 +21,7 @@ class LatestLeads extends BaseWidget
     {
         return $table
             ->query(
-                Lead::withoutGlobalScope('tenant')
+                Lead::query()
                     ->with(['funnel:id,name'])
                     ->orderByRaw("FIELD(status, 'ultra_hot', 'hot', 'warm', 'cold', 'client', 'member')")
                     ->orderByDesc('score')

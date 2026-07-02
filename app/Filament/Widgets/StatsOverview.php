@@ -18,21 +18,21 @@ class StatsOverview extends BaseWidget
     protected function getStats(): array
     {
         // Période courante vs précédente (7j)
-        $totalLeads     = Lead::withoutGlobalScope('tenant')->count();
-        $prevLeads      = Lead::withoutGlobalScope('tenant')->where('created_at', '<', now()->subDays(7))->count();
-        $leadsThisWeek  = Lead::withoutGlobalScope('tenant')->where('created_at', '>=', now()->subDays(7))->count();
-        $leadsPrevWeek  = Lead::withoutGlobalScope('tenant')->whereBetween('created_at', [now()->subDays(14), now()->subDays(7)])->count();
+        $totalLeads     = Lead::query()->count();
+        $prevLeads      = Lead::query()->where('created_at', '<', now()->subDays(7))->count();
+        $leadsThisWeek  = Lead::query()->where('created_at', '>=', now()->subDays(7))->count();
+        $leadsPrevWeek  = Lead::query()->whereBetween('created_at', [now()->subDays(14), now()->subDays(7)])->count();
         $leadsTrend     = $leadsPrevWeek > 0 ? round(($leadsThisWeek - $leadsPrevWeek) / $leadsPrevWeek * 100) : 0;
 
-        $hotLeads       = Lead::withoutGlobalScope('tenant')->where('score', '>=', 31)->count();
-        $hotThisWeek    = Lead::withoutGlobalScope('tenant')->where('score', '>=', 31)->where('created_at', '>=', now()->subDays(7))->count();
-        $hotPrevWeek    = Lead::withoutGlobalScope('tenant')->where('score', '>=', 31)->whereBetween('created_at', [now()->subDays(14), now()->subDays(7)])->count();
+        $hotLeads       = Lead::query()->where('score', '>=', 31)->count();
+        $hotThisWeek    = Lead::query()->where('score', '>=', 31)->where('created_at', '>=', now()->subDays(7))->count();
+        $hotPrevWeek    = Lead::query()->where('score', '>=', 31)->whereBetween('created_at', [now()->subDays(14), now()->subDays(7)])->count();
         $hotTrend       = $hotPrevWeek > 0 ? round(($hotThisWeek - $hotPrevWeek) / $hotPrevWeek * 100) : 0;
 
-        $conversions    = Lead::withoutGlobalScope('tenant')->whereNotNull('converted_at')->count();
+        $conversions    = Lead::query()->whereNotNull('converted_at')->count();
         $convRate       = $totalLeads > 0 ? round($conversions / $totalLeads * 100, 1) : 0;
-        $convThisWeek   = Lead::withoutGlobalScope('tenant')->whereNotNull('converted_at')->where('converted_at', '>=', now()->subDays(7))->count();
-        $convPrevWeek   = Lead::withoutGlobalScope('tenant')->whereNotNull('converted_at')->whereBetween('converted_at', [now()->subDays(14), now()->subDays(7)])->count();
+        $convThisWeek   = Lead::query()->whereNotNull('converted_at')->where('converted_at', '>=', now()->subDays(7))->count();
+        $convPrevWeek   = Lead::query()->whereNotNull('converted_at')->whereBetween('converted_at', [now()->subDays(14), now()->subDays(7)])->count();
         $convTrend      = $convPrevWeek > 0 ? round(($convThisWeek - $convPrevWeek) / $convPrevWeek * 100) : 0;
 
         $activeFunnels  = Funnel::where('status', 'active')->count();
@@ -84,8 +84,8 @@ class StatsOverview extends BaseWidget
             $date = today()->subDays($i);
             $data[] = match ($type) {
                 'leads'       => Lead::whereDate('created_at', $date)->count(),
-                'hot'         => Lead::withoutGlobalScope('tenant')->where('score', '>=', 31)->whereDate('created_at', $date)->count(),
-                'conversions' => Lead::withoutGlobalScope('tenant')->whereNotNull('converted_at')->whereDate('converted_at', $date)->count(),
+                'hot'         => Lead::query()->where('score', '>=', 31)->whereDate('created_at', $date)->count(),
+                'conversions' => Lead::query()->whereNotNull('converted_at')->whereDate('converted_at', $date)->count(),
                 default       => 0,
             };
         }

@@ -22,10 +22,10 @@ class LeadsByDeviceWidget extends ChartWidget
 
     protected function getData(): array
     {
-        $mobile = Lead::withoutGlobalScope('tenant')->where('device_type', 'mobile')->count();
-        $desktop = Lead::withoutGlobalScope('tenant')->where('device_type', 'desktop')->count();
-        $tablet = Lead::withoutGlobalScope('tenant')->where('device_type', 'tablet')->count();
-        $unknown = Lead::withoutGlobalScope('tenant')->whereNull('device_type')->count();
+        $mobile = Lead::query()->where('device_type', 'mobile')->count();
+        $desktop = Lead::query()->where('device_type', 'desktop')->count();
+        $tablet = Lead::query()->where('device_type', 'tablet')->count();
+        $unknown = Lead::query()->whereNull('device_type')->count();
 
         return [
             'datasets' => [

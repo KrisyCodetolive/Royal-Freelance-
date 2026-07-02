@@ -33,14 +33,14 @@ class RevenuePerformanceWidget extends ChartWidget
             $labels[] = $date->format('d/m');
 
             // Conversions du jour
-            $dayConversions = Lead::withoutGlobalScope('tenant')
+            $dayConversions = Lead::query()
                 ->whereNotNull('converted_at')
                 ->whereDate('converted_at', $date)
                 ->count();
             $conversions[] = $dayConversions;
 
             // Revenue estimé (basé sur score moyen des conversions)
-            $dayRevenue = Lead::withoutGlobalScope('tenant')
+            $dayRevenue = Lead::query()
                 ->whereNotNull('converted_at')
                 ->whereDate('converted_at', $date)
                 ->avg('score') ?? 0;

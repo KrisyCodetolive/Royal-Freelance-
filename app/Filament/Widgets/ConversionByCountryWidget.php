@@ -25,7 +25,7 @@ class ConversionByCountryWidget extends ChartWidget
     protected function getData(): array
     {
         // Top 10 pays avec le plus de leads convertis (CONVERTED)
-        $topCountries = Lead::withoutGlobalScope('tenant')
+        $topCountries = Lead::query()
             ->select('country', DB::raw('count(*) as total'))
             ->whereNotNull('converted_at')
             ->whereNotNull('country')

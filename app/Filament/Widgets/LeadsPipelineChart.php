@@ -23,11 +23,11 @@ class LeadsPipelineChart extends ChartWidget
     protected function getData(): array
     {
         $pipeline = [
-            LeadStatus::COLD->value => Lead::withoutGlobalScope('tenant')->where('status', LeadStatus::COLD)->count(),
-            LeadStatus::WARM->value => Lead::withoutGlobalScope('tenant')->where('status', LeadStatus::WARM)->count(),
-            LeadStatus::HOT->value => Lead::withoutGlobalScope('tenant')->where('status', LeadStatus::HOT)->count(),
-            LeadStatus::ULTRA_HOT->value => Lead::withoutGlobalScope('tenant')->where('status', LeadStatus::ULTRA_HOT)->count(),
-            LeadStatus::CLIENT->value => Lead::withoutGlobalScope('tenant')->where('status', LeadStatus::CLIENT)->count(),
+            LeadStatus::COLD->value => Lead::query()->where('status', LeadStatus::COLD)->count(),
+            LeadStatus::WARM->value => Lead::query()->where('status', LeadStatus::WARM)->count(),
+            LeadStatus::HOT->value => Lead::query()->where('status', LeadStatus::HOT)->count(),
+            LeadStatus::ULTRA_HOT->value => Lead::query()->where('status', LeadStatus::ULTRA_HOT)->count(),
+            LeadStatus::CLIENT->value => Lead::query()->where('status', LeadStatus::CLIENT)->count(),
         ];
 
         return [

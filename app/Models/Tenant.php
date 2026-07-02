@@ -28,6 +28,7 @@ class Tenant extends Model
         'timezone',
         'currency',
         'locale',
+        'plan_slug',
         'is_active',
         'trial_ends_at',
         'suspended_at',

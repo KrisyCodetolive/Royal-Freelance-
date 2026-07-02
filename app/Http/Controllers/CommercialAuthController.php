@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Tenant;
+use App\Models\TenantInvitation;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -54,13 +54,19 @@ class CommercialAuthController extends Controller
     /**
      * Show the registration view.
      */
-    public function register()
+    public function register(Request $request)
     {
-        return view('auth.register');
+        return view('auth.register', [
+            'invitationToken' => $request->query('invitation'),
+        ]);
     }
 
     /**
      * Handle an incoming registration request.
+     *
+     * L'inscription d'un commercial nécessite un lien d'invitation valide
+     * (généré par un admin depuis son tenant) : il n'y a pas de rattachement
+     * implicite au "premier tenant de la base".
      */
     public function store(Request $request)
     {
@@ -69,16 +75,15 @@ class CommercialAuthController extends Controller
             'email' => ['required', 'string', 'email', 'max:255', 'unique:' . User::class],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
             'shop_name' => ['required', 'string', 'max:255'],
+            'invitation' => ['required', 'string'],
         ]);
 
-        // Default tenant (assuming single tenant for now or first one)
-        // In a multi-tenant app, this might need subdomain resolution or selection.
-        // For Royal LeadPro, we likely use a default tenant or resolving from domain.
-        $tenant = Tenant::first();
+        $invitation = TenantInvitation::where('token', $request->input('invitation'))->first();
 
-        // Fail-safe if no tenant exists (should not happen in prod with seeder)
-        if (!$tenant) {
-            return back()->withErrors(['email' => 'Configuration système invalide (Tenant manquant).']);
+        if (!$invitation || !$invitation->isValid()) {
+            return back()
+                ->withErrors(['invitation' => "Ce lien d'invitation est invalide ou a expiré."])
+                ->onlyInput('name', 'email', 'shop_name');
         }
 
         $user = User::create([
@@ -86,11 +91,13 @@ class CommercialAuthController extends Controller
             'email' => $request->email,
             'password' => Hash::make($request->password),
             'shop_name' => $request->shop_name,
-            'tenant_id' => $tenant->id,
-            'is_active' => true, // Auto-activate or false if approval needed
+            'tenant_id' => $invitation->tenant_id,
+            'is_active' => true,
         ]);
 
-        $user->assignRole('commercial');
+        $user->assignRole($invitation->role);
+
+        $invitation->markUsedBy($user);
 
         Auth::login($user);
 

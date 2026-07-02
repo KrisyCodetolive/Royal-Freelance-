@@ -199,12 +199,22 @@ class User extends Authenticatable implements FilamentUser
 
     public function isAdmin(): bool
     {
-        return $this->hasRole(['super_admin', 'admin']);
+        return $this->hasRole(['super_admin', 'admin', 'owner']);
     }
 
     public function isManager(): bool
     {
-        return $this->hasRole(['super_admin', 'admin', 'manager']);
+        return $this->hasRole(['super_admin', 'admin', 'owner', 'manager']);
+    }
+
+    /**
+     * Owner = propriétaire du workspace (tenant). Seul rôle habilité à
+     * gérer l'abonnement de son tenant (cf. royal-leadpro-phase3.html,
+     * section "4 Rôles" — Owner a toutes les permissions d'Admin + billing).
+     */
+    public function isOwner(): bool
+    {
+        return $this->hasRole('owner');
     }
 
     public function isCommercial(): bool

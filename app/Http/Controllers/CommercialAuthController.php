@@ -39,7 +39,7 @@ class CommercialAuthController extends Controller
                 return redirect()->intended(route('commercial.dashboard'));
             }
 
-            if ($user->hasRole(['super_admin', 'admin', 'manager'])) {
+            if ($user->hasRole(['super_admin', 'admin', 'owner', 'manager'])) {
                 return redirect()->intended('/admin');
             }
 
@@ -100,6 +100,12 @@ class CommercialAuthController extends Controller
         $invitation->markUsedBy($user);
 
         Auth::login($user);
+
+        // Un invité peut recevoir le rôle admin (gestion opérationnelle) ou
+        // commercial (espace dédié) : la redirection dépend du rôle assigné.
+        if ($user->isAdmin()) {
+            return redirect('/admin');
+        }
 
         return redirect(route('commercial.dashboard'));
     }

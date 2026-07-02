@@ -110,6 +110,12 @@ class DatabaseSeeder extends Seeder
         $admin = Role::firstOrCreate(['name' => 'admin', 'guard_name' => 'web']);
         $admin->givePermissionTo(Permission::where('name', 'not like', '%tenants%')->get());
 
+        // Owner - rôle workspace (Module 5 CDC) : mêmes permissions que Admin,
+        // + seul rôle habilité à gérer l'abonnement du tenant (géré par un
+        // check de rôle inline, pas par une permission, comme le reste du panel).
+        $owner = Role::firstOrCreate(['name' => 'owner', 'guard_name' => 'web']);
+        $owner->givePermissionTo(Permission::where('name', 'not like', '%tenants%')->get());
+
         // Manager - can manage funnels, leads, and team
         $manager = Role::firstOrCreate(['name' => 'manager', 'guard_name' => 'web']);
         $manager->givePermissionTo([

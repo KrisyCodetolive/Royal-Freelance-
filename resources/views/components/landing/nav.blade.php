@@ -20,7 +20,7 @@
                         <span class="text-sm text-slate-600">Bonjour, <span
                                 class="font-semibold text-slate-900">{{ Auth::user()->name }}</span></span>
 
-                        <a href="{{ Auth::user()->isSuperAdmin() ? '/admin' : route('commercial.dashboard') }}"
+                        <a href="{{ Auth::user()->isAdmin() ? '/admin' : route('commercial.dashboard') }}"
                             class="text-sm font-medium text-slate-900 hover:text-amber-600 transition-colors">
                             Mon Espace
                         </a>

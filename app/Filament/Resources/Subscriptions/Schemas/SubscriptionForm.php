@@ -5,9 +5,9 @@ namespace App\Filament\Resources\Subscriptions\Schemas;
 use App\Models\Plan;
 use App\Models\Tenant;
 use Filament\Forms\Components\DateTimePicker;
-use Filament\Forms\Components\Grid;
-use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
+use Filament\Schemas\Components\Grid;
+use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 
 class SubscriptionForm

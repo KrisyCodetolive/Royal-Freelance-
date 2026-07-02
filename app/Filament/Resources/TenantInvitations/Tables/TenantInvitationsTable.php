@@ -18,6 +18,15 @@ class TenantInvitationsTable
                     ->searchable()
                     ->weight('bold'),
 
+                TextColumn::make('role')
+                    ->label('Rôle')
+                    ->formatStateUsing(fn(string $state) => match ($state) {
+                        'admin' => 'Administrateur',
+                        'commercial' => 'Commercial',
+                        default => $state,
+                    })
+                    ->badge(),
+
                 TextColumn::make('invite_url')
                     ->label('Lien d\'invitation')
                     ->copyable()

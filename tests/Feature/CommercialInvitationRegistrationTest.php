@@ -107,6 +107,31 @@ class CommercialInvitationRegistrationTest extends TestCase
         $this->assertNull(User::where('email', 'expired@example.com')->first());
     }
 
+    public function test_registration_with_admin_role_invitation_grants_admin_access_and_redirects_to_admin_panel(): void
+    {
+        $tenant = $this->createTenantOnPlan();
+        $owner = $this->createOwnerForTenant($tenant);
+        $invitation = $this->makeInvitation($tenant->id, $owner->id, [
+            'email' => 'new-admin@example.com',
+            'role' => 'admin',
+        ]);
+
+        $response = $this->post('/register', [
+            'name' => 'Nouvel Admin',
+            'email' => $invitation->email,
+            'password' => 'Password123!',
+            'password_confirmation' => 'Password123!',
+            'shop_name' => 'Ma Boutique',
+            'invitation' => $invitation->token,
+        ]);
+
+        $newAdmin = User::where('email', $invitation->email)->first();
+        $this->assertTrue($newAdmin->hasRole('admin'));
+        $this->assertTrue($newAdmin->isAdmin());
+
+        $response->assertRedirect('/admin');
+    }
+
     public function test_registration_with_already_used_invitation_is_rejected(): void
     {
         $tenant = $this->createTenantOnPlan();

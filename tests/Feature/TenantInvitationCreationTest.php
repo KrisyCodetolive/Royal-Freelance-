@@ -47,6 +47,26 @@ class TenantInvitationCreationTest extends TestCase
         $this->assertNotEmpty($invitation->token);
     }
 
+    public function test_owner_can_choose_the_admin_role_when_inviting_a_member(): void
+    {
+        $tenant = $this->createTenantOnPlan();
+        $owner = $this->createOwnerForTenant($tenant);
+
+        $this->actingAs($owner);
+
+        Livewire::test(CreateTenantInvitation::class)
+            ->fillForm([
+                'email' => 'futur-admin@example.com',
+                'role' => 'admin',
+            ])
+            ->call('create')
+            ->assertHasNoFormErrors();
+
+        $invitation = TenantInvitation::where('email', 'futur-admin@example.com')->first();
+
+        $this->assertSame('admin', $invitation->role);
+    }
+
     public function test_super_admin_can_create_a_subscription_via_the_filament_form(): void
     {
         $tenant = $this->createTenantOnPlan();

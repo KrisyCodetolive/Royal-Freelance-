@@ -12,7 +12,6 @@ class CreateTenantInvitation extends CreateRecord
     protected function mutateFormDataBeforeCreate(array $data): array
     {
         $data['invited_by'] = auth()->id();
-        $data['role'] = 'commercial';
         $data['expires_at'] = now()->addDays(7);
 
         return $data;

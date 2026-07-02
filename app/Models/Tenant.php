@@ -28,7 +28,6 @@ class Tenant extends Model
         'timezone',
         'currency',
         'locale',
-        'plan_slug',
         'is_active',
         'trial_ends_at',
         'suspended_at',
@@ -102,6 +101,21 @@ class Tenant extends Model
     public function commercialGroups(): HasMany
     {
         return $this->hasMany(CommercialGroup::class);
+    }
+
+    public function subscriptions(): HasMany
+    {
+        return $this->hasMany(Subscription::class);
+    }
+
+    public function activeSubscription(): ?Subscription
+    {
+        return $this->subscriptions()->active()->latest('starts_at')->first();
+    }
+
+    public function currentPlan(): ?Plan
+    {
+        return $this->activeSubscription()?->plan;
     }
 
     /**

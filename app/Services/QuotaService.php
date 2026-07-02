@@ -1,0 +1,78 @@
+<?php
+
+namespace App\Services;
+
+use App\Models\EmailSequence;
+use App\Models\Funnel;
+use App\Models\Lead;
+use App\Models\Tenant;
+
+/**
+ * Calcule l'usage courant d'un tenant face aux limites de son plan actif
+ * (Module 3 — Quotas par plan). Enforcement câblé pour l'instant sur les
+ * créations côté panel admin (tunnels, listes mailing) uniquement : voir
+ * ROADMAP_SAAS_PHASE3.md pour pourquoi "leads" et "tunnels partagés" ne
+ * sont pas encore bloqués à la création.
+ */
+class QuotaService
+{
+    private const QUOTA_TO_PLAN_FIELD = [
+        'tunnels' => 'max_tunnels',
+        'mailing_lists' => 'max_mailing_lists',
+        'leads' => 'max_leads',
+        'shared_tunnels' => 'max_shared_tunnels',
+    ];
+
+    public function usage(Tenant $tenant): array
+    {
+        return [
+            'tunnels' => Funnel::where('tenant_id', $tenant->id)->where('is_template', false)->count(),
+            'mailing_lists' => EmailSequence::where('tenant_id', $tenant->id)->count(),
+            'leads' => Lead::where('tenant_id', $tenant->id)->count(),
+            'shared_tunnels' => Funnel::where('tenant_id', $tenant->id)
+                ->where('is_template', false)
+                ->whereHas('users')
+                ->count(),
+        ];
+    }
+
+    /**
+     * Limite pour une quota donnée. null = illimité.
+     * Si le tenant n'a pas d'abonnement actif, la limite est 0 (aucune création autorisée).
+     */
+    public function limit(Tenant $tenant, string $quotaKey): ?int
+    {
+        $plan = $tenant->currentPlan();
+
+        if (!$plan) {
+            return 0;
+        }
+
+        $field = self::QUOTA_TO_PLAN_FIELD[$quotaKey] ?? null;
+
+        return $field ? $plan->{$field} : 0;
+    }
+
+    /**
+     * Quantité restante avant d'atteindre la limite. null = illimité.
+     */
+    public function remaining(Tenant $tenant, string $quotaKey): ?int
+    {
+        $limit = $this->limit($tenant, $quotaKey);
+
+        if (is_null($limit)) {
+            return null;
+        }
+
+        $used = $this->usage($tenant)[$quotaKey] ?? 0;
+
+        return max(0, $limit - $used);
+    }
+
+    public function hasReachedLimit(Tenant $tenant, string $quotaKey): bool
+    {
+        $remaining = $this->remaining($tenant, $quotaKey);
+
+        return !is_null($remaining) && $remaining <= 0;
+    }
+}

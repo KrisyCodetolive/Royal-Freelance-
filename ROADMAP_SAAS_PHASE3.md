@@ -13,8 +13,8 @@ Royal LeadPro passe d'outil interne (usage type "royalFreelance", un seul porteu
 | # | Module | Statut |
 |---|---|---|
 | 1 | Architecture Multi-Tenant | ✅ Squelette fonctionnel (inscription self-service, invitations, fuite de données corrigée) |
-| 2 | Billing & Abonnements | ⬜ Pas commencé |
-| 3 | Quotas par plan | ⬜ Pas commencé |
+| 2 | Billing & Abonnements | ✅ Squelette fonctionnel (activation manuelle, pas de gateway de paiement) |
+| 3 | Quotas par plan | 🔶 Enforcement partiel (tunnels + listes mailing bloqués ; leads et tunnels partagés calculés mais pas bloqués) |
 | 4 | Partage de Tunnels | ⬜ Pas commencé |
 | 5 | Rôles & Permissions (Owner/Admin/Editor/Viewer) | ⬜ Pas commencé |
 | 6 | Dashboard SaaS utilisateur | ⬜ Pas commencé |
@@ -71,17 +71,30 @@ Raison : ensemble ils forment le squelette monétisable (inscription → plan �
 
 ---
 
-## Module 2 — Billing & Abonnements (aperçu, détaillé quand on y arrive)
-- Modèle `Plan` (slug, prix mensuel/annuel, limites : tunnels, listes mailing, leads, tunnels partagés, rôles, dashboard, support) + seeder des 3 plans (Gratuit/Starter/Prestige, chiffres déjà définis dans la spec)
-- Modèle `Subscription` (tenant_id, plan_id, cycle, statut active/expired/suspended/trialing, dates)
-- Commande planifiée pour repasser les abonnements expirés
-- **Décision ouverte** : paiement réel dès maintenant (Mobile Money/CinetPay/PayDunya/Stripe) ou activation manuelle temporaire le temps de valider le squelette ?
+## Module 2 — Billing & Abonnements
 
-## Module 3 — Quotas par plan (aperçu, détaillé quand on y arrive)
-- `QuotaService` : usage courant du tenant vs limites du `Plan` de sa `Subscription` active
-- Enforcement côté ressources Filament (blocage création + notification "limite atteinte")
-- Gestion des limites illimitées (`null`/`-1`)
-- Dépend directement du Module 2 (a besoin d'un `Plan` avec limites en base)
+### Décisions prises (2026-07-02)
+- [x] **Activation manuelle** — pas de gateway de paiement (Mobile Money/CinetPay/PayDunya/Stripe) pour l'instant. Un super_admin active/change le plan d'un tenant depuis le panel. Le vrai paiement viendra une fois le squelette Billing+Quotas validé.
+- [x] **Quotas "+X" lus comme cumulatifs par palier** : Leads Gratuit 1000 / Starter 2000 / Prestige 3000 ; Listes mailing Gratuit 1 / Starter 10 / Prestige 20.
+- [x] **Tunnels partagés Prestige = illimité** (`null`), cohérent avec les tunnels propres déjà illimités sur ce plan.
+
+### Checklist d'implémentation
+- [x] Modèle + migration `Plan` (slug, prix mensuel/annuel, `max_tunnels`/`max_mailing_lists`/`max_leads`/`max_shared_tunnels` nullable = illimité, `available_roles` json, dashboard/support level)
+- [x] `PlanSeeder` — 3 plans (Gratuit/Starter/Prestige), appelé depuis `DatabaseSeeder`
+- [x] Modèle + migration `Subscription` (tenant_id, plan_id, cycle monthly/yearly, statut active/expired/suspended/trialing, starts_at, ends_at nullable = n'expire jamais)
+- [x] `Tenant::subscriptions()`, `activeSubscription()`, `currentPlan()`
+- [x] Stub `plan_slug` (Module 1) retiré — `TenantRegistrationController` crée maintenant une vraie `Subscription` (plan Gratuit, statut actif, sans expiration) à l'inscription
+- [x] `SubscriptionResource` (Filament) — activation/changement de plan manuel, **restreint à `super_admin`** via `canAccess()` (pas de système de Policy dans ce codebase, donc pas introduit ici — suit la convention existante de checks de rôle inline)
+- [x] Commande `subscriptions:expire` — repasse en `expired` les abonnements actifs dont `ends_at` est dépassé, planifiée quotidiennement dans `routes/console.php`
+
+## Module 3 — Quotas par plan
+
+### Checklist d'implémentation
+- [x] `QuotaService` : `usage()`, `limit()`, `remaining()`, `hasReachedLimit()` — mappe tunnels (Funnel hors templates), listes mailing (EmailSequence), leads (Lead), tunnels partagés (Funnel avec au moins un `funnel_user`). `null` = illimité ; pas d'abonnement actif = limite 0.
+- [x] Enforcement à la création côté Filament : `EnforcesTenantQuota` (trait, `Halt` + notification "limite atteinte") branché sur `CreateFunnel` (quota `tunnels`) et `CreateEmailSequence` (quota `mailing_lists`)
+- [ ] **Leads — pas bloqué à la création.** Un `Lead` est créé dès la première vue anonyme d'une page (`TrackingService::trackVisitor`), pas seulement à la soumission d'un formulaire — c'est le cœur du pipeline public de capture, à fort risque business (funnel cassé = prospects perdus) et jamais testé en charge. Bloquer ce chemin mérite sa propre revue dédiée plutôt qu'un ajout hâtif dans ce lot. `QuotaService` calcule déjà l'usage/la limite, prêt à être branché plus tard (ou exposé côté dashboard Module 6 sans bloquer).
+- [ ] **Tunnels partagés — pas bloqué.** Aucune UI/route actuelle ne crée réellement un partage (`CommercialService::activateFunnel()` existe mais n'est appelé nulle part) — c'est le Module 4 (Partage de Tunnels), non construit. Rien à enforcer tant que le point d'entrée n'existe pas.
+- Testé via tinker : plan Gratuit (2 tunnels) → 2 tunnels créés → `hasReachedLimit('tunnels')` bascule à `true`, `remaining()` à 0. Le chemin Filament (`Halt` + notification) suit le pattern documenté de Filament mais n'a pas été exercé via une vraie requête HTTP/Livewire dans ce lot.
 
 ---
 
@@ -89,3 +102,4 @@ Raison : ensemble ils forment le squelette monétisable (inscription → plan �
 
 - **2026-07-02** — Lecture du cahier des charges Phase 3 (`royal-leadpro-phase3.html`). Analyse du code existant : base multi-tenant déjà en place, aucun des 7 modules SaaS n'est construit. Ordre retenu : Module 1 → 2 → 3. Analyse détaillée du Module 1 : bug critique `Tenant::first()` identifié dans `CommercialAuthController::store()`, absence de flow d'inscription self-service pour créer un tenant. Aucun code modifié — en attente du go pour commencer l'implémentation.
 - **2026-07-02** — Go donné. 3 décisions tranchées (plan Gratuit direct sans essai, invitation à token signé, panel Filament partagé conservé). Branche `feature/module1-multitenant-saas` créée depuis `royalLeadPro`. Implémentation complète du Module 1 : migration `plan_slug` (stub Module 2), modèle+migration `TenantInvitation`, `routes/tenant.php` (nouveau fichier dédié aux routes multi-tenant, wiré dans `bootstrap/app.php`), `TenantRegistrationController` (self-service `/demarrer`), `TenantInvitationResource` (Filament, génère les liens d'invitation), fix de `CommercialAuthController::store()` (token d'invitation requis au lieu de `Tenant::first()`). Audit `withoutGlobalScope('tenant')` : fuite cross-tenant réelle trouvée et corrigée dans 6 widgets Filament du dashboard admin. Bug additionnel trouvé aux tests : `plan_slug` manquant de `Tenant::$fillable`, corrigé. Flow testé de bout en bout via tinker (création tenant → invitation → isolation cross-tenant → rattachement commercial) — tout passe. Onboarding : `OnboardingService` est prêt mais la vue Filament associée n'a pas de Page câblée (orpheline) — laissé de côté, hors scope Module 1, redirection actuelle vers `/admin`. Migrations appliquées localement, commit local fait (pas de push).
+- **2026-07-02** — Go donné pour Modules 2 & 3. Avant de coder : vérification des chiffres exacts dans `royal-leadpro-phase3.html` (le "+1 000 leads"/"+10 listes" du tableau marketing était ambigu pour des quotas chiffrés) → décisions validées : activation manuelle (pas de gateway), quotas cumulatifs par palier, tunnels partagés Prestige illimité. Branche `feature/module2-3-billing-quotas` créée depuis `feature/module1-multitenant-saas`. Implémenté : `Plan`+`PlanSeeder`, `Subscription`, relations sur `Tenant`, retrait du stub `plan_slug` au profit d'une vraie `Subscription` créée à l'inscription, `SubscriptionResource` Filament réservé au `super_admin`, commande planifiée `subscriptions:expire`, `QuotaService`, enforcement (`Halt` + notification) sur la création de tunnels et de séquences email. Décision de ne pas enforcer les quotas leads (pipeline public de tracking, trop risqué à toucher sans revue dédiée) ni tunnels partagés (Module 4 pas construit, aucun point d'entrée réel) — usage/limite calculés et prêts, juste pas bloquants. Testé via tinker : seed des 3 plans avec les bons chiffres, cycle complet tenant→subscription→quota atteint, et vérification que `SubscriptionResource::canAccess()` bloque bien un admin non-super_admin. Migrations appliquées localement, commit local fait (pas de push).

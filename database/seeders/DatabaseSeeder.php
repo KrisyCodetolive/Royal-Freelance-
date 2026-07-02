@@ -21,6 +21,9 @@ class DatabaseSeeder extends Seeder
         // Create roles
         $this->createRoles();
 
+        // Create billing plans (Gratuit/Starter/Prestige)
+        $this->call(PlanSeeder::class);
+
         // Create default tenant
         $tenant = $this->createDefaultTenant();
 

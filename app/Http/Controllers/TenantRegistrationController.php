@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Plan;
 use App\Services\TenantService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -42,8 +43,16 @@ class TenantRegistrationController extends Controller
             ],
         );
 
-        // Plan Gratuit par défaut à la création (stub en attendant le Module 2 — Billing).
-        $result['tenant']->update(['plan_slug' => 'free']);
+        // Plan Gratuit par défaut à la création (abonnement actif, sans expiration).
+        $freePlan = Plan::where('slug', 'free')->firstOrFail();
+
+        $result['tenant']->subscriptions()->create([
+            'plan_id' => $freePlan->id,
+            'cycle' => 'monthly',
+            'status' => 'active',
+            'starts_at' => now(),
+            'ends_at' => null,
+        ]);
 
         Auth::login($result['admin']);
 

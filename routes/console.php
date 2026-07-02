@@ -11,6 +11,9 @@ Artisan::command('inspire', function () {
 // Vérifier les leads inactifs quotidiennement à 9h00
 Schedule::command('leads:check-inactive')->dailyAt('09:00');
 
+// Expirer les abonnements dont la date de fin est dépassée (Module 2 — Billing)
+Schedule::command('subscriptions:expire')->daily();
+
 // Traiter les séquences email actives (toutes les minutes en prod via cron)
 Schedule::command('email:process-sequences')->everyMinute()->before(function () {
     \Illuminate\Support\Facades\Log::info('[CRON] email:process-sequences démarré', ['at' => now()->toDateTimeString()]);

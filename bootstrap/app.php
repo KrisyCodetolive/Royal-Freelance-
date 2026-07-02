@@ -7,11 +7,14 @@ use Illuminate\Support\Facades\Route;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
-        web: __DIR__ . '/../routes/web.php',
         commands: __DIR__ . '/../routes/console.php',
         health: '/up',
-        then: function (): void {
+        using: function (): void {
+            // tenant.php AVANT web.php : web.php contient un catch-all de domaine
+            // (Route::domain('{domain}')->get('/{pageSlug}', ...)) qui capturerait
+            // sinon des routes fixes comme /demarrer en les traitant comme un slug de funnel.
             Route::middleware('web')->group(__DIR__ . '/../routes/tenant.php');
+            Route::middleware('web')->group(__DIR__ . '/../routes/web.php');
         },
     )
     ->withMiddleware(function (Middleware $middleware): void {

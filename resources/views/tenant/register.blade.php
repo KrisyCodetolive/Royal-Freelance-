@@ -15,6 +15,7 @@
                 Connectez-vous
             </a>
         </p>
+        <p class="mt-4 text-xs font-semibold uppercase tracking-widest text-amber-600">Étape 1/2 — Vos informations</p>
     </div>
 
     <div class="mt-10">
@@ -89,14 +90,14 @@
                         class="group relative flex w-full justify-center border border-transparent bg-slate-900 px-4 py-4 text-sm font-bold text-white uppercase tracking-widest hover:bg-slate-800 transition-all duration-300 shadow-xl shadow-slate-200 active:translate-y-0.5">
                         <span class="absolute inset-0 h-full w-full bg-gradient-to-r from-amber-200/0 via-amber-200/10 to-amber-200/0 opacity-0 transition-opacity duration-500 group-hover:opacity-100"></span>
                         <span class="relative flex items-center gap-2">
-                             Créer mon espace
+                             Continuer — choisir mon plan
                              <svg class="h-4 w-4 text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
                              </svg>
                         </span>
                     </button>
                     <p class="mt-6 text-xs text-center text-slate-400">
-                        Plan Gratuit inclus — passez à un plan supérieur quand vous voulez.
+                        Étape suivante : choisissez votre plan (Gratuit, Starter ou Prestige).
                     </p>
                 </div>
             </form>

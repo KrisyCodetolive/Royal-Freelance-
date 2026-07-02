@@ -46,4 +46,19 @@ class Subscription extends Model
     {
         return $query->where('status', 'active');
     }
+
+    /**
+     * Date de fin pour une nouvelle activation (paiement mocké, pas de vraie
+     * passerelle — voir ROADMAP_SAAS_PHASE3.md). Le plan Gratuit n'expire
+     * jamais ; les plans payants suivent le cycle choisi pour que
+     * `subscriptions:expire` ait un vrai comportement à terme.
+     */
+    public static function computeEndsAt(Plan $plan, string $cycle): ?\Illuminate\Support\Carbon
+    {
+        if ($plan->slug === 'free') {
+            return null;
+        }
+
+        return $cycle === 'yearly' ? now()->addYear() : now()->addMonth();
+    }
 }

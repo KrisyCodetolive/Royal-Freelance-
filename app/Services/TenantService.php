@@ -35,6 +35,12 @@ class TenantService
 
     /**
      * Setup a tenant with an admin user (Onboarding Step 1)
+     *
+     * `adminData['password']` peut être un mot de passe en clair ou déjà
+     * haché (ex: inscription self-service en plusieurs étapes qui hache le
+     * mot de passe avant de le garder en session) : le cast `hashed` du
+     * modèle `User` détecte lequel via `Hash::isHashed()` et ne le hache
+     * pas une seconde fois.
      */
     public function setupWithAdmin(array $tenantData, array $adminData): array
     {
@@ -43,7 +49,7 @@ class TenantService
         $admin = User::create([
             'name' => $adminData['name'],
             'email' => $adminData['email'],
-            'password' => bcrypt($adminData['password']),
+            'password' => $adminData['password'],
             'tenant_id' => $tenant->id,
             'is_active' => true,
             'email_verified_at' => now(),

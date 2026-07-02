@@ -14,8 +14,11 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-// Inscription self-service — crée un nouveau tenant + son admin
+// Inscription self-service — crée un nouveau tenant + son admin (Owner)
+// en 2 étapes : identification, puis choix du plan.
 Route::middleware('guest')->group(function () {
     Route::get('/demarrer', [TenantRegistrationController::class, 'create'])->name('tenant.register');
-    Route::post('/demarrer', [TenantRegistrationController::class, 'store'])->name('tenant.register.store');
+    Route::post('/demarrer', [TenantRegistrationController::class, 'storeIdentity'])->name('tenant.register.store');
+    Route::get('/demarrer/plan', [TenantRegistrationController::class, 'choosePlan'])->name('tenant.register.plan');
+    Route::post('/demarrer/plan', [TenantRegistrationController::class, 'store'])->name('tenant.register.plan.store');
 });

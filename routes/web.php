@@ -146,7 +146,10 @@ Route::domain($baseDomain)->group(function () {
     Route::get('/presentation-client/sequences-email', fn() => view('presentation.sequences-email'))->name('presentation.sequences-email');
     Route::get('/presentation-client/email-builder', fn() => view('presentation.email-builder'))->name('presentation.email-builder');
     Route::get('/presentation-client/pwa', fn() => view('presentation.pwa'))->name('presentation.pwa');
-    Route::get('/', fn() => view('landing'));
+    Route::get('/', fn() => view('royalleadpro-landing', [
+        'plans' => \App\Models\Plan::where('is_active', true)->orderBy('price_monthly')->get(),
+    ]))->name('home');
+    Route::get('/royal-freelance', fn() => view('landing'))->name('royal-freelance');
 });
 
 // Fallback (accès sans contrainte de domaine — dev local sur port 8000)

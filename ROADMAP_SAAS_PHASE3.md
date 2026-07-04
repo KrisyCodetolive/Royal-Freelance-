@@ -14,9 +14,9 @@ Royal LeadPro passe d'outil interne (usage type "royalFreelance", un seul porteu
 |---|---|---|
 | 1 | Architecture Multi-Tenant | ✅ Squelette fonctionnel (inscription self-service, invitations, fuite de données corrigée) |
 | 2 | Billing & Abonnements | ✅ Squelette fonctionnel (activation manuelle, pas de gateway de paiement) |
-| 3 | Quotas par plan | 🔶 Enforcement partiel (tunnels + listes mailing bloqués ; leads et tunnels partagés calculés mais pas bloqués) |
+| 3 | Quotas par plan | 🔶 Enforcement partiel (tunnels, listes mailing et tunnels partagés bloqués ; leads calculés mais pas bloqués) |
 | 4 | Partage de Tunnels | ✅ Squelette fonctionnel (permission lecture/édition, quota enforcé) |
-| 5 | Rôles & Permissions (Owner/Admin/Editor/Viewer) | ⬜ Pas commencé |
+| 5 | Rôles & Permissions (Owner/Admin/Editor/Viewer) | ✅ Squelette fonctionnel (rôles Spatie réels, scoping panel + actions) |
 | 6 | Dashboard SaaS utilisateur | ⬜ Pas commencé |
 | 7 | Super Admin Royal LeadPro | ⬜ Pas commencé |
 | 8 | Pages Front-Office (bonus) | 🔶 Page de présentation RoyalLeadPro faite (accueil `/`) ; page "Fonctionnalités" et "Tarifs" dédiées pas encore séparées (tout est sur une seule page à ancres) |
@@ -114,6 +114,35 @@ Le mécanisme attendu par le CDC existait déjà partiellement : pivots `funnel_
 
 ---
 
+## Module 5 — Rôles & Permissions workspace (Owner/Admin/Editor/Viewer)
+
+### Décision retenue
+Editor/Viewer implémentés comme **vrais rôles Spatie** (cohérent avec `owner`/`admin` déjà faits au Module 1), avec accès au **panel Filament existant, scope restreint** — pas un espace dédié type `/commercial`. Question posée explicitement à l'utilisateur avant de coder, restée sans réponse ; option recommandée retenue par défaut plutôt que de bloquer l'avancement. À revalider si l'utilisateur relève un désaccord.
+
+### Mapping permissions (CDC → code)
+| Permission CDC | Editor | Viewer |
+|---|---|---|
+| Créer/éditer tunnels | tunnels assignés (`assigned_to`) ou partagés avec `can_edit` | ✕ (jamais, même si `can_edit` est vrai sur son pivot — rôle strictement lecture seule) |
+| Partager des tunnels | ✕ | ✕ |
+| Ajouter des membres | ✕ | ✕ |
+| Accès leads | leads des tunnels accessibles (assignés/partagés) | leads des tunnels partagés, lecture seule |
+
+### Checklist d'implémentation
+- [x] `DatabaseSeeder::createRoles()` : rôles `editor` (`view_funnels`, `update_funnels`, `view_pages`, `create_pages`, `update_pages`, `view_leads`, `update_leads`, `view_tags`, `view_alerts`, `view_analytics`) et `viewer` (uniquement les `view_*` équivalents)
+- [x] `User::canAccessPanel()` élargi à `isAdmin() || isEditor() || isViewer()` ; nouveaux helpers `isEditor()`/`isViewer()`
+- [x] `Funnel::canBeEditedBy(User $user)` — logique centralisée : Admin toujours, Viewer jamais, Editor si assigné directement ou partagé avec `can_edit` (individuel ou via groupe)
+- [x] `FunnelResource::getEloquentQuery()` — Editor/Viewer restreints à `Funnel::availableToUser()` (déjà existante), Owner/Admin voient tout le tenant
+- [x] `FunnelResource::canCreate()`/`canEdit()`/`canDelete()` — create/delete réservés à Owner/Admin, edit délégué à `Funnel::canBeEditedBy()`
+- [x] `LeadResource::getEloquentQuery()` — un lead est visible si son tunnel l'est ; `canCreate()`/`canEdit()`/`canDelete()` sur le même principe que `FunnelResource`
+- [x] Actions Filament de `ViewFunnel` : "Partager" masquée si non-admin, "Créer une Page" masquée si le tunnel n'est pas éditable par l'utilisateur courant
+- [x] `TenantInvitationForm` : rôles `editor`/`viewer` ajoutés au `Select` (en plus d'`admin`/`commercial`)
+- [x] `CommercialAuthController` : `authenticate()` et `store()` redirigent `editor`/`viewer` vers `/admin` comme les autres rôles panel
+- [x] `SetsUpSaasTestData` (tests) : rôles `editor`/`viewer` ajoutés à `seedRolesAndPlans()`, helpers `createEditorForTenant()`/`createViewerForTenant()`
+- Bug trouvé pendant les tests (corrigé) : `canBeEditedBy()` ignorait le rôle Viewer et se basait uniquement sur le pivot `can_edit` — un Viewer avec un partage marqué `can_edit=true` pouvait éditer. Corrigé : le rôle Viewer bloque l'édition avant toute vérification de pivot.
+- Testé : 8 tests (`WorkspaceRolesTest`) + vérification manuelle via serveur (un Editor connecté ne voit qu'1 tunnel sur plusieurs dans la liste, bouton "Partager" absent de la page de détail)
+
+---
+
 ## 🐛 Retours de tests utilisateur (2026-07-02)
 
 Tests manuels effectués sur le flow Module 1/2/3. Bugs et questions remontés :
@@ -155,3 +184,4 @@ Tests manuels effectués sur le flow Module 1/2/3. Bugs et questions remontés :
 - **2026-07-02** — Fusion : `feature/owner-role-plan-selection` fusionnée (fast-forward) dans `royalLeadPro`, branches `feature/owner-role-plan-selection` et `fix/module1-tests-utilisateur` supprimées localement (tout leur contenu est déjà dans `royalLeadPro`).
 - **2026-07-03** — Go donné pour le Module 8 (bonus, page de présentation front-office). Ressources graphiques RoyalLeadPro trouvées dans `public/assets/RoyalLeadPro/` (logos noir/or/blanc/transparent). Décision : `/` devient la nouvelle landing RoyalLeadPro (produit SaaS), l'ancienne landing "Royal Freelance" est déplacée sur `/royal-freelance` sans suppression de fichier/composant. Branche `feature/royalleadpro-landing-page` créée depuis `royalLeadPro`. Implémenté : nouvelle vue + composants `leadpro/*` (hero, comment ça marche, fonctionnalités, tarifs dynamiques depuis `Plan`, FAQ, CTA, footer), route `/` repointée + nouvelle route nommée `royal-freelance`. Effet de bord détecté et corrigé : `tests/Feature/ExampleTest.php` (`GET /`) n'utilisait pas `RefreshDatabase` et échouait car `/` interroge maintenant la table `plans` — trait réactivé, conforme à la convention des autres tests Feature. Vérifié en conditions réelles : serveur `php artisan serve` lancé, `/`, `/royal-freelance` et les assets logo RoyalLeadPro répondent 200, contenu attendu présent (3 plans affichés). Suite complète (49 tests) verte. Restent en attente : pages "Fonctionnalités"/"Tarifs" séparées si besoin (actuellement ancres sur `/`), et éventuel lien croisé depuis l'ancienne landing Royal Freelance vers la nouvelle.
 - **2026-07-04** — Go donné pour enchaîner Modules 4 → 5 → 6, avec revue du plan avant chaque implémentation (demande explicite de l'utilisateur). Plan détaillé pour les 3 modules écrit et approuvé. Module 4 (Partage de Tunnels) implémenté sur `feature/module4-partage-tunnels` (depuis `royalLeadPro`) : `can_edit` ajouté aux pivots `funnel_user`/`commercial_group_funnel`, `QuotaService::canShareFunnel()`/`isFunnelAlreadyShared()`, correction du calcul `usage()['shared_tunnels']` (les partages par groupe n'étaient pas comptés). Auto-correction en cours de route : le plan initial proposait une nouvelle `RelationManager` de partage sur `FunnelResource`, mais l'exploration plus poussée du code a révélé que `ViewFunnel::getHeaderActions()` avait déjà une action `assign_to_commercials` faisant ce travail (attache individuelle/groupe) — repérée après avoir déjà écrit le doublon. Doublon supprimé, travail consolidé dans cette action existante (renommée "Partager", élargie à tout membre du tenant plutôt que `role('commercial')` seul, pour rester compatible avec les rôles Editor/Viewer du Module 5 à venir). 7 tests ajoutés (`TunnelSharingTest` + extensions `QuotaServiceTest`), suite complète 56 tests verte, vérifié manuellement via serveur que la page `ViewFunnel` s'affiche sans erreur. Commit local fait sur `feature/module4-partage-tunnels`, pas de fusion ni de push. Module 5 (rôles Editor/Viewer) à suivre : décision retenue par défaut (rôles Spatie réels + accès panel scoped, cohérent avec Owner/Admin) faute de réponse utilisateur à la question posée — à confirmer si besoin avant de merger.
+- **2026-07-04** — Module 5 (Rôles & Permissions workspace) implémenté sur `feature/module5-roles-workspace` (depuis `feature/module4-partage-tunnels`). Confirmation de la décision par défaut (rôles Spatie réels + panel scoped) reposée à l'utilisateur avant de coder, restée sans réponse une seconde fois — implémentation faite sur cette base, à revalider si besoin. Rôles `editor`/`viewer` ajoutés (`DatabaseSeeder`), `User::canAccessPanel()` élargi, helpers `isEditor()`/`isViewer()`. Logique d'édition centralisée dans `Funnel::canBeEditedBy()` (réutilisée par `FunnelResource` et `LeadResource`), scoping des listes via `Funnel::availableToUser()` déjà existante. Actions Filament masquées selon le rôle ("Partager", "Créer une Page"). `TenantInvitationForm` et `CommercialAuthController` mis à jour pour permettre l'invitation et la connexion d'un Editor/Viewer. Bug trouvé et corrigé pendant les tests : `canBeEditedBy()` ne vérifiait pas le rôle Viewer avant de regarder le pivot `can_edit`, un Viewer avec un partage marqué en édition pouvait donc éditer — corrigé en bloquant l'édition pour Viewer avant toute autre vérification. 8 tests ajoutés (`WorkspaceRolesTest`), suite complète 64 tests verte. Vérifié manuellement via serveur : un compte Editor créé en base, connecté en HTTP réel, ne voit qu'1 tunnel sur plusieurs dans la liste (scoping confirmé en conditions réelles, pas seulement via les tests), et le bouton "Partager" est bien absent de sa vue détail. Données de test nettoyées après vérification. Commit local fait sur `feature/module5-roles-workspace`, pas de fusion ni de push. Module 6 (Dashboard SaaS) à suivre.

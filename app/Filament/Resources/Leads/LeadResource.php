@@ -9,6 +9,7 @@ use App\Filament\Resources\Leads\Pages\ViewLead;
 use App\Filament\Resources\Leads\Schemas\LeadForm;
 use App\Filament\Resources\Leads\Schemas\LeadInfolist;
 use App\Filament\Resources\Leads\Tables\LeadsTable;
+use App\Models\Funnel;
 use App\Models\Lead;
 use BackedEnum;
 use Filament\Resources\Resource;
@@ -16,6 +17,7 @@ use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class LeadResource extends Resource
@@ -29,6 +31,39 @@ class LeadResource extends Resource
     protected static ?string $pluralModelLabel = 'Leads';
 
     protected static ?int $navigationSort = 1;
+
+    public static function getEloquentQuery(): Builder
+    {
+        $query = parent::getEloquentQuery();
+
+        // Module 5 : un lead est accessible si son tunnel l'est (Editor :
+        // tunnels assignés ; Viewer : tunnels partagés, lecture seule).
+        if (($user = auth()->user()) && !$user->isAdmin()) {
+            $query->whereIn('funnel_id', Funnel::availableToUser($user)->pluck('id'));
+        }
+
+        return $query;
+    }
+
+    // Seul Owner/Admin crée ou supprime des leads manuellement. Editor peut
+    // éditer un lead si son tunnel lui est assigné/partagé en édition ;
+    // Viewer ne peut jamais éditer (accès lecture seule).
+    public static function canCreate(): bool
+    {
+        return (bool) auth()->user()?->isAdmin();
+    }
+
+    public static function canEdit(Model $record): bool
+    {
+        $user = auth()->user();
+
+        return $user !== null && $record->funnel && $record->funnel->canBeEditedBy($user);
+    }
+
+    public static function canDelete(Model $record): bool
+    {
+        return (bool) auth()->user()?->isAdmin();
+    }
 
     public static function form(Schema $schema): Schema
     {

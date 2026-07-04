@@ -28,6 +28,7 @@ class ViewFunnel extends ViewRecord
                 ->label('Créer une Page')
                 ->icon('heroicon-o-plus')
                 ->color('success')
+                ->visible(fn () => $this->record->canBeEditedBy(auth()->user()))
                 ->form([
                     Forms\Components\TextInput::make('title')
                         ->label('Titre de la page')
@@ -89,6 +90,7 @@ class ViewFunnel extends ViewRecord
                 ->label('Partager')
                 ->icon('heroicon-o-user-group')
                 ->color('primary')
+                ->visible(fn () => auth()->user()?->isAdmin())
                 ->form([
                     Forms\Components\Radio::make('assignment_type')
                         ->label('Type de partage')

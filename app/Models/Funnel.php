@@ -226,6 +226,36 @@ class Funnel extends Model implements HasMedia
         });
     }
 
+    /**
+     * Module 5 : un Owner/Admin peut toujours éditer. Un Viewer n'édite
+     * jamais, quel que soit son pivot de partage (rôle strictement lecture
+     * seule). Un Editor peut éditer si le tunnel lui est assigné directement,
+     * ou partagé avec `can_edit` (individuellement ou via un de ses groupes).
+     */
+    public function canBeEditedBy(User $user): bool
+    {
+        if ($user->isAdmin()) {
+            return true;
+        }
+
+        if ($user->isViewer()) {
+            return false;
+        }
+
+        if ($this->assigned_to === $user->id) {
+            return true;
+        }
+
+        if ($this->users()->where('user_id', $user->id)->wherePivot('can_edit', true)->exists()) {
+            return true;
+        }
+
+        return $this->commercialGroups()
+            ->wherePivot('can_edit', true)
+            ->whereHas('users', fn ($q) => $q->where('users.id', $user->id))
+            ->exists();
+    }
+
     // Helpers
     public function isActive(): bool
     {

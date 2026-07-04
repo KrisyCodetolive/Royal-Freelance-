@@ -87,7 +87,7 @@ class User extends Authenticatable implements FilamentUser
     // Filament
     public function canAccessPanel(Panel $panel): bool
     {
-        return $this->is_active && $this->isAdmin();
+        return $this->is_active && ($this->isAdmin() || $this->isEditor() || $this->isViewer());
     }
 
     // Relationships
@@ -220,6 +220,24 @@ class User extends Authenticatable implements FilamentUser
     public function isCommercial(): bool
     {
         return $this->hasRole('commercial');
+    }
+
+    /**
+     * Editor = rôle workspace (Module 5 CDC) : accès panel restreint aux
+     * tunnels/leads qui lui sont assignés ou partagés en édition.
+     */
+    public function isEditor(): bool
+    {
+        return $this->hasRole('editor');
+    }
+
+    /**
+     * Viewer = rôle workspace (Module 5 CDC) : accès panel en lecture seule
+     * aux tunnels/leads qui lui sont partagés.
+     */
+    public function isViewer(): bool
+    {
+        return $this->hasRole('viewer');
     }
 
     public function hasShop(): bool

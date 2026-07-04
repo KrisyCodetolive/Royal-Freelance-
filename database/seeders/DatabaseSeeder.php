@@ -158,6 +158,35 @@ class DatabaseSeeder extends Seeder
             'view_alerts',
             'view_analytics',
         ]);
+
+        // Editor - rôle workspace (Module 5 CDC) : gère le contenu des tunnels
+        // qui lui sont assignés/partagés (scope appliqué au niveau des
+        // ressources Filament, pas ici), pas de gestion d'équipe ni de partage.
+        $editor = Role::firstOrCreate(['name' => 'editor', 'guard_name' => 'web']);
+        $editor->givePermissionTo([
+            'view_funnels',
+            'update_funnels',
+            'view_pages',
+            'create_pages',
+            'update_pages',
+            'view_leads',
+            'update_leads',
+            'view_tags',
+            'view_alerts',
+            'view_analytics',
+        ]);
+
+        // Viewer - rôle workspace (Module 5 CDC) : lecture seule sur les
+        // tunnels/leads qui lui sont partagés.
+        $viewer = Role::firstOrCreate(['name' => 'viewer', 'guard_name' => 'web']);
+        $viewer->givePermissionTo([
+            'view_funnels',
+            'view_pages',
+            'view_leads',
+            'view_tags',
+            'view_alerts',
+            'view_analytics',
+        ]);
     }
 
     protected function createDefaultTenant(): Tenant

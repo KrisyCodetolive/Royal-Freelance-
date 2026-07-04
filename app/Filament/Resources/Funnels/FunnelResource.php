@@ -17,6 +17,7 @@ use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class FunnelResource extends Resource
@@ -33,7 +34,16 @@ class FunnelResource extends Resource
 
     public static function getEloquentQuery(): Builder
     {
-        return parent::getEloquentQuery()->where('is_template', false);
+        $query = parent::getEloquentQuery()->where('is_template', false);
+
+        // Module 5 : Owner/Admin voient tout le tenant, Editor/Viewer sont
+        // restreints à leurs tunnels assignés/partagés (scopeAvailableToUser
+        // gère déjà le bypass admin en interne).
+        if ($user = auth()->user()) {
+            $query->availableToUser($user);
+        }
+
+        return $query;
     }
 
     public static function form(Schema $schema): Schema
@@ -83,5 +93,25 @@ class FunnelResource extends Resource
     public static function getNavigationBadge(): ?string
     {
         return static::getModel()::where('is_template', false)->count();
+    }
+
+    // Module 5 : seul Owner/Admin crée ou supprime des tunnels. Editor peut
+    // éditer uniquement les tunnels qui lui sont assignés/partagés en
+    // édition (cf. Funnel::canBeEditedBy()). Viewer ne peut jamais éditer.
+    public static function canCreate(): bool
+    {
+        return (bool) auth()->user()?->isAdmin();
+    }
+
+    public static function canEdit(Model $record): bool
+    {
+        $user = auth()->user();
+
+        return $user !== null && $record->canBeEditedBy($user);
+    }
+
+    public static function canDelete(Model $record): bool
+    {
+        return (bool) auth()->user()?->isAdmin();
     }
 }

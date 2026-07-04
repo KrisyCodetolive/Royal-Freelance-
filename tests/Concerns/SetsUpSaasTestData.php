@@ -21,7 +21,7 @@ trait SetsUpSaasTestData
     {
         app(PermissionRegistrar::class)->forgetCachedPermissions();
 
-        foreach (['super_admin', 'admin', 'owner', 'manager', 'commercial'] as $role) {
+        foreach (['super_admin', 'admin', 'owner', 'manager', 'commercial', 'editor', 'viewer'] as $role) {
             Role::firstOrCreate(['name' => $role, 'guard_name' => 'web']);
         }
 
@@ -74,6 +74,22 @@ trait SetsUpSaasTestData
     {
         $user = User::factory()->create(['tenant_id' => $tenant->id, 'is_active' => true]);
         $user->assignRole('commercial');
+
+        return $user;
+    }
+
+    protected function createEditorForTenant(Tenant $tenant): User
+    {
+        $user = User::factory()->create(['tenant_id' => $tenant->id, 'is_active' => true]);
+        $user->assignRole('editor');
+
+        return $user;
+    }
+
+    protected function createViewerForTenant(Tenant $tenant): User
+    {
+        $user = User::factory()->create(['tenant_id' => $tenant->id, 'is_active' => true]);
+        $user->assignRole('viewer');
 
         return $user;
     }

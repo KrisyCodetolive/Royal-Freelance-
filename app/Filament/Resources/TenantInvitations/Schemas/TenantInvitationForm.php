@@ -26,6 +26,8 @@ class TenantInvitationForm
                             ->label('Rôle')
                             ->options([
                                 'admin' => 'Administrateur — gestion opérationnelle',
+                                'editor' => 'Editor — édite les tunnels qui lui sont assignés/partagés',
+                                'viewer' => 'Viewer — consultation seule des tunnels partagés',
                                 'commercial' => 'Commercial — espace dédié',
                             ])
                             ->default('commercial')

@@ -97,4 +97,20 @@ class QuotaService
 
         return !is_null($remaining) && $remaining <= 0;
     }
+
+    /**
+     * Usage + limite pour chaque quota, prêt à afficher (Module 6 — Dashboard
+     * SaaS et page "Mon abonnement"). `limit` = null signifie illimité.
+     */
+    public function usageWithLimits(Tenant $tenant): array
+    {
+        $usage = $this->usage($tenant);
+
+        return collect(array_keys(self::QUOTA_TO_PLAN_FIELD))
+            ->mapWithKeys(fn (string $key) => [$key => [
+                'used' => $usage[$key] ?? 0,
+                'limit' => $this->limit($tenant, $key),
+            ]])
+            ->all();
+    }
 }

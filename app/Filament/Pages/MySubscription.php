@@ -41,16 +41,7 @@ class MySubscription extends Page
 
     public function getUsage(): array
     {
-        $tenant = auth()->user()->tenant;
-        $quotaService = app(QuotaService::class);
-        $usage = $quotaService->usage($tenant);
-
-        return collect(['tunnels', 'mailing_lists', 'leads', 'shared_tunnels'])
-            ->mapWithKeys(fn (string $key) => [$key => [
-                'used' => $usage[$key] ?? 0,
-                'limit' => $quotaService->limit($tenant, $key),
-            ]])
-            ->all();
+        return app(QuotaService::class)->usageWithLimits(auth()->user()->tenant);
     }
 
     protected function getHeaderActions(): array

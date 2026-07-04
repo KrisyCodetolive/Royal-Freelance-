@@ -86,15 +86,15 @@ class ViewFunnel extends ViewRecord
                 }),
 
             Action::make('assign_to_commercials')
-                ->label('Attribuer')
+                ->label('Partager')
                 ->icon('heroicon-o-user-group')
                 ->color('primary')
                 ->form([
                     Forms\Components\Radio::make('assignment_type')
-                        ->label('Type d\'attribution')
+                        ->label('Type de partage')
                         ->options([
                             'group' => 'Groupe de commerciaux',
-                            'individual' => 'Commercial spécifique',
+                            'individual' => 'Membre spécifique',
                         ])
                         ->default('group')
                         ->live()
@@ -112,10 +112,10 @@ class ViewFunnel extends ViewRecord
                         ->required(fn($get) => $get('assignment_type') === 'group'),
 
                     Forms\Components\Select::make('commercial_ids')
-                        ->label('Commerciaux')
+                        ->label('Membres')
                         ->options(fn() => User::where('tenant_id', $this->record->tenant_id)
-                            ->role('commercial')
                             ->active()
+                            ->where('id', '!=', auth()->id())
                             ->pluck('name', 'id'))
                         ->multiple()
                         ->searchable()
@@ -127,25 +127,43 @@ class ViewFunnel extends ViewRecord
                         ->label('Permettre la personnalisation')
                         ->helperText('Les commerciaux pourront personnaliser leurs CTA (boutique, WhatsApp)')
                         ->default(true),
+
+                    Forms\Components\Toggle::make('can_edit')
+                        ->label('Autoriser la modification du tunnel')
+                        ->helperText('Sans cette option, l\'accès partagé est en lecture seule (consultation du tunnel et de ses leads).')
+                        ->default(false),
                 ])
                 ->action(function (array $data) {
+                    $quotaService = app(\App\Services\QuotaService::class);
+
+                    if (!$quotaService->canShareFunnel($this->record->tenant, $this->record)) {
+                        Notification::make()
+                            ->title('Limite de tunnels partagés atteinte')
+                            ->body('Votre plan actuel ne permet pas de partager davantage de tunnels. Passez à un plan supérieur pour continuer.')
+                            ->danger()
+                            ->send();
+
+                        return;
+                    }
+
                     $assignedCount = 0;
                     $canCustomize = $data['can_customize'] ?? true;
+                    $canEdit = $data['can_edit'] ?? false;
 
                     if ($data['assignment_type'] === 'group' && !empty($data['commercial_group_ids'])) {
                         foreach ($data['commercial_group_ids'] as $groupId) {
                             $group = CommercialGroup::find($groupId);
                             if ($group) {
                                 $group->funnels()->syncWithoutDetaching([
-                                    $this->record->id => ['can_customize' => $canCustomize]
+                                    $this->record->id => ['can_customize' => $canCustomize, 'can_edit' => $canEdit]
                                 ]);
                                 $assignedCount++;
                             }
                         }
 
                         Notification::make()
-                            ->title('Tunnel attribué')
-                            ->body("Le tunnel a été attribué à {$assignedCount} groupe(s) de commerciaux.")
+                            ->title('Tunnel partagé')
+                            ->body("Le tunnel a été partagé avec {$assignedCount} groupe(s) de commerciaux.")
                             ->success()
                             ->send();
                     }
@@ -157,6 +175,7 @@ class ViewFunnel extends ViewRecord
                                 $user->usableFunnels()->syncWithoutDetaching([
                                     $this->record->id => [
                                         'is_active' => true,
+                                        'can_edit' => $canEdit,
                                         'custom_branding' => null,
                                     ]
                                 ]);
@@ -165,8 +184,8 @@ class ViewFunnel extends ViewRecord
                         }
 
                         Notification::make()
-                            ->title('Tunnel attribué')
-                            ->body("Le tunnel a été attribué à {$assignedCount} commercial(aux).")
+                            ->title('Tunnel partagé')
+                            ->body("Le tunnel a été partagé avec {$assignedCount} membre(s).")
                             ->success()
                             ->send();
                     }

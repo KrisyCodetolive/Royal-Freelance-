@@ -93,6 +93,52 @@ class QuotaServiceTest extends TestCase
         $this->assertSame(1, $this->quota->usage($tenant)['shared_tunnels']);
     }
 
+    public function test_shared_tunnels_usage_counts_funnels_shared_via_a_commercial_group(): void
+    {
+        $tenant = $this->createTenantOnPlan('starter');
+        $admin = $this->createAdminForTenant($tenant);
+        $this->actingAs($admin);
+
+        $shared = $this->makeFunnel($tenant);
+        $group = \App\Models\CommercialGroup::create(['tenant_id' => $tenant->id, 'name' => 'Groupe A']);
+        $group->addFunnel($shared);
+
+        $this->assertSame(1, $this->quota->usage($tenant)['shared_tunnels']);
+    }
+
+    public function test_can_share_funnel_is_false_once_shared_tunnels_limit_is_reached(): void
+    {
+        $tenant = $this->createTenantOnPlan('starter'); // limite: 5 tunnels partagés
+        $admin = $this->createAdminForTenant($tenant);
+        $this->actingAs($admin);
+        $commercial = $this->createCommercialForTenant($tenant);
+
+        for ($i = 0; $i < 5; $i++) {
+            $commercial->activateFunnel($this->makeFunnel($tenant));
+        }
+
+        $newFunnel = $this->makeFunnel($tenant);
+        $this->assertFalse($this->quota->canShareFunnel($tenant, $newFunnel));
+    }
+
+    public function test_can_share_funnel_is_true_for_an_already_shared_funnel_even_at_the_limit(): void
+    {
+        $tenant = $this->createTenantOnPlan('starter');
+        $admin = $this->createAdminForTenant($tenant);
+        $this->actingAs($admin);
+        $commercial = $this->createCommercialForTenant($tenant);
+
+        $shared = $this->makeFunnel($tenant);
+        $commercial->activateFunnel($shared);
+
+        for ($i = 0; $i < 4; $i++) {
+            $commercial->activateFunnel($this->makeFunnel($tenant));
+        }
+
+        $this->assertTrue($this->quota->hasReachedLimit($tenant, 'shared_tunnels'));
+        $this->assertTrue($this->quota->canShareFunnel($tenant, $shared));
+    }
+
     public function test_reaching_free_plan_tunnel_limit_blocks_further_creation(): void
     {
         $tenant = $this->createTenantOnPlan('free');

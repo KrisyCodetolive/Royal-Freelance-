@@ -9,10 +9,10 @@ use App\Models\Tenant;
 
 /**
  * Calcule l'usage courant d'un tenant face aux limites de son plan actif
- * (Module 3 — Quotas par plan). Enforcement câblé pour l'instant sur les
- * créations côté panel admin (tunnels, listes mailing) uniquement : voir
- * ROADMAP_SAAS_PHASE3.md pour pourquoi "leads" et "tunnels partagés" ne
- * sont pas encore bloqués à la création.
+ * (Module 3 — Quotas par plan). Enforcement câblé sur les créations côté
+ * panel admin (tunnels, listes mailing) et sur le partage de tunnels
+ * (Module 4, cf. canShareFunnel()). Voir ROADMAP_SAAS_PHASE3.md pour
+ * pourquoi "leads" ne sont pas encore bloqués à la création.
  */
 class QuotaService
 {
@@ -31,9 +31,31 @@ class QuotaService
             'leads' => Lead::where('tenant_id', $tenant->id)->count(),
             'shared_tunnels' => Funnel::where('tenant_id', $tenant->id)
                 ->where('is_template', false)
-                ->whereHas('users')
+                ->where(fn ($q) => $q->whereHas('users')->orWhereHas('commercialGroups'))
                 ->count(),
         ];
+    }
+
+    /**
+     * Un tunnel déjà partagé (individuellement ou via un groupe) ne consomme pas
+     * de quota supplémentaire quand on y ajoute un partage de plus — seul le
+     * premier partage d'un tunnel jusque-là privé compte comme une nouvelle unité.
+     */
+    public function isFunnelAlreadyShared(Funnel $funnel): bool
+    {
+        return $funnel->users()->exists() || $funnel->commercialGroups()->exists();
+    }
+
+    /**
+     * À appeler avant d'attacher un nouveau partage (utilisateur ou groupe) sur un tunnel.
+     */
+    public function canShareFunnel(Tenant $tenant, Funnel $funnel): bool
+    {
+        if ($this->isFunnelAlreadyShared($funnel)) {
+            return true;
+        }
+
+        return !$this->hasReachedLimit($tenant, 'shared_tunnels');
     }
 
     /**

@@ -136,7 +136,7 @@ class User extends Authenticatable implements FilamentUser
     public function usableFunnels(): BelongsToMany
     {
         return $this->belongsToMany(Funnel::class, 'funnel_user')
-            ->withPivot(['custom_slug', 'custom_branding', 'is_active', 'leads_count', 'conversions_count'])
+            ->withPivot(['custom_slug', 'custom_branding', 'is_active', 'can_edit', 'leads_count', 'conversions_count'])
             ->withTimestamps();
     }
 

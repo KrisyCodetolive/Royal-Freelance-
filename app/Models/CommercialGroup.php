@@ -62,7 +62,7 @@ class CommercialGroup extends Model
     public function funnels(): BelongsToMany
     {
         return $this->belongsToMany(Funnel::class, 'commercial_group_funnel')
-            ->withPivot('can_customize')
+            ->withPivot(['can_customize', 'can_edit'])
             ->withTimestamps();
     }
 

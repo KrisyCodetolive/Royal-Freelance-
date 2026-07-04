@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\CommercialGroups\RelationManagers;
 
+use App\Services\QuotaService;
 use Filament\Forms\Components\Checkbox;
 use Filament\Forms\Components\Select;
 use Filament\Notifications\Notification;
@@ -77,10 +78,27 @@ class FunnelsRelationManager extends RelationManager
                         Checkbox::make('can_customize')
                             ->label('Permettre la personnalisation')
                             ->helperText('Les commerciaux pourront personnaliser le branding de ce tunnel'),
+                        Checkbox::make('can_edit')
+                            ->label('Autoriser la modification du tunnel')
+                            ->helperText('Sans cette option, le groupe peut uniquement consulter le tunnel et ses leads.'),
                     ])
                     ->action(function (array $data, $livewire) {
-                        $livewire->getOwnerRecord()->funnels()->attach($data['funnel_id'], [
+                        $group = $livewire->getOwnerRecord();
+                        $funnel = \App\Models\Funnel::find($data['funnel_id']);
+
+                        if (!app(QuotaService::class)->canShareFunnel($group->tenant, $funnel)) {
+                            Notification::make()
+                                ->title('Limite de tunnels partagés atteinte')
+                                ->body('Votre plan actuel ne permet pas de partager davantage de tunnels. Passez à un plan supérieur pour continuer.')
+                                ->danger()
+                                ->send();
+
+                            return;
+                        }
+
+                        $group->funnels()->attach($data['funnel_id'], [
                             'can_customize' => $data['can_customize'] ?? false,
+                            'can_edit' => $data['can_edit'] ?? false,
                         ]);
 
                         Notification::make()

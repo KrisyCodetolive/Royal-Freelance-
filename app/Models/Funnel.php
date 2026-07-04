@@ -152,7 +152,7 @@ class Funnel extends Model implements HasMedia
     public function commercialGroups(): BelongsToMany
     {
         return $this->belongsToMany(CommercialGroup::class, 'commercial_group_funnel')
-            ->withPivot('can_customize')
+            ->withPivot(['can_customize', 'can_edit'])
             ->withTimestamps();
     }
 
@@ -162,7 +162,7 @@ class Funnel extends Model implements HasMedia
     public function users(): BelongsToMany
     {
         return $this->belongsToMany(User::class, 'funnel_user')
-            ->withPivot(['custom_slug', 'custom_branding', 'is_active', 'leads_count', 'conversions_count'])
+            ->withPivot(['custom_slug', 'custom_branding', 'is_active', 'can_edit', 'leads_count', 'conversions_count'])
             ->withTimestamps();
     }
 

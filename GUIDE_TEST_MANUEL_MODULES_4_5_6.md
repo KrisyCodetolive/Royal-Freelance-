@@ -2,8 +2,26 @@
 
 > Branche testée : `feature/module6-dashboard-saas` (contient 4, 5 et 6 empilés — pas encore pushée).
 > Objectif : valider à la main tout ce qui a été construit avant fusion dans `royalLeadPro`.
-> Compte super_admin existant en base locale : `admin@royal.com` / `password`.
 > Avant de commencer : `git checkout feature/module6-dashboard-saas` puis `php artisan migrate` (nouvelle colonne `can_edit`) et `php artisan db:seed --class=DatabaseSeeder` (nouveaux rôles `editor`/`viewer`, idempotent).
+
+---
+
+## Comptes de test (tenant dédié "QA Modules 4-5-6", plan Starter)
+
+Mot de passe identique pour tous : **`password`**
+
+| Rôle | Email |
+|---|---|
+| Super Admin (plateforme) | `admin@royal.com` |
+| Owner | `qa.owner@royalleadpro.local` |
+| Admin | `qa.admin@royalleadpro.local` |
+| Editor | `qa.editor@royalleadpro.local` |
+| Viewer | `qa.viewer@royalleadpro.local` |
+
+3 tunnels pré-créés sur ce tenant pour les tests de portée (section 5) :
+- **"QA Tunnel assigné Editor"** — `assigned_to` = Editor (modifiable par lui)
+- **"QA Tunnel partagé"** — partagé avec Editor (édition) et Viewer (lecture seule)
+- **"QA Tunnel privé"** — ni assigné ni partagé (invisible pour Editor/Viewer)
 
 ---
 
@@ -44,9 +62,9 @@ Utilise un tenant en plan **Gratuit** (0 tunnel partagé autorisé) :
 
 ## 5. Portée des rôles Editor/Viewer sur les tunnels (Module 5)
 
-Prépare un tenant avec plusieurs tunnels : au moins 1 assigné à l'Editor (`assigned_to`), 1 partagé avec lui, 1 qui ne lui est ni assigné ni partagé.
+Utilise directement les 3 tunnels pré-créés sur le tenant QA (voir "Comptes de test" ci-dessus) : "QA Tunnel assigné Editor", "QA Tunnel partagé" (Editor en édition, Viewer en lecture seule), "QA Tunnel privé".
 
-1. Connecté en **Editor** → `/admin/funnels` ne doit afficher **que** les tunnels assignés/partagés (pas le 3ᵉ, "privé").
+1. Connecté en **Editor** (`qa.editor@royalleadpro.local`) → `/admin/funnels` ne doit afficher **que** les 2 premiers tunnels (pas "QA Tunnel privé").
 2. Connecté en **Admin/Owner** → doit voir **tous** les tunnels du tenant, y compris ceux non assignés à personne.
 3. Sur le tunnel assigné à l'Editor → bouton "Modifier" visible, page `/edit` accessible.
 4. Sur un tunnel partagé avec l'Editor en **lecture seule** (`can_edit` décoché à l'étape 1 du test 1) → pas de bouton Modifier.

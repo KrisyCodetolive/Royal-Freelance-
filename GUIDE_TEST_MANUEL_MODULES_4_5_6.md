@@ -23,6 +23,22 @@ Mot de passe identique pour tous : **`password`**
 - **"QA Tunnel partagé"** — partagé avec Editor (édition) et Viewer (lecture seule)
 - **"QA Tunnel privé"** — ni assigné ni partagé (invisible pour Editor/Viewer)
 
+## Comptes de test (tenant dédié "QA Plan Gratuit", limite déjà atteinte)
+
+Pour les tests de quotas (section 3) et le CTA upgrade (sections 8/9) sans avoir à créer des tunnels à la main : ce tenant est en plan **Gratuit** (2 tunnels max) et a déjà **2 tunnels créés** (limite atteinte dès la connexion).
+
+Mot de passe identique : **`password`**
+
+| Rôle | Email |
+|---|---|
+| Owner | `qa.free.owner@royalleadpro.local` |
+| Admin | `qa.free.admin@royalleadpro.local` |
+
+- Connecté avec l'un ou l'autre → le dashboard doit immédiatement montrer la barre "Tunnels" en orange (2/2).
+- Connecté en **Owner** → bouton "Passer à un plan supérieur" visible.
+- Connecté en **Admin** → message informatif à la place, pas de bouton.
+- Tenter de créer un 3ᵉ tunnel → doit être bloqué (section 3, test 2).
+
 ---
 
 ## 1. Partage de tunnels — individuel (Module 4)

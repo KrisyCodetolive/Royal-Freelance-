@@ -27,6 +27,13 @@ class QuotaUsageWidget extends Widget
         'shared_tunnels' => 'Tunnels partagés',
     ];
 
+    private const ICONS = [
+        'tunnels' => 'heroicon-o-funnel',
+        'mailing_lists' => 'heroicon-o-envelope',
+        'leads' => 'heroicon-o-user-group',
+        'shared_tunnels' => 'heroicon-o-share',
+    ];
+
     public static function canView(): bool
     {
         return (bool) auth()->user()?->tenant_id;
@@ -54,8 +61,15 @@ class QuotaUsageWidget extends Widget
                 return [
                     ...$data,
                     'label' => self::LABELS[$key] ?? $key,
+                    'icon' => self::ICONS[$key] ?? 'heroicon-o-chart-bar',
                     'ratio' => $ratio,
                     'is_near_limit' => !is_null($data['limit']) && $ratio >= 0.8,
+                    'severity' => match (true) {
+                        is_null($data['limit']) => 'unlimited',
+                        $ratio >= 1 => 'danger',
+                        $ratio >= 0.8 => 'warning',
+                        default => 'success',
+                    },
                 ];
             })
             ->all();

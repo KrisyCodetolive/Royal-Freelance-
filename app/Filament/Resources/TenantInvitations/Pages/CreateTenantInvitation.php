@@ -3,7 +3,9 @@
 namespace App\Filament\Resources\TenantInvitations\Pages;
 
 use App\Filament\Resources\TenantInvitations\TenantInvitationResource;
+use App\Mail\TenantInvitationMail;
 use Filament\Resources\Pages\CreateRecord;
+use Illuminate\Support\Facades\Mail;
 
 class CreateTenantInvitation extends CreateRecord
 {
@@ -15,5 +17,10 @@ class CreateTenantInvitation extends CreateRecord
         $data['expires_at'] = now()->addDays(7);
 
         return $data;
+    }
+
+    protected function afterCreate(): void
+    {
+        Mail::to($this->record->email)->send(new TenantInvitationMail($this->record));
     }
 }

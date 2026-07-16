@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\DB;
 
 class TeamPerformanceWidget extends BaseWidget
 {
-    protected static ?string $heading = 'Performance Équipe Commerciale';
+    protected static ?string $heading = 'Performance Équipe';
 
     protected static ?int $sort = 9;
 
@@ -25,8 +25,7 @@ class TeamPerformanceWidget extends BaseWidget
     {
         return $table
             ->query(
-                User::role('commercial')
-                    ->where('tenant_id', auth()->user()?->tenant_id)
+                User::where('tenant_id', auth()->user()?->tenant_id)
                     ->withCount([
                         'broughtLeads as leads_count',
                         'broughtLeads as hot_leads_count'       => fn($q) => $q->where('score', '>=', 31),
@@ -37,7 +36,7 @@ class TeamPerformanceWidget extends BaseWidget
             )
             ->columns([
                 Tables\Columns\TextColumn::make('name')
-                    ->label('Commercial')
+                    ->label('Membre')
                     ->searchable()
                     ->weight('bold')
                     ->description(fn($record) => $record->shop_name),

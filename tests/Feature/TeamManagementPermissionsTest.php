@@ -95,11 +95,13 @@ class TeamManagementPermissionsTest extends TestCase
     /**
      * Retour QA : "dans le tableau de bord, section équipe, je vois des
      * équipiers qui ne devraient pas être là". Cause distincte de
-     * UserResource : TeamPerformanceWidget (widget "Performance Équipe
-     * Commerciale" du Dashboard) interrogeait User::role('commercial')
-     * sans aucun filtre de tenant.
+     * UserResource : TeamPerformanceWidget (widget "Performance Équipe" du
+     * Dashboard) interrogeait User::role('commercial') sans aucun filtre de
+     * tenant. Décision utilisateur : le widget doit montrer tous les rôles
+     * du tenant (pas seulement les commerciaux), donc le filtre role() a
+     * été retiré en plus du scope tenant ajouté.
      */
-    public function test_team_performance_widget_only_shows_commercials_from_the_owners_tenant(): void
+    public function test_team_performance_widget_shows_every_role_from_the_owners_tenant_only(): void
     {
         $tenant = $this->createTenantOnPlan('starter');
         $owner = $this->createOwnerForTenant($tenant);
@@ -113,9 +115,12 @@ class TeamManagementPermissionsTest extends TestCase
         $widget = new \App\Filament\Widgets\TeamPerformanceWidget();
         $table = $widget->table(new \Filament\Tables\Table($widget));
 
-        $visibleIds = (clone $table->getQuery())->pluck('id');
+        $visibleIds = (clone $table->getQuery())->pluck('id')->sort()->values();
 
-        $this->assertEquals([$ownCommercial->id], $visibleIds->all());
+        $this->assertEquals(
+            collect([$owner->id, $ownCommercial->id])->sort()->values()->all(),
+            $visibleIds->all()
+        );
     }
 
     public function test_super_admin_sees_users_across_all_tenants(): void

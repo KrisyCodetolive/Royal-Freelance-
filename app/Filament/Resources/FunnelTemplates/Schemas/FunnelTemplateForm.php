@@ -140,6 +140,7 @@ class FunnelTemplateForm
                                             ->placeholder('Aucun commercial assigné')
                                             ->options(
                                                 User::role('commercial')
+                                                    ->where('tenant_id', auth()->user()?->tenant_id)
                                                     ->active()
                                                     ->get()
                                                     ->mapWithKeys(fn($u) => [$u->id => $u->name . ' — ' . $u->email])

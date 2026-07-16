@@ -92,6 +92,32 @@ class TeamManagementPermissionsTest extends TestCase
         $this->assertEquals([$tenant->id], $visibleIds->all());
     }
 
+    /**
+     * Retour QA : "dans le tableau de bord, section équipe, je vois des
+     * équipiers qui ne devraient pas être là". Cause distincte de
+     * UserResource : TeamPerformanceWidget (widget "Performance Équipe
+     * Commerciale" du Dashboard) interrogeait User::role('commercial')
+     * sans aucun filtre de tenant.
+     */
+    public function test_team_performance_widget_only_shows_commercials_from_the_owners_tenant(): void
+    {
+        $tenant = $this->createTenantOnPlan('starter');
+        $owner = $this->createOwnerForTenant($tenant);
+        $ownCommercial = $this->createCommercialForTenant($tenant);
+
+        $otherTenant = $this->createTenantOnPlan('starter');
+        $this->createCommercialForTenant($otherTenant);
+
+        $this->actingAs($owner);
+
+        $widget = new \App\Filament\Widgets\TeamPerformanceWidget();
+        $table = $widget->table(new \Filament\Tables\Table($widget));
+
+        $visibleIds = (clone $table->getQuery())->pluck('id');
+
+        $this->assertEquals([$ownCommercial->id], $visibleIds->all());
+    }
+
     public function test_super_admin_sees_users_across_all_tenants(): void
     {
         $tenant = $this->createTenantOnPlan('starter');

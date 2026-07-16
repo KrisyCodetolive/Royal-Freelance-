@@ -36,7 +36,8 @@ class StatsOverview extends BaseWidget
         $convTrend      = $convPrevWeek > 0 ? round(($convThisWeek - $convPrevWeek) / $convPrevWeek * 100) : 0;
 
         $activeFunnels  = Funnel::where('status', 'active')->count();
-        $commercials    = User::role('commercial')->where('is_active', true)->count();
+        // User n'a pas de scope tenant automatique (contrairement à Funnel/Lead) : filtrage explicite.
+        $commercials    = User::role('commercial')->where('is_active', true)->where('tenant_id', auth()->user()?->tenant_id)->count();
         $emailsSent     = EmailSequenceEmailSend::count();
 
         return [

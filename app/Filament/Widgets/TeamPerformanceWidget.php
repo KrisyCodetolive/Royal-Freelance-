@@ -26,6 +26,7 @@ class TeamPerformanceWidget extends BaseWidget
         return $table
             ->query(
                 User::role('commercial')
+                    ->where('tenant_id', auth()->user()?->tenant_id)
                     ->withCount([
                         'broughtLeads as leads_count',
                         'broughtLeads as hot_leads_count'       => fn($q) => $q->where('score', '>=', 31),

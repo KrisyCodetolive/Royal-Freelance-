@@ -40,18 +40,20 @@
                     </div>
                 </div>
 
-                <div class="group relative">
-                    <label for="shop_name" class="absolute -top-2 left-3 bg-white px-1 text-xs font-medium text-amber-600">NOM DE BOUTIQUE / MARQUE</label>
-                    <div class="mt-1">
-                        <input id="shop_name" name="shop_name" type="text" required
-                            class="block w-full rounded-none border-[1px] border-slate-200 px-4 py-4 text-slate-700 shadow-sm placeholder:text-slate-300 focus:border-amber-500 focus:ring-1 focus:ring-amber-500 sm:text-sm sm:leading-6 transition-all duration-300 bg-slate-50/30 group-hover:bg-white"
-                            value="{{ old('shop_name') }}"
-                            placeholder="Ex: Boutique Élégance">
-                        @error('shop_name')
-                            <p class="mt-2 text-sm text-red-600 font-medium">{{ $message }}</p>
-                        @enderror
+                @if($requiresShopName ?? true)
+                    <div class="group relative">
+                        <label for="shop_name" class="absolute -top-2 left-3 bg-white px-1 text-xs font-medium text-amber-600">NOM DE BOUTIQUE / MARQUE</label>
+                        <div class="mt-1">
+                            <input id="shop_name" name="shop_name" type="text" required
+                                class="block w-full rounded-none border-[1px] border-slate-200 px-4 py-4 text-slate-700 shadow-sm placeholder:text-slate-300 focus:border-amber-500 focus:ring-1 focus:ring-amber-500 sm:text-sm sm:leading-6 transition-all duration-300 bg-slate-50/30 group-hover:bg-white"
+                                value="{{ old('shop_name') }}"
+                                placeholder="Ex: Boutique Élégance">
+                            @error('shop_name')
+                                <p class="mt-2 text-sm text-red-600 font-medium">{{ $message }}</p>
+                            @enderror
+                        </div>
                     </div>
-                </div>
+                @endif
 
                 <div class="group relative">
                     <label for="email" class="absolute -top-2 left-3 bg-white px-1 text-xs font-medium text-amber-600">EMAIL PROFESSIONNEL</label>

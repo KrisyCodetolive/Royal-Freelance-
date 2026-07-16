@@ -56,8 +56,11 @@ class CommercialAuthController extends Controller
      */
     public function register(Request $request)
     {
+        $invitation = TenantInvitation::where('token', $request->query('invitation'))->first();
+
         return view('auth.register', [
             'invitationToken' => $request->query('invitation'),
+            'requiresShopName' => !$invitation || $invitation->role === 'commercial',
         ]);
     }
 
@@ -70,15 +73,17 @@ class CommercialAuthController extends Controller
      */
     public function store(Request $request)
     {
+        $invitation = TenantInvitation::where('token', $request->input('invitation'))->first();
+
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:' . User::class],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
-            'shop_name' => ['required', 'string', 'max:255'],
+            // "Boutique" = sous-domaine personnel du rôle commercial (héritage royalFreelance) :
+            // superflu pour un membre qui rejoint un workspace en Admin/Editor/Viewer.
+            'shop_name' => [$invitation && $invitation->role !== 'commercial' ? 'nullable' : 'required', 'string', 'max:255'],
             'invitation' => ['required', 'string'],
         ]);
-
-        $invitation = TenantInvitation::where('token', $request->input('invitation'))->first();
 
         if (!$invitation || !$invitation->isValid()) {
             return back()

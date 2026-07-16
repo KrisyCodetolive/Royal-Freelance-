@@ -77,6 +77,36 @@ class FunnelInfolist
                                             ])
                                             ->columnSpan(1),
                                     ]),
+
+                                // Module 4/6 (retour QA) : avant ceci, rien n'indiquait qu'un
+                                // tunnel était partagé ni avec qui — visible uniquement en
+                                // rouvrant le formulaire de partage à l'aveugle.
+                                Section::make('Partage')
+                                    ->icon('heroicon-o-user-group')
+                                    ->columns(2)
+                                    ->schema([
+                                        TextEntry::make('users.name')
+                                            ->label('Partagé avec (individuel)')
+                                            ->badge()
+                                            ->listWithLineBreaks()
+                                            ->formatStateUsing(function (string $state, $record) {
+                                                $canEdit = $record->users
+                                                    ->firstWhere('name', $state)
+                                                    ?->pivot
+                                                    ?->can_edit;
+
+                                                return $state . ($canEdit ? ' (édition)' : ' (lecture seule)');
+                                            })
+                                            ->color(fn($state, $record) => ($record->users->firstWhere('name', $state)?->pivot?->can_edit) ? 'success' : 'gray')
+                                            ->default('Non partagé individuellement'),
+
+                                        TextEntry::make('commercialGroups.name')
+                                            ->label('Partagé avec (groupes)')
+                                            ->badge()
+                                            ->listWithLineBreaks()
+                                            ->color('info')
+                                            ->default('Non partagé avec un groupe'),
+                                    ]),
                             ]),
 
                         Tabs\Tab::make('Performance')

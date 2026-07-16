@@ -57,6 +57,13 @@ class FunnelsTable
                     ->searchable()
                     ->toggleable(),
 
+                TextColumn::make('shared_with_count')
+                    ->label('Partage')
+                    ->state(fn(Funnel $record) => $record->users()->count() + $record->commercialGroups()->count())
+                    ->formatStateUsing(fn(int $state) => $state > 0 ? "Partagé ({$state})" : 'Privé')
+                    ->badge()
+                    ->color(fn(int $state) => $state > 0 ? 'info' : 'gray'),
+
                 TextColumn::make('published_at')
                     ->label('Publié le')
                     ->date('d/m/Y')

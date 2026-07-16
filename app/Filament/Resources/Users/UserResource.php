@@ -66,9 +66,28 @@ class UserResource extends Resource
         ];
     }
 
+    /**
+     * `User` importe `BelongsToTenant` mais ne l'applique jamais (absent de
+     * son `use` de traits) — aucun scope automatique. Sans cette méthode, un
+     * Owner/Admin de n'importe quel tenant voyait tous les utilisateurs de
+     * la plateforme dans "Équipe". Le super_admin garde une vue plateforme
+     * (pas de Module 7 dédié pour l'instant, cf. `SubscriptionResource`
+     * qui suit la même logique de bypass pour ce rôle).
+     */
+    public static function getEloquentQuery(): Builder
+    {
+        $query = parent::getEloquentQuery();
+
+        if (($user = auth()->user()) && !$user->isSuperAdmin()) {
+            $query->where('tenant_id', $user->tenant_id);
+        }
+
+        return $query;
+    }
+
     public static function getRecordRouteBindingEloquentQuery(): Builder
     {
-        return parent::getRecordRouteBindingEloquentQuery()
+        return static::getEloquentQuery()
             ->withoutGlobalScopes([
                 SoftDeletingScope::class,
             ]);
@@ -76,7 +95,7 @@ class UserResource extends Resource
 
     public static function getNavigationBadge(): ?string
     {
-        return static::getModel()::count();
+        return static::getEloquentQuery()->count();
     }
 
     // Module 5 : "Ajouter des membres" est un privilège Owner/Admin (CDC,

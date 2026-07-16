@@ -67,6 +67,49 @@ class TeamManagementPermissionsTest extends TestCase
         $this->assertTrue(TenantInvitationResource::canViewAny());
     }
 
+    /**
+     * Retour QA : "je vois tout le monde sans les équipiers à moi". Cause :
+     * User importe BelongsToTenant mais ne l'applique jamais dans son `use`
+     * de traits — aucun scope automatique, UserResource n'avait pas non plus
+     * de getEloquentQuery() propre. Un Owner voyait tous les utilisateurs de
+     * tous les tenants de la plateforme.
+     */
+    public function test_owner_only_sees_users_from_their_own_tenant(): void
+    {
+        $tenant = $this->createTenantOnPlan('starter');
+        $owner = $this->createOwnerForTenant($tenant);
+        $this->createEditorForTenant($tenant);
+
+        $otherTenant = $this->createTenantOnPlan('starter');
+        $this->createAdminForTenant($otherTenant);
+        $this->createViewerForTenant($otherTenant);
+
+        $this->actingAs($owner);
+
+        $visibleIds = UserResource::getEloquentQuery()->pluck('tenant_id')->unique();
+
+        $this->assertEquals(2, UserResource::getEloquentQuery()->count());
+        $this->assertEquals([$tenant->id], $visibleIds->all());
+    }
+
+    public function test_super_admin_sees_users_across_all_tenants(): void
+    {
+        $tenant = $this->createTenantOnPlan('starter');
+        $this->createOwnerForTenant($tenant);
+
+        $otherTenant = $this->createTenantOnPlan('starter');
+        $this->createAdminForTenant($otherTenant);
+
+        $superAdmin = $this->createSuperAdmin();
+
+        $this->actingAs($superAdmin);
+
+        $visibleTenantIds = UserResource::getEloquentQuery()->pluck('tenant_id')->unique();
+
+        $this->assertTrue($visibleTenantIds->contains($tenant->id));
+        $this->assertTrue($visibleTenantIds->contains($otherTenant->id));
+    }
+
     public function test_editor_cannot_bulk_delete_funnels(): void
     {
         $tenant = $this->createTenantOnPlan('starter');

@@ -58,8 +58,14 @@ class FunnelController extends Controller
 
     /**
      * Show a specific page of a funnel
+     *
+     * L'ordre des paramètres suit celui de la liaison de route Laravel pour
+     * ces routes : paramètre de domaine ({subdomain}) d'abord, puis paramètre
+     * d'URI ({pageSlug}) — les inverser fait passer le slug de la page dans
+     * $subdomain et le sous-domaine dans $pageSlug, cassant l'affichage de
+     * toute page autre que la racine du tunnel.
      */
-    public function showPage(Request $request, $pageSlug, $subdomain = null)
+    public function showPage(Request $request, $subdomain, $pageSlug = null)
     {
         // Récupérer le funnel par sous-domaine ou slug
         $funnel = $this->resolveFunnel($request, $subdomain);
@@ -83,8 +89,10 @@ class FunnelController extends Controller
 
     /**
      * Handle form submission on a page
+     *
+     * Même remarque que showPage() sur l'ordre des paramètres (domaine avant URI).
      */
-    public function submit(Request $request, $pageSlug, $subdomain = null)
+    public function submit(Request $request, $subdomain, $pageSlug = null)
     {
         // Récupérer le funnel par sous-domaine ou slug
         $funnel = $this->resolveFunnel($request, $subdomain);

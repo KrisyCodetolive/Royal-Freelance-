@@ -30,7 +30,7 @@ class TenantInvitationCreationTest extends TestCase
 
     public function test_admin_can_create_a_tenant_invitation_via_the_filament_form(): void
     {
-        $tenant = $this->createTenantOnPlan();
+        $tenant = $this->createTenantOnPlan('starter');
         $admin = $this->createAdminForTenant($tenant);
 
         $this->actingAs($admin);
@@ -49,7 +49,7 @@ class TenantInvitationCreationTest extends TestCase
 
     public function test_owner_can_choose_the_admin_role_when_inviting_a_member(): void
     {
-        $tenant = $this->createTenantOnPlan();
+        $tenant = $this->createTenantOnPlan('starter');
         $owner = $this->createOwnerForTenant($tenant);
 
         $this->actingAs($owner);
@@ -65,6 +65,34 @@ class TenantInvitationCreationTest extends TestCase
         $invitation = TenantInvitation::where('email', 'futur-admin@example.com')->first();
 
         $this->assertSame('admin', $invitation->role);
+    }
+
+    public function test_owner_cannot_invite_anyone_on_the_free_plan(): void
+    {
+        $tenant = $this->createTenantOnPlan('free');
+        $owner = $this->createOwnerForTenant($tenant);
+
+        $this->actingAs($owner);
+
+        $this->assertFalse(\App\Filament\Resources\TenantInvitations\TenantInvitationResource::canCreate());
+    }
+
+    public function test_owner_cannot_invite_a_viewer_on_the_starter_plan(): void
+    {
+        $tenant = $this->createTenantOnPlan('starter');
+        $owner = $this->createOwnerForTenant($tenant);
+
+        $this->actingAs($owner);
+
+        Livewire::test(CreateTenantInvitation::class)
+            ->fillForm([
+                'email' => 'futur-viewer@example.com',
+                'role' => 'viewer',
+            ])
+            ->call('create')
+            ->assertNotified();
+
+        $this->assertNull(TenantInvitation::where('email', 'futur-viewer@example.com')->first());
     }
 
     public function test_super_admin_can_create_a_subscription_via_the_filament_form(): void

@@ -58,16 +58,26 @@ class TenantInvitationResource extends Resource
     // Module 5 : "Ajouter des membres" réservé à Owner/Admin (cf. UserResource).
     public static function canViewAny(): bool
     {
-        return (bool) auth()->user()?->isAdmin();
+        return (bool) auth()->user()?->isAdmin() && static::planAllowsInvitations();
     }
 
     public static function canCreate(): bool
     {
-        return (bool) auth()->user()?->isAdmin();
+        return (bool) auth()->user()?->isAdmin() && static::planAllowsInvitations();
     }
 
     public static function canDelete(\Illuminate\Database\Eloquent\Model $record): bool
     {
         return (bool) auth()->user()?->isAdmin();
+    }
+
+    /**
+     * Plan Gratuit (décision utilisateur) : l'Owner gère seul son tenant,
+     * aucune invitation possible, même un simple Commercial. `available_roles`
+     * du plan courant sert de source de vérité (vide = aucune invitation).
+     */
+    public static function planAllowsInvitations(): bool
+    {
+        return !empty(auth()->user()?->tenant?->currentPlan()?->available_roles);
     }
 }

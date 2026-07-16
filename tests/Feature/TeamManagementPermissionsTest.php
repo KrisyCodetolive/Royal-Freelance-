@@ -1,0 +1,155 @@
+<?php
+
+namespace Tests\Feature;
+
+use App\Filament\Resources\CommercialGroups\CommercialGroupResource;
+use App\Filament\Resources\Funnels\Pages\ListFunnels;
+use App\Filament\Resources\Funnels\RelationManagers\PagesRelationManager;
+use App\Filament\Resources\TenantInvitations\TenantInvitationResource;
+use App\Filament\Resources\Users\UserResource;
+use App\Models\Funnel;
+use App\Models\Page;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Livewire\Livewire;
+use Tests\Concerns\SetsUpSaasTestData;
+use Tests\TestCase;
+
+/**
+ * Retours QA manuels sur Modules 4/5/6 : Editor/Viewer avaient accès à la
+ * gestion d'équipe (Users/CommercialGroups/TenantInvitations, aucune de ces
+ * ressources n'était gatée) et pouvaient contourner les restrictions de
+ * rôle sur les tunnels/pages via des actions non protégées (bulk delete,
+ * RelationManager Pages sans policy).
+ */
+class TeamManagementPermissionsTest extends TestCase
+{
+    use RefreshDatabase, SetsUpSaasTestData;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->seedRolesAndPlans();
+    }
+
+    public function test_editor_cannot_view_team_management_resources(): void
+    {
+        $tenant = $this->createTenantOnPlan('starter');
+        $editor = $this->createEditorForTenant($tenant);
+
+        $this->actingAs($editor);
+
+        $this->assertFalse(UserResource::canViewAny());
+        $this->assertFalse(CommercialGroupResource::canViewAny());
+        $this->assertFalse(TenantInvitationResource::canViewAny());
+    }
+
+    public function test_viewer_cannot_view_team_management_resources(): void
+    {
+        $tenant = $this->createTenantOnPlan('starter');
+        $viewer = $this->createViewerForTenant($tenant);
+
+        $this->actingAs($viewer);
+
+        $this->assertFalse(UserResource::canViewAny());
+        $this->assertFalse(CommercialGroupResource::canViewAny());
+        $this->assertFalse(TenantInvitationResource::canViewAny());
+    }
+
+    public function test_admin_can_view_team_management_resources(): void
+    {
+        $tenant = $this->createTenantOnPlan('starter');
+        $admin = $this->createAdminForTenant($tenant);
+
+        $this->actingAs($admin);
+
+        $this->assertTrue(UserResource::canViewAny());
+        $this->assertTrue(CommercialGroupResource::canViewAny());
+        $this->assertTrue(TenantInvitationResource::canViewAny());
+    }
+
+    public function test_editor_cannot_bulk_delete_funnels(): void
+    {
+        $tenant = $this->createTenantOnPlan('starter');
+        $editor = $this->createEditorForTenant($tenant);
+
+        $funnel = $this->makeFunnel($tenant, ['assigned_to' => $editor->id]);
+
+        $this->actingAs($editor);
+
+        Livewire::test(ListFunnels::class)
+            ->assertTableBulkActionHidden('delete', $funnel);
+
+        $this->assertNotSoftDeleted($funnel);
+    }
+
+    public function test_admin_can_bulk_delete_funnels(): void
+    {
+        $tenant = $this->createTenantOnPlan('starter');
+        $admin = $this->createAdminForTenant($tenant);
+
+        $funnel = $this->makeFunnel($tenant);
+
+        $this->actingAs($admin);
+
+        Livewire::test(ListFunnels::class)
+            ->assertTableBulkActionVisible('delete', $funnel);
+    }
+
+    public function test_viewer_cannot_create_a_page_via_relation_manager_even_on_a_tunnel_shared_in_edit(): void
+    {
+        $tenant = $this->createTenantOnPlan('starter');
+        $viewer = $this->createViewerForTenant($tenant);
+
+        $funnel = $this->makeFunnel($tenant);
+        $funnel->users()->attach($viewer->id, ['is_active' => true, 'can_edit' => true]);
+
+        $this->actingAs($viewer);
+
+        Livewire::test(PagesRelationManager::class, [
+            'ownerRecord' => $funnel,
+            'pageClass' => \App\Filament\Resources\Funnels\Pages\ViewFunnel::class,
+        ])->assertTableActionHidden('create');
+    }
+
+    public function test_editor_cannot_delete_a_page_via_relation_manager(): void
+    {
+        $tenant = $this->createTenantOnPlan('starter');
+        $editor = $this->createEditorForTenant($tenant);
+
+        $funnel = $this->makeFunnel($tenant, ['assigned_to' => $editor->id]);
+        $page = $this->makePage($funnel);
+
+        $this->actingAs($editor);
+
+        Livewire::test(PagesRelationManager::class, [
+            'ownerRecord' => $funnel,
+            'pageClass' => \App\Filament\Resources\Funnels\Pages\ViewFunnel::class,
+        ])->assertTableActionHidden('delete', $page);
+
+        $this->assertNotSoftDeleted($page);
+    }
+
+    private function makeFunnel(\App\Models\Tenant $tenant, array $overrides = []): Funnel
+    {
+        return Funnel::create(array_merge([
+            'tenant_id' => $tenant->id,
+            'name' => 'Funnel ' . uniqid(),
+            'slug' => 'funnel-' . uniqid(),
+            'status' => 'draft',
+            'is_template' => false,
+        ], $overrides));
+    }
+
+    private function makePage(Funnel $funnel, array $overrides = []): Page
+    {
+        return Page::create(array_merge([
+            'funnel_id' => $funnel->id,
+            'type' => \App\Enums\PageType::CAPTURE,
+            'title' => 'Page ' . uniqid(),
+            'slug' => 'page-' . uniqid(),
+            'sort_order' => 1,
+            'is_active' => true,
+            'is_required' => true,
+        ], $overrides));
+    }
+}

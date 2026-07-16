@@ -16,6 +16,7 @@ use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 
 class CommercialGroupResource extends Resource
 {
@@ -62,5 +63,26 @@ class CommercialGroupResource extends Resource
             'view' => ViewCommercialGroup::route('/{record}'),
             'edit' => EditCommercialGroup::route('/{record}/edit'),
         ];
+    }
+
+    // Module 5 : gestion d'équipe réservée à Owner/Admin (cf. UserResource).
+    public static function canViewAny(): bool
+    {
+        return (bool) auth()->user()?->isAdmin();
+    }
+
+    public static function canCreate(): bool
+    {
+        return (bool) auth()->user()?->isAdmin();
+    }
+
+    public static function canEdit(Model $record): bool
+    {
+        return (bool) auth()->user()?->isAdmin();
+    }
+
+    public static function canDelete(Model $record): bool
+    {
+        return (bool) auth()->user()?->isAdmin();
     }
 }

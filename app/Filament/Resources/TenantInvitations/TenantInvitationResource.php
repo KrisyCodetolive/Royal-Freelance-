@@ -54,4 +54,20 @@ class TenantInvitationResource extends Resource
     {
         return 'warning';
     }
+
+    // Module 5 : "Ajouter des membres" réservé à Owner/Admin (cf. UserResource).
+    public static function canViewAny(): bool
+    {
+        return (bool) auth()->user()?->isAdmin();
+    }
+
+    public static function canCreate(): bool
+    {
+        return (bool) auth()->user()?->isAdmin();
+    }
+
+    public static function canDelete(\Illuminate\Database\Eloquent\Model $record): bool
+    {
+        return (bool) auth()->user()?->isAdmin();
+    }
 }

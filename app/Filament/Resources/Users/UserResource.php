@@ -16,6 +16,7 @@ use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class UserResource extends Resource
@@ -76,5 +77,28 @@ class UserResource extends Resource
     public static function getNavigationBadge(): ?string
     {
         return static::getModel()::count();
+    }
+
+    // Module 5 : "Ajouter des membres" est un privilège Owner/Admin (CDC,
+    // 4 Rôles) — Editor/Viewer n'ont accès ni à la liste ni à la gestion
+    // des membres du tenant, même s'ils ont accès au panel.
+    public static function canViewAny(): bool
+    {
+        return (bool) auth()->user()?->isAdmin();
+    }
+
+    public static function canCreate(): bool
+    {
+        return (bool) auth()->user()?->isAdmin();
+    }
+
+    public static function canEdit(Model $record): bool
+    {
+        return (bool) auth()->user()?->isAdmin();
+    }
+
+    public static function canDelete(Model $record): bool
+    {
+        return (bool) auth()->user()?->isAdmin();
     }
 }

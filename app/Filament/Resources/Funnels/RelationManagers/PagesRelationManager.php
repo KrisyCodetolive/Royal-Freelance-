@@ -95,6 +95,7 @@ class PagesRelationManager extends RelationManager
             ->headerActions([
                 Actions\CreateAction::make()
                     ->label('Ajouter une Page')
+                    ->authorize(fn (RelationManager $livewire) => $livewire->getOwnerRecord()->canBeEditedBy(auth()->user()))
                     ->mutateFormDataUsing(function (array $data, RelationManager $livewire): array {
                         $data['funnel_id'] = $livewire->getOwnerRecord()->id;
                         if (!isset($data['slug'])) {
@@ -124,9 +125,11 @@ class PagesRelationManager extends RelationManager
                     ->icon('heroicon-o-pencil-square')
                     ->color('warning')
                     ->url(fn(Page $record) => route('page-builder.edit', ['model' => 'Page', 'modelId' => $record->id]))
-                    ->openUrlInNewTab(),
+                    ->openUrlInNewTab()
+                    ->authorize(fn (Page $record) => $record->funnel->canBeEditedBy(auth()->user())),
 
-                Actions\EditAction::make(),
+                Actions\EditAction::make()
+                    ->authorize(fn (Page $record) => $record->funnel->canBeEditedBy(auth()->user())),
 
                 Actions\Action::make('duplicate')
                     ->label('Dupliquer')
@@ -134,9 +137,13 @@ class PagesRelationManager extends RelationManager
                     ->color('info')
                     ->action(fn(Page $record) => $record->duplicate())
                     ->requiresConfirmation()
-                    ->successNotificationTitle('Page dupliquée avec succès'),
+                    ->successNotificationTitle('Page dupliquée avec succès')
+                    ->authorize(fn (Page $record) => $record->funnel->canBeEditedBy(auth()->user())),
 
-                Actions\DeleteAction::make(),
+                // Module 5 : suppression réservée à Owner/Admin, comme pour les tunnels
+                // (Page n'a pas de Policy Laravel, donc pas de garde par défaut).
+                Actions\DeleteAction::make()
+                    ->authorize(fn () => auth()->user()?->isAdmin()),
 
                 Actions\Action::make('preview')
                     ->label('Voir')
@@ -146,7 +153,8 @@ class PagesRelationManager extends RelationManager
             ])
             ->bulkActions([
                 Actions\BulkActionGroup::make([
-                    Actions\DeleteBulkAction::make(),
+                    Actions\DeleteBulkAction::make()
+                        ->authorize(fn () => auth()->user()?->isAdmin()),
                 ]),
             ]);
     }

@@ -80,7 +80,9 @@ class FunnelsTable
             ])
             ->recordActions([
                 ViewAction::make()->label('Voir'),
-                EditAction::make()->label('Modifier'),
+                EditAction::make()
+                    ->label('Modifier')
+                    ->authorize(fn(Funnel $record) => $record->canBeEditedBy(auth()->user())),
                 Action::make('duplicate')
                     ->label('Dupliquer')
                     ->icon('heroicon-o-document-duplicate')
@@ -102,9 +104,11 @@ class FunnelsTable
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
-                    DeleteBulkAction::make()->label('Supprimer'),
-                    ForceDeleteBulkAction::make()->label('Supprimer définitivement'),
-                    RestoreBulkAction::make()->label('Restaurer'),
+                    // Module 5 : suppression réservée à Owner/Admin (Funnel n'a pas de
+                    // Policy Laravel, donc pas de garde par défaut sur les bulk actions).
+                    DeleteBulkAction::make()->label('Supprimer')->authorize(fn () => auth()->user()?->isAdmin()),
+                    ForceDeleteBulkAction::make()->label('Supprimer définitivement')->authorize(fn () => auth()->user()?->isAdmin()),
+                    RestoreBulkAction::make()->label('Restaurer')->authorize(fn () => auth()->user()?->isAdmin()),
                 ]),
             ])
             ->defaultSort('created_at', 'desc')

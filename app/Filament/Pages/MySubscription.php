@@ -4,7 +4,6 @@ namespace App\Filament\Pages;
 
 use App\Models\Plan;
 use App\Models\Subscription;
-use App\Services\QuotaService;
 use Filament\Actions\Action;
 use Filament\Forms\Components\Select;
 use Filament\Notifications\Notification;
@@ -37,11 +36,6 @@ class MySubscription extends Page
     public function getSubscription(): ?Subscription
     {
         return auth()->user()->tenant?->activeSubscription();
-    }
-
-    public function getUsage(): array
-    {
-        return app(QuotaService::class)->usageWithLimits(auth()->user()->tenant);
     }
 
     protected function getHeaderActions(): array

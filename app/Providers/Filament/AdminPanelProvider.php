@@ -10,6 +10,7 @@ use App\Filament\Pages\Dashboard;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
+use Filament\View\PanelsRenderHook;
 use Filament\Widgets\AccountWidget;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
@@ -27,11 +28,12 @@ class AdminPanelProvider extends PanelProvider
             ->default()
             ->id('admin')
             ->path('admin')
+            ->viteTheme('resources/css/filament/admin/theme.css')
             ->login()
             ->profile()
             ->brandName('Royal LeadPro')
-            ->brandLogo(asset('assets/logoblack.png'))
-            ->darkModeBrandLogo(asset('assets/logowhite.png'))
+            ->brandLogo(asset('assets/RoyalLeadPro/LogoSVGPrincipal.svg'))
+            ->darkModeBrandLogo(asset('assets/RoyalLeadPro/logoLeadProBlanc.svg'))
             ->favicon(asset('favicon.ico'))
             ->colors([
                 'primary' => Color::Indigo,
@@ -55,6 +57,14 @@ class AdminPanelProvider extends PanelProvider
                 TopbarPlugin::make(),
             ])
             ->maxContentWidth('full')
+            ->renderHook(
+                PanelsRenderHook::TOPBAR_LOGO_AFTER,
+                fn () => view('filament.hooks.tenant-plan-badge'),
+            )
+            ->renderHook(
+                PanelsRenderHook::USER_MENU_PROFILE_AFTER,
+                fn () => view('filament.hooks.user-role-hint'),
+            )
 
             // ->sidebarCollapsibleOnDesktop()
             ->middleware([

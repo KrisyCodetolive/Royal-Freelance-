@@ -126,6 +126,16 @@ class Tenant extends Model
         return $this->users()->role('commercial');
     }
 
+    /**
+     * Propriétaire du workspace (rôle "owner") — le contact principal côté
+     * plateforme pour ce tenant. Pas de colonne dédiée : dérivé du premier
+     * utilisateur ayant ce rôle. Utilisé par le TenantResource (super_admin).
+     */
+    public function ownerUser(): ?User
+    {
+        return $this->users()->role('owner')->first();
+    }
+
     // Helpers
     public function isOnTrial(): bool
     {

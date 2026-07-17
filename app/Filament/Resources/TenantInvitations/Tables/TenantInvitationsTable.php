@@ -7,6 +7,7 @@ use Filament\Actions\DeleteAction;
 use Filament\Forms\Components\TextInput;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Columns\ViewColumn;
 use Filament\Tables\Table;
 
 class TenantInvitationsTable
@@ -29,12 +30,13 @@ class TenantInvitationsTable
                     })
                     ->badge(),
 
-                TextColumn::make('invite_url')
+                // Bouton copier avec repli execCommand (voir la vue) : le sanitizer
+                // HTML de Filament supprime onclick/<script> d'un ->html() classique,
+                // d'où l'usage d'une ViewColumn (template de confiance) plutôt que
+                // formatStateUsing()->html().
+                ViewColumn::make('invite_url')
                     ->label('Lien d\'invitation')
-                    ->copyable()
-                    ->copyMessage('Lien copié !')
-                    ->limit(40)
-                    ->tooltip(fn($record) => $record->invite_url),
+                    ->view('filament.tables.columns.invite-link'),
 
                 TextColumn::make('invitedBy.name')
                     ->label('Invité par')

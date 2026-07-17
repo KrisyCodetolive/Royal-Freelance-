@@ -10,7 +10,6 @@ use App\Filament\Widgets\LeadsByDeviceWidget;
 use App\Filament\Widgets\ConversionByCountryWidget;
 use App\Filament\Widgets\RevenuePerformanceWidget;
 use App\Filament\Widgets\TeamPerformanceWidget;
-use App\Filament\Widgets\QuotaUsageWidget;
 use Filament\Pages\Dashboard as BaseDashboard;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Tabs;
@@ -43,7 +42,6 @@ class Dashboard extends BaseDashboard
                         ->schema([
                             Grid::make(12)->schema(
                                 $this->getWidgetsSchemaComponents([
-                                    QuotaUsageWidget::class,
                                     StatsOverview::class,
                                     LeadsPipelineChart::class,
                                     LatestLeads::class,

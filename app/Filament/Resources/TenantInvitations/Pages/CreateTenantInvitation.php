@@ -8,7 +8,9 @@ use App\Mail\TenantInvitationMail;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\CreateRecord;
 use Filament\Support\Exceptions\Halt;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
+use Throwable;
 
 class CreateTenantInvitation extends CreateRecord
 {
@@ -24,9 +26,30 @@ class CreateTenantInvitation extends CreateRecord
         return $data;
     }
 
+    /**
+     * L'invitation (avec son lien) est déjà en base à ce stade — un souci SMTP
+     * transitoire (ex: Mailpit non démarré en local, panne du fournisseur mail
+     * en prod) ne doit pas faire planter toute la requête et laisser l'admin
+     * croire que rien n'a été créé. On avertit plutôt et on laisse le lien
+     * copiable (cf. TenantInvitationsTable) servir de repli.
+     */
     protected function afterCreate(): void
     {
-        Mail::to($this->record->email)->send(new TenantInvitationMail($this->record));
+        try {
+            Mail::to($this->record->email)->send(new TenantInvitationMail($this->record));
+        } catch (Throwable $e) {
+            Log::error('Échec de l\'envoi de l\'email d\'invitation', [
+                'invitation_id' => $this->record->id,
+                'email' => $this->record->email,
+                'error' => $e->getMessage(),
+            ]);
+
+            Notification::make()
+                ->title('Invitation créée, mais l\'email n\'a pas pu être envoyé')
+                ->body('Copiez le lien d\'invitation depuis le tableau pour le transmettre manuellement.')
+                ->warning()
+                ->send();
+        }
     }
 
     /**

@@ -245,6 +245,43 @@ class User extends Authenticatable implements FilamentUser
         return !empty($this->shop_name) && !empty($this->subdomain);
     }
 
+    /**
+     * Libellé FR du rôle le plus spécifique de l'utilisateur, pour affichage
+     * (ex: user-menu, badges) — ne pas utiliser pour l'autorisation, qui doit
+     * rester sur hasRole()/isX().
+     */
+    public function primaryRoleLabel(): string
+    {
+        return match (true) {
+            $this->isSuperAdmin() => 'Super Administrateur',
+            $this->isOwner() => 'Propriétaire',
+            $this->hasRole('admin') => 'Administrateur',
+            $this->hasRole('manager') => 'Manager',
+            $this->isEditor() => 'Éditeur',
+            $this->isViewer() => 'Lecteur',
+            $this->isCommercial() => 'Commercial',
+            default => 'Membre',
+        };
+    }
+
+    /**
+     * Couleur Filament associée à primaryRoleLabel(), pour un badge cohérent
+     * avec le reste du panel (mêmes couleurs que UserInfolist/UsersTable).
+     */
+    public function primaryRoleColor(): string
+    {
+        return match (true) {
+            $this->isSuperAdmin() => 'danger',
+            $this->isOwner() => 'warning',
+            $this->hasRole('admin') => 'primary',
+            $this->hasRole('manager') => 'info',
+            $this->isEditor() => 'gray',
+            $this->isViewer() => 'gray',
+            $this->isCommercial() => 'success',
+            default => 'gray',
+        };
+    }
+
     public function getUnreadAlertsCount(): int
     {
         return $this->alerts()->unread()->count();

@@ -52,6 +52,45 @@ class PublicFunnelPageDisplayTest extends TestCase
         $response->assertNotFound();
     }
 
+    /**
+     * Retour QA (2ème occurrence, jour suivant) : "j'arrive pas à afficher les
+     * pages d'un tunnel". Cause : showPageWithSlug()/submitWithSlug() n'avaient
+     * pas été mis à jour après le fix ci-dessus sur showPage()/submit() — ils
+     * leur transmettaient toujours les paramètres dans l'ancien ordre, donc le
+     * slug du tunnel et celui de la page restaient inversés pour toutes les
+     * routes /f/{funnelSlug}/{pageSlug} (avec ou sans sous-domaine).
+     */
+    public function test_root_page_of_a_published_funnel_is_reachable_via_f_prefix_without_subdomain(): void
+    {
+        $funnel = $this->makePublishedFunnelWithPages();
+
+        $response = $this->get('http://' . config('app.subdomain_base') . '/f/' . $funnel->slug);
+
+        $response->assertOk();
+    }
+
+    public function test_a_specific_page_of_a_published_funnel_is_reachable_via_f_prefix_without_subdomain(): void
+    {
+        $funnel = $this->makePublishedFunnelWithPages();
+        $secondPage = $funnel->pages()->where('sort_order', 2)->firstOrFail();
+
+        $response = $this->get('http://' . config('app.subdomain_base') . '/f/' . $funnel->slug . '/' . $secondPage->slug);
+
+        $response->assertOk();
+        $response->assertSee($secondPage->title);
+    }
+
+    public function test_a_specific_page_of_a_published_funnel_is_reachable_via_f_prefix_with_subdomain(): void
+    {
+        $funnel = $this->makePublishedFunnelWithPages();
+        $secondPage = $funnel->pages()->where('sort_order', 2)->firstOrFail();
+
+        $response = $this->get('http://commercial-sub.' . config('app.subdomain_base') . '/f/' . $funnel->slug . '/' . $secondPage->slug);
+
+        $response->assertOk();
+        $response->assertSee($secondPage->title);
+    }
+
     private function makePublishedFunnelWithPages(array $overrides = []): Funnel
     {
         $tenant = Tenant::create(['name' => 'Tenant ' . uniqid()]);

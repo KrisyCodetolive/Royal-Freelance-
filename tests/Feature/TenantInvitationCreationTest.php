@@ -4,10 +4,13 @@ namespace Tests\Feature;
 
 use App\Filament\Resources\Subscriptions\Pages\CreateSubscription;
 use App\Filament\Resources\TenantInvitations\Pages\CreateTenantInvitation;
+use App\Filament\Resources\TenantInvitations\Pages\ListTenantInvitations;
 use App\Models\Plan;
 use App\Models\TenantInvitation;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Mail;
 use Livewire\Livewire;
+use Symfony\Component\Mailer\Exception\TransportException;
 use Tests\Concerns\SetsUpSaasTestData;
 use Tests\TestCase;
 
@@ -93,6 +96,62 @@ class TenantInvitationCreationTest extends TestCase
             ->assertNotified();
 
         $this->assertNull(TenantInvitation::where('email', 'futur-viewer@example.com')->first());
+    }
+
+    /**
+     * Retour QA : "difficulté à copier le lien pour les invitations" — le
+     * bouton copier natif de Filament (->copyable()) repose sur
+     * navigator.clipboard, qui échoue silencieusement hors contexte sécurisé
+     * (HTTP sur un sous-domaine autre que localhost). Remplacé par un bouton
+     * avec fallback document.execCommand('copy'). Ce test vérifie juste que
+     * la liste rend sans exception et affiche le bouton de copie.
+     */
+    public function test_invitations_list_renders_with_a_copy_link_button(): void
+    {
+        $tenant = $this->createTenantOnPlan('starter');
+        $admin = $this->createAdminForTenant($tenant);
+
+        TenantInvitation::create([
+            'tenant_id' => $tenant->id,
+            'email' => 'commercial@example.com',
+            'role' => 'commercial',
+            'invited_by' => $admin->id,
+            'token' => 'test-token',
+            'expires_at' => now()->addDays(7),
+        ]);
+
+        $this->actingAs($admin);
+
+        Livewire::test(ListTenantInvitations::class)
+            ->loadTable()
+            ->assertOk()
+            ->assertSeeHtml('x-on:click="copy()"');
+    }
+
+    /**
+     * Retour QA (crash réel) : création d'une invitation → 500
+     * TransportException "Connection refused" (Mailpit non démarré en local).
+     * L'invitation était déjà en base au moment du crash — Mail::send() ne
+     * doit plus faire échouer toute la requête.
+     */
+    public function test_invitation_is_still_created_even_if_the_confirmation_email_fails_to_send(): void
+    {
+        $tenant = $this->createTenantOnPlan('starter');
+        $admin = $this->createAdminForTenant($tenant);
+
+        Mail::shouldReceive('to')->andReturnSelf();
+        Mail::shouldReceive('send')->andThrow(
+            new TransportException('Connection could not be established with host "127.0.0.1:1025"')
+        );
+
+        $this->actingAs($admin);
+
+        Livewire::test(CreateTenantInvitation::class)
+            ->fillForm(['email' => 'sans-smtp@example.com'])
+            ->call('create')
+            ->assertHasNoFormErrors();
+
+        $this->assertNotNull(TenantInvitation::where('email', 'sans-smtp@example.com')->first());
     }
 
     public function test_super_admin_can_create_a_subscription_via_the_filament_form(): void

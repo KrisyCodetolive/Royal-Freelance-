@@ -127,28 +127,35 @@ class FunnelController extends Controller
 
     /**
      * Show specific page with explicit funnel slug (for /f/{funnelSlug}/{pageSlug} routes)
+     *
+     * showPage()/submit() attendent (subdomainOuSlugFunnel, pageSlug) depuis le
+     * fix a9f765a — ces wrappers doivent transmettre dans le même ordre : le
+     * slug du tunnel (2ème paramètre bound) suivi du slug de la page (dernier
+     * paramètre bound), qu'il y ait 2 ou 3 paramètres réels.
      */
     public function showPageWithSlug(Request $request, string $funnelSlugOrSubdomain, string $pageSlugOrFunnelSlug, string $pageSlug = null)
     {
         // Si on a 3 paramètres (subdomain + funnelSlug + pageSlug), utiliser les 2 derniers
         // Sinon, utiliser les 2 premiers (pas de subdomain)
         if ($pageSlug !== null) {
-            return $this->showPage($request, $pageSlug, $pageSlugOrFunnelSlug);
+            return $this->showPage($request, $pageSlugOrFunnelSlug, $pageSlug);
         }
-        return $this->showPage($request, $pageSlugOrFunnelSlug, $funnelSlugOrSubdomain);
+        return $this->showPage($request, $funnelSlugOrSubdomain, $pageSlugOrFunnelSlug);
     }
 
     /**
      * Handle form submission with explicit funnel slug (for /f/{funnelSlug}/{pageSlug}/submit routes)
+     *
+     * Même remarque que showPageWithSlug() sur l'ordre des paramètres transmis.
      */
     public function submitWithSlug(Request $request, string $funnelSlugOrSubdomain, string $pageSlugOrFunnelSlug, string $pageSlug = null)
     {
         // Si on a 3 paramètres (subdomain + funnelSlug + pageSlug), utiliser les 2 derniers
         // Sinon, utiliser les 2 premiers (pas de subdomain)
         if ($pageSlug !== null) {
-            return $this->submit($request, $pageSlug, $pageSlugOrFunnelSlug);
+            return $this->submit($request, $pageSlugOrFunnelSlug, $pageSlug);
         }
-        return $this->submit($request, $pageSlugOrFunnelSlug, $funnelSlugOrSubdomain);
+        return $this->submit($request, $funnelSlugOrSubdomain, $pageSlugOrFunnelSlug);
     }
 
     /**

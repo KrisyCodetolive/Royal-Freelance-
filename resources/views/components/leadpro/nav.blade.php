@@ -8,7 +8,7 @@
             <!-- Logo -->
             <div class="flex items-center flex-shrink-0">
                 <a href="{{ route('home') }}" class="flex items-center">
-                    <img src="{{ asset('assets/RoyalLeadPro/LogoSVGPrincipal.svg') }}" class="h-7 sm:h-9 w-auto dark:hidden"
+                    <img src="{{ asset('assets/RoyalLeadPro/lOGOsvg_lOGOsvg.svg') }}" class="h-7 sm:h-20 w-auto dark:hidden"
                         alt="Royal LeadPro">
                     <img src="{{ asset('assets/RoyalLeadPro/logoLeadProBlanc.svg') }}" class="h-7 sm:h-9 w-auto hidden dark:block"
                         alt="Royal LeadPro">

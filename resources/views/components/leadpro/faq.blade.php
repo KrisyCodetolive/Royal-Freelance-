@@ -1,17 +1,17 @@
-<section id="faq" class="py-24 bg-white" x-data="{ open: null }">
+<section id="faq" class="py-24 bg-white dark:bg-zinc-950 border-t border-slate-100 dark:border-white/[0.06]" x-data="{ open: null }">
     <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <!-- Header -->
         <div class="text-center mb-16">
             <div
-                class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-indigo-100 text-indigo-700 text-xs font-bold tracking-wider uppercase mb-4">
+                class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-amber-100 dark:bg-amber-500/10 text-amber-700 dark:text-amber-400 text-xs font-bold tracking-wider uppercase mb-4">
                 <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
                 <span>FAQ</span>
             </div>
-            <h2 class="text-4xl md:text-5xl font-serif font-bold text-slate-900 mb-4">Questions fréquentes</h2>
-            <p class="text-lg text-slate-600 max-w-2xl mx-auto">
+            <h2 class="text-4xl md:text-5xl font-serif font-bold text-slate-900 dark:text-white mb-4">Questions fréquentes</h2>
+            <p class="text-lg text-slate-600 dark:text-zinc-400 max-w-2xl mx-auto">
                 Tout ce que vous devez savoir avant de démarrer avec Royal LeadPro.
             </p>
         </div>
@@ -43,17 +43,17 @@
             @endphp
 
             @foreach ($faqs as $index => $faq)
-                <div class="border border-slate-200 rounded-xl overflow-hidden" x-data="{ id: {{ $index }} }">
+                <div class="glass-card rounded-xl overflow-hidden" x-data="{ id: {{ $index }} }">
                     <button @click="open = (open === id ? null : id)"
-                        class="w-full flex items-center justify-between gap-4 px-6 py-5 text-left bg-white hover:bg-slate-50 transition-colors">
-                        <span class="font-semibold text-slate-900">{{ $faq['q'] }}</span>
-                        <svg class="w-5 h-5 text-slate-400 flex-shrink-0 transition-transform"
+                        class="w-full flex items-center justify-between gap-4 px-6 py-5 text-left hover:bg-slate-50 dark:hover:bg-white/[0.03] transition-colors">
+                        <span class="font-semibold text-slate-900 dark:text-white">{{ $faq['q'] }}</span>
+                        <svg class="w-5 h-5 text-slate-400 dark:text-zinc-500 flex-shrink-0 transition-transform"
                             :class="{ 'rotate-180': open === id }" fill="none" viewBox="0 0 24 24"
                             stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                         </svg>
                     </button>
-                    <div x-show="open === id" x-collapse x-cloak class="px-6 pb-5 text-slate-600 leading-relaxed">
+                    <div x-show="open === id" x-collapse x-cloak class="px-6 pb-5 text-slate-600 dark:text-zinc-400 leading-relaxed">
                         {{ $faq['a'] }}
                     </div>
                 </div>

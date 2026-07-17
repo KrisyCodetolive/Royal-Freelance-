@@ -1,8 +1,8 @@
-<section class="py-24 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 relative overflow-hidden">
+<section class="py-24 bg-gradient-to-br from-zinc-950 via-zinc-900 to-zinc-950 relative overflow-hidden">
     <!-- Background Effects -->
     <div class="absolute inset-0 opacity-20 bg-[url('https://grainy-gradients.vercel.app/noise.svg')]"></div>
-    <div class="absolute top-0 right-0 w-[600px] h-[600px] bg-indigo-500 rounded-full blur-[128px] opacity-20"></div>
-    <div class="absolute bottom-0 left-0 w-[600px] h-[600px] bg-amber-500 rounded-full blur-[128px] opacity-20"></div>
+    <div class="absolute top-0 right-0 w-[600px] h-[600px] bg-amber-500 rounded-full blur-[128px] opacity-10"></div>
+    <div class="absolute bottom-0 left-0 w-[600px] h-[600px] bg-amber-500 rounded-full blur-[128px] opacity-10"></div>
 
     <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
         <div

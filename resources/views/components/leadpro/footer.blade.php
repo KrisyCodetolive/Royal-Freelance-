@@ -1,8 +1,8 @@
-<footer class="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 relative overflow-hidden">
+<footer class="bg-gradient-to-br from-zinc-950 via-zinc-900 to-zinc-950 relative overflow-hidden border-t border-white/[0.06]">
     <!-- Background Effects -->
     <div class="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-10"></div>
     <div class="absolute top-0 right-0 w-96 h-96 bg-amber-500 rounded-full blur-3xl opacity-10"></div>
-    <div class="absolute bottom-0 left-0 w-96 h-96 bg-indigo-500 rounded-full blur-3xl opacity-10"></div>
+    <div class="absolute bottom-0 left-0 w-96 h-96 bg-amber-500 rounded-full blur-3xl opacity-5"></div>
 
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <!-- Main Footer Content -->

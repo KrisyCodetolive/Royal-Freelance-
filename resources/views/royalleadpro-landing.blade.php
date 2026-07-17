@@ -7,9 +7,24 @@
     <title>Royal LeadPro - La plateforme SaaS de génération de leads</title>
     <meta name="description"
         content="Créez vos tunnels de vente, capturez et suivez vos leads, automatisez vos séquences email. Royal LeadPro s'adapte à votre équipe, du solo au workspace complet.">
+    <meta name="theme-color" content="#09090b">
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=outfit:300,400,500,600,700|playfair-display:400,500,600,700,800"
         rel="stylesheet" />
+    <script>
+        // Applique le thème avant le premier paint pour éviter le flash.
+        // Dark par défaut (identité de marque), la préférence est mémorisée.
+        (function () {
+            var stored = localStorage.getItem('royalleadpro-theme');
+            var isDark = stored ? stored === 'dark' : true;
+            document.documentElement.classList.toggle('dark', isDark);
+        })();
+
+        function toggleTheme() {
+            var isDark = document.documentElement.classList.toggle('dark');
+            localStorage.setItem('royalleadpro-theme', isDark ? 'dark' : 'light');
+        }
+    </script>
     <style>
         [x-cloak] {
             display: none !important;
@@ -22,18 +37,38 @@
         }
 
         .hero-pattern {
-            background-color: #ffffff;
-            background-image: radial-gradient(var(--color-primary-500) 0.5px, transparent 0.5px), radial-gradient(var(--color-primary-500) 0.5px, #ffffff 0.5px);
-            background-size: 20px 20px;
-            background-position: 0 0, 10px 10px;
-            opacity: 0.1;
+            background-image: radial-gradient(var(--color-primary-500) 0.5px, transparent 0.5px), radial-gradient(var(--color-primary-500) 0.5px, transparent 0.5px);
+            background-size: 24px 24px;
+            background-position: 0 0, 12px 12px;
+            opacity: 0.12;
+        }
+
+        .dark .hero-pattern {
+            opacity: 0.18;
         }
 
         .text-gradient-gold {
-            background: linear-gradient(135deg, var(--color-primary-700) 0%, var(--color-primary-500) 50%, var(--color-primary-600) 100%);
+            background: linear-gradient(135deg, var(--color-primary-700) 0%, var(--color-primary-400) 50%, var(--color-primary-600) 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
+        }
+
+        .dark .text-gradient-gold {
+            background: linear-gradient(135deg, var(--color-primary-300) 0%, var(--color-primary-400) 50%, var(--color-primary-500) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid rgba(15, 15, 20, 0.06);
+        }
+
+        .dark .glass-card {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.07);
         }
 
         section {
@@ -55,7 +90,7 @@
 </head>
 
 <body
-    class="font-[Outfit] antialiased bg-white text-slate-900 selection:bg-amber-500 selection:text-white overflow-x-hidden">
+    class="font-[Outfit] antialiased bg-white dark:bg-zinc-950 text-slate-900 dark:text-zinc-50 selection:bg-amber-500 selection:text-white overflow-x-hidden transition-colors duration-300">
 
     <!-- Navigation -->
     @include('components.leadpro.nav')

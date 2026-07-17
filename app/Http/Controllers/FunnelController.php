@@ -487,6 +487,10 @@ class FunnelController extends Controller
         // 3. Création et Tracking du Lead via TrackingService
         $lead = $this->trackingService->createLeadFromForm($funnel, $submissionData, $broughtBy);
 
+        if (!$lead) {
+            return back()->with('error', 'Ce tunnel a atteint sa capacité maximale de collecte de leads pour le moment. Merci de réessayer plus tard.');
+        }
+
         \Log::info('✅ [FORM SUBMISSION] Lead créé ou mis à jour', [
             'lead_id' => $lead->id,
             'lead_email' => $lead->email,

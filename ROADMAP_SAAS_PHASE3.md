@@ -14,7 +14,7 @@ Royal LeadPro passe d'outil interne (usage type "royalFreelance", un seul porteu
 |---|---|---|
 | 1 | Architecture Multi-Tenant | ✅ Squelette fonctionnel (inscription self-service, invitations, fuite de données corrigée) |
 | 2 | Billing & Abonnements | ✅ Squelette fonctionnel (activation manuelle, pas de gateway de paiement) |
-| 3 | Quotas par plan | 🔶 Enforcement partiel (tunnels, listes mailing et tunnels partagés bloqués ; leads calculés mais pas bloqués) |
+| 3 | Quotas par plan | ✅ Enforcement complet (tunnels, listes mailing, tunnels partagés et leads bloqués) |
 | 4 | Partage de Tunnels | ✅ Squelette fonctionnel (permission lecture/édition, quota enforcé) |
 | 5 | Rôles & Permissions (Owner/Admin/Editor/Viewer) | ✅ Squelette fonctionnel (rôles Spatie réels, scoping panel + actions) |
 | 6 | Dashboard SaaS utilisateur | ✅ Squelette fonctionnel (widget d'usage + CTA upgrade sur le dashboard principal) |
@@ -92,9 +92,10 @@ Raison : ensemble ils forment le squelette monétisable (inscription → plan �
 ### Checklist d'implémentation
 - [x] `QuotaService` : `usage()`, `limit()`, `remaining()`, `hasReachedLimit()` — mappe tunnels (Funnel hors templates), listes mailing (EmailSequence), leads (Lead), tunnels partagés (Funnel avec au moins un `funnel_user`). `null` = illimité ; pas d'abonnement actif = limite 0.
 - [x] Enforcement à la création côté Filament : `EnforcesTenantQuota` (trait, `Halt` + notification "limite atteinte") branché sur `CreateFunnel` (quota `tunnels`) et `CreateEmailSequence` (quota `mailing_lists`)
-- [ ] **Leads — pas bloqué à la création.** Un `Lead` est créé dès la première vue anonyme d'une page (`TrackingService::trackVisitor`), pas seulement à la soumission d'un formulaire — c'est le cœur du pipeline public de capture, à fort risque business (funnel cassé = prospects perdus) et jamais testé en charge. Bloquer ce chemin mérite sa propre revue dédiée plutôt qu'un ajout hâtif dans ce lot. `QuotaService` calcule déjà l'usage/la limite, prêt à être branché plus tard (ou exposé côté dashboard Module 6 sans bloquer).
+- [x] **Leads — bloqué à la création (2026-07-17).** Décision utilisateur explicite d'aller jusqu'au blocage du chemin de tracking anonyme malgré le risque noté ci-dessus (repris tel quel pour mémoire). `TrackingService::trackVisitor()`/`createLeadFromForm()` retournent désormais `null` (au lieu de `Lead`) quand `QuotaService::hasReachedLimit($tenant, 'leads')` est vrai **et** qu'il s'agirait d'un nouveau lead (visiteur anonyme sans cookie, ou soumission sans lead existant) — un visiteur déjà identifié par cookie continue d'être suivi/mis à jour normalement (déjà compté, pas de nouvelle unité de quota). `FunnelController::renderPage()` tolère un lead nul (déjà le comportement défensif des vues `funnel/page.blade.php`/`button.blade.php` : `{{ $currentLead->id ?? 'null' }}`) ; `handleFormSubmission()` retourne un message d'erreur clair (`session('error')`, déjà affiché par la vue) si la soumission est refusée.
 - [x] **Tunnels partagés — bloqué au partage (Module 4).** Voir section Module 4 ci-dessous.
 - Testé via tinker : plan Gratuit (2 tunnels) → 2 tunnels créés → `hasReachedLimit('tunnels')` bascule à `true`, `remaining()` à 0. Le chemin Filament (`Halt` + notification) suit le pattern documenté de Filament mais n'a pas été exercé via une vraie requête HTTP/Livewire dans ce lot.
+- Leads : 5 tests (`LeadsQuotaEnforcementTest`) — nouveau visiteur anonyme non tracké une fois le quota atteint (aucun `Lead` créé, page toujours 200), visiteur déjà identifié par cookie toujours suivi, soumission de formulaire refusée avec message clair (`session('error')`) sans créer de lead, mise à jour d'un lead existant toujours autorisée, création normale sous le quota. Suite complète 110 tests verte. Vérifié manuellement via un vrai serveur (`php artisan serve`) avec un tenant et un plan dédiés (`max_leads = 0`) : la visite ne crée aucun lead, la soumission du formulaire affiche bien le message d'erreur dans la page réelle — données de test nettoyées après coup (plan et tenant dédiés supprimés, pas touché au plan "Gratuit" partagé).
 
 ---
 

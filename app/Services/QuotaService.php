@@ -10,9 +10,11 @@ use App\Models\Tenant;
 /**
  * Calcule l'usage courant d'un tenant face aux limites de son plan actif
  * (Module 3 — Quotas par plan). Enforcement câblé sur les créations côté
- * panel admin (tunnels, listes mailing) et sur le partage de tunnels
- * (Module 4, cf. canShareFunnel()). Voir ROADMAP_SAAS_PHASE3.md pour
- * pourquoi "leads" ne sont pas encore bloqués à la création.
+ * panel admin (tunnels, listes mailing), sur le partage de tunnels
+ * (Module 4, cf. canShareFunnel()), et sur la création de leads
+ * (TrackingService::trackVisitor()/createLeadFromForm(), cf.
+ * ROADMAP_SAAS_PHASE3.md pour la décision d'aller jusqu'au blocage du
+ * tracking de visite).
  */
 class QuotaService
 {

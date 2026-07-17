@@ -52,7 +52,7 @@ Route::post('/logout', [CommercialAuthController::class, 'logout'])
 |--------------------------------------------------------------------------
 */
 Route::prefix('commercial')
-    ->middleware(['auth', RoleMiddleware::class . ':commercial'])
+    ->middleware(['auth', RoleMiddleware::class . ':commercial', 'tenant.active'])
     ->group(function () {
         Route::get('/', [CommercialDashboardController::class, 'index'])
             ->name('commercial.dashboard');

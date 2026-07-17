@@ -22,6 +22,13 @@ class CommercialAuthController extends Controller
 
     /**
      * Handle an incoming authentication request.
+     *
+     * Message explicite si les identifiants sont corrects mais le tenant
+     * suspendu — sinon `Auth::attempt()` échoue silencieusement sur la
+     * contrainte `is_active` (qui ne couvre pas la suspension du tenant) et
+     * l'utilisateur reçoit le même message générique que pour un mauvais mot
+     * de passe (même correction que côté panel Filament, cf.
+     * App\Filament\Pages\Auth\Login).
      */
     public function authenticate(Request $request)
     {
@@ -29,6 +36,20 @@ class CommercialAuthController extends Controller
             'email' => ['required', 'email'],
             'password' => ['required'],
         ]);
+
+        $user = User::where('email', $credentials['email'])->first();
+
+        if (
+            $user
+            && $user->is_active
+            && Hash::check($credentials['password'], $user->password)
+            && ! $user->isSuperAdmin()
+            && $user->tenant?->isSuspended()
+        ) {
+            return back()->withErrors([
+                'email' => 'Votre espace a été suspendu. Pour toute réclamation, contactez support@royalleadpro.com.',
+            ])->onlyInput('email');
+        }
 
         if (Auth::attempt(['email' => $request->email, 'password' => $request->password, 'is_active' => true], $request->boolean('remember'))) {
             $request->session()->regenerate();

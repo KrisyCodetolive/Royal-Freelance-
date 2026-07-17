@@ -18,7 +18,7 @@ Royal LeadPro passe d'outil interne (usage type "royalFreelance", un seul porteu
 | 4 | Partage de Tunnels | ✅ Squelette fonctionnel (permission lecture/édition, quota enforcé) |
 | 5 | Rôles & Permissions (Owner/Admin/Editor/Viewer) | ✅ Squelette fonctionnel (rôles Spatie réels, scoping panel + actions) |
 | 6 | Dashboard SaaS utilisateur | ✅ Squelette fonctionnel (widget d'usage + CTA upgrade sur le dashboard principal) |
-| 7 | Super Admin Royal LeadPro | ✅ Squelette fonctionnel (liste/fiche tenants, suspension/réactivation avec enforcement panel+public, usage par tenant, analytics globale) |
+| 7 | Super Admin Royal LeadPro | ✅ Squelette fonctionnel (liste/fiche tenants, suspension/réactivation avec enforcement panel+public+commercial, usage par tenant, analytics globale) |
 | 8 | Pages Front-Office (bonus) | 🔶 Page de présentation RoyalLeadPro faite (accueil `/`) ; page "Fonctionnalités" et "Tarifs" dédiées pas encore séparées (tout est sur une seule page à ancres) |
 
 **Ordre retenu pour attaquer le projet : Module 1 → Module 2 → Module 3.**
@@ -208,8 +208,8 @@ Question posée à l'utilisateur avant de coder : quand un tenant est suspendu, 
 - [x] 11 tests (`SuperAdminTenantManagementTest`) : suspension/réactivation (modèle + actions Livewire réelles), enforcement panel, enforcement tunnels publics (HTTP réel avant/après suspension), accès `SaasAnalytics` réservé au super_admin, calcul MRR
 - Testé : suite complète (103 tests) verte + vérification manuelle via serveur réel (login super_admin, `/admin/tenants` liste le tenant QA, `/admin/tenants/{id}` affiche la section Usage et le bouton Suspendre, `/admin/saas-analytics` répond 200 avec le contenu attendu). Données de test nettoyées après vérification.
 
-### Gap volontairement laissé ouvert
-La suspension ne bloque que le panel Filament et les tunnels publics (scope confirmé par l'utilisateur). L'espace commercial (`/commercial/*`, routes protégées par `RoleMiddleware::class . ':commercial'`, pas par `canAccessPanel()`) n'est pas couvert : un commercial d'un tenant suspendu peut encore se connecter à son propre dashboard. Pas traité ici pour rester strictement dans le scope confirmé — à trancher si besoin dans une session dédiée.
+### Gap comblé (2026-07-17) — espace commercial
+L'espace commercial (`/commercial/*`) est maintenant couvert par la suspension, au même titre que le panel Filament et les tunnels publics. `App\Http\Middleware\EnsureTenantNotSuspended` (alias `tenant.active`) ajouté au groupe de routes `/commercial/*` (aux côtés de `RoleMiddleware::class . ':commercial'`, qui ne vérifiait que le rôle Spatie, pas le tenant) : bloque avec un 403 explicite si le tenant du commercial est suspendu. `CommercialAuthController::authenticate()` (le login générique `/login`, partagé avec les autres rôles) reçoit la même correction que côté Filament : identifiants valides mais tenant suspendu → message explicite au lieu du générique "identifiants incorrects". 4 tests (`CommercialSuspensionTest`), suite complète 114 tests verte. Vérifié manuellement via un vrai serveur : login réussi puis tenant suspendu → `/commercial` renvoie 403 avec le message ; nouvelle tentative de login avec le bon mot de passe → message explicite affiché, utilisateur bien resté déconnecté — données de test nettoyées après coup.
 
 ---
 

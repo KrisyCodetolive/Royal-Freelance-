@@ -1,3 +1,11 @@
+@php
+    // Cf. components/leadpro/nav.blade.php : les ancres n'existent que sur la home.
+    $onHome = request()->routeIs('home');
+    $featuresLink = $onHome ? '#fonctionnalites' : route('features');
+    $pricingLink = $onHome ? '#tarifs' : route('pricing');
+    $faqLink = $onHome ? '#faq' : route('home') . '#faq';
+@endphp
+
 <footer class="bg-gradient-to-br from-zinc-950 via-zinc-900 to-zinc-950 relative overflow-hidden border-t border-white/[0.06]">
     <!-- Background Effects -->
     <div class="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-10"></div>
@@ -24,14 +32,14 @@
                 <h3 class="text-white font-bold text-lg mb-6">Liens Rapides</h3>
                 <ul class="space-y-3">
                     <li>
-                        <a href="#fonctionnalites"
+                        <a href="{{ $featuresLink }}"
                             class="text-slate-400 hover:text-amber-400 transition-colors">Fonctionnalités</a>
                     </li>
                     <li>
-                        <a href="#tarifs" class="text-slate-400 hover:text-amber-400 transition-colors">Tarifs</a>
+                        <a href="{{ $pricingLink }}" class="text-slate-400 hover:text-amber-400 transition-colors">Tarifs</a>
                     </li>
                     <li>
-                        <a href="#faq" class="text-slate-400 hover:text-amber-400 transition-colors">FAQ</a>
+                        <a href="{{ $faqLink }}" class="text-slate-400 hover:text-amber-400 transition-colors">FAQ</a>
                     </li>
                     <li>
                         <a href="{{ route('tenant.register') }}"

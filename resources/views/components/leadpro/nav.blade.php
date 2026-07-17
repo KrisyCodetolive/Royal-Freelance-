@@ -1,6 +1,17 @@
 <!-- Alpine.js for mobile menu toggle -->
 <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 
+@php
+    // Les ancres #fonctionnalites/#tarifs n'existent que sur la home
+    // (royalleadpro-landing.blade.php) : depuis une autre page, on renvoie
+    // vers la page dédiée correspondante plutôt qu'une ancre qui n'existe
+    // pas là où on se trouve. #faq n'a pas de page dédiée, direction la home.
+    $onHome = request()->routeIs('home');
+    $featuresLink = $onHome ? '#fonctionnalites' : route('features');
+    $pricingLink = $onHome ? '#tarifs' : route('pricing');
+    $faqLink = $onHome ? '#faq' : route('home') . '#faq';
+@endphp
+
 <nav class="fixed w-full z-50 transition-all duration-300 bg-white/80 dark:bg-zinc-950/70 backdrop-blur-xl border-b border-slate-100 dark:border-white/[0.06]"
     x-data="{ scrolled: false, mobileMenuOpen: false }" @scroll.window="scrolled = (window.pageYOffset > 20)">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -17,9 +28,9 @@
 
             <!-- Desktop Menu -->
             <div class="hidden md:flex items-center gap-8">
-                <a href="#fonctionnalites" class="text-sm font-medium text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white transition-colors">Fonctionnalités</a>
-                <a href="#tarifs" class="text-sm font-medium text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white transition-colors">Tarifs</a>
-                <a href="#faq" class="text-sm font-medium text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white transition-colors">FAQ</a>
+                <a href="{{ $featuresLink }}" class="text-sm font-medium text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white transition-colors">Fonctionnalités</a>
+                <a href="{{ $pricingLink }}" class="text-sm font-medium text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white transition-colors">Tarifs</a>
+                <a href="{{ $faqLink }}" class="text-sm font-medium text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white transition-colors">FAQ</a>
 
                 <!-- Theme toggle -->
                 <button @click="toggleTheme()" type="button" aria-label="Changer de thème"
@@ -94,9 +105,9 @@
         x-transition:leave-end="opacity-0 -translate-y-1"
         class="md:hidden bg-white dark:bg-zinc-950 border-t border-slate-100 dark:border-white/[0.06] shadow-lg dark:shadow-none">
         <div class="px-4 pt-2 pb-6 space-y-2 max-h-[calc(100vh-4rem)] overflow-y-auto">
-            <a href="#fonctionnalites" class="block px-3 py-2 text-base font-medium text-slate-700 dark:text-zinc-300 hover:text-amber-600 dark:hover:text-amber-400 hover:bg-slate-50 dark:hover:bg-white/5 rounded-md">Fonctionnalités</a>
-            <a href="#tarifs" class="block px-3 py-2 text-base font-medium text-slate-700 dark:text-zinc-300 hover:text-amber-600 dark:hover:text-amber-400 hover:bg-slate-50 dark:hover:bg-white/5 rounded-md">Tarifs</a>
-            <a href="#faq" class="block px-3 py-2 text-base font-medium text-slate-700 dark:text-zinc-300 hover:text-amber-600 dark:hover:text-amber-400 hover:bg-slate-50 dark:hover:bg-white/5 rounded-md">FAQ</a>
+            <a href="{{ $featuresLink }}" class="block px-3 py-2 text-base font-medium text-slate-700 dark:text-zinc-300 hover:text-amber-600 dark:hover:text-amber-400 hover:bg-slate-50 dark:hover:bg-white/5 rounded-md">Fonctionnalités</a>
+            <a href="{{ $pricingLink }}" class="block px-3 py-2 text-base font-medium text-slate-700 dark:text-zinc-300 hover:text-amber-600 dark:hover:text-amber-400 hover:bg-slate-50 dark:hover:bg-white/5 rounded-md">Tarifs</a>
+            <a href="{{ $faqLink }}" class="block px-3 py-2 text-base font-medium text-slate-700 dark:text-zinc-300 hover:text-amber-600 dark:hover:text-amber-400 hover:bg-slate-50 dark:hover:bg-white/5 rounded-md">FAQ</a>
 
             @auth
                 <div class="px-3 py-3 border-b border-slate-50 dark:border-white/5 mb-2">

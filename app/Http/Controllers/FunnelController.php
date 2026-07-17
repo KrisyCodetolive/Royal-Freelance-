@@ -31,7 +31,11 @@ class FunnelController extends Controller
         // Récupérer le funnel par sous-domaine ou slug
         $funnel = $this->resolveFunnel($request, $subdomain);
 
-        if (!$funnel || !$funnel->isActive()) {
+        if ($funnel && $funnel->tenant?->isSuspended()) {
+            return response()->view('funnel.suspended', [], 403);
+        }
+
+        if (!$funnel || !$funnel->isPubliclyAccessible()) {
             $host = $request->getHost();
             $baseDomain = config('app.subdomain_base', 'localhost');
             if (str_ends_with($host, ".{$baseDomain}")) {
@@ -70,7 +74,11 @@ class FunnelController extends Controller
         // Récupérer le funnel par sous-domaine ou slug
         $funnel = $this->resolveFunnel($request, $subdomain);
 
-        if (!$funnel || !$funnel->isActive()) {
+        if ($funnel && $funnel->tenant?->isSuspended()) {
+            return response()->view('funnel.suspended', [], 403);
+        }
+
+        if (!$funnel || !$funnel->isPubliclyAccessible()) {
             abort(404);
         }
 
@@ -97,7 +105,11 @@ class FunnelController extends Controller
         // Récupérer le funnel par sous-domaine ou slug
         $funnel = $this->resolveFunnel($request, $subdomain);
 
-        if (!$funnel || !$funnel->isActive()) {
+        if ($funnel && $funnel->tenant?->isSuspended()) {
+            return response()->view('funnel.suspended', [], 403);
+        }
+
+        if (!$funnel || !$funnel->isPubliclyAccessible()) {
             abort(404);
         }
 

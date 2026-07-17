@@ -262,6 +262,17 @@ class Funnel extends Model implements HasMedia
         return $this->status === FunnelStatus::ACTIVE;
     }
 
+    /**
+     * Distinct de isActive() (statut du tunnel) : un tenant suspendu par le
+     * super_admin (Module 7) coupe l'accès public à tous ses tunnels, même
+     * ceux marqués actifs — sans changer leur statut ni le comportement
+     * existant de isActive() ailleurs dans le code (panel, listes...).
+     */
+    public function isPubliclyAccessible(): bool
+    {
+        return $this->isActive() && !($this->tenant?->isSuspended() ?? false);
+    }
+
     public function isDraft(): bool
     {
         return $this->status === FunnelStatus::DRAFT;

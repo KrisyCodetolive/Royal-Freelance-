@@ -147,6 +147,21 @@ class Tenant extends Model
         return $this->suspended_at !== null;
     }
 
+    /**
+     * Coupe l'accès panel admin ET les tunnels publics du tenant (cf.
+     * Funnel::isPubliclyAccessible(), User::canAccessPanel()) — décision
+     * Module 7 du 2026-07-17.
+     */
+    public function suspend(): void
+    {
+        $this->update(['suspended_at' => now()]);
+    }
+
+    public function reactivate(): void
+    {
+        $this->update(['suspended_at' => null]);
+    }
+
     public function getBrandingColor(string $key, string $default = '#6366f1'): string
     {
         return $this->branding[$key] ?? $default;

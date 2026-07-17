@@ -118,7 +118,11 @@ class ResolveFunnelFromSubdomain
         $funnel = $this->subdomainService->findByCustomDomain($host);
 
         if ($funnel) {
-            if (!$funnel->isActive()) {
+            if ($funnel->tenant?->isSuspended()) {
+                return response()->view('funnel.suspended', [], 403);
+            }
+
+            if (!$funnel->isPubliclyAccessible()) {
                 abort(404, 'Tunnel non disponible');
             }
 
@@ -149,8 +153,12 @@ class ResolveFunnelFromSubdomain
         $funnel = $this->subdomainService->findBySubdomain($subdomain);
 
         if ($funnel) {
+            if ($funnel->tenant?->isSuspended()) {
+                return response()->view('funnel.suspended', [], 403);
+            }
+
             // Vérifier que le funnel est actif
-            if (!$funnel->isActive()) {
+            if (!$funnel->isPubliclyAccessible()) {
                 abort(404, 'Tunnel non disponible');
             }
 

@@ -52,7 +52,7 @@ Route::post('/logout', [CommercialAuthController::class, 'logout'])
 |--------------------------------------------------------------------------
 */
 Route::prefix('commercial')
-    ->middleware(['auth', RoleMiddleware::class . ':commercial'])
+    ->middleware(['auth', RoleMiddleware::class . ':commercial', 'tenant.active'])
     ->group(function () {
         Route::get('/', [CommercialDashboardController::class, 'index'])
             ->name('commercial.dashboard');
@@ -149,6 +149,10 @@ Route::domain($baseDomain)->group(function () {
     Route::get('/', fn() => view('royalleadpro-landing', [
         'plans' => \App\Models\Plan::where('is_active', true)->orderBy('price_monthly')->get(),
     ]))->name('home');
+    Route::get('/fonctionnalites', fn() => view('leadpro-features'))->name('features');
+    Route::get('/tarifs', fn() => view('leadpro-pricing', [
+        'plans' => \App\Models\Plan::where('is_active', true)->orderBy('price_monthly')->get(),
+    ]))->name('pricing');
     Route::get('/royal-freelance', fn() => view('landing'))->name('royal-freelance');
 });
 

@@ -87,7 +87,13 @@ class User extends Authenticatable implements FilamentUser
     // Filament
     public function canAccessPanel(Panel $panel): bool
     {
-        return $this->is_active && ($this->isAdmin() || $this->isEditor() || $this->isViewer());
+        if ($this->isSuperAdmin()) {
+            return $this->is_active;
+        }
+
+        return $this->is_active
+            && !($this->tenant?->isSuspended() ?? false)
+            && ($this->isAdmin() || $this->isEditor() || $this->isViewer());
     }
 
     // Relationships

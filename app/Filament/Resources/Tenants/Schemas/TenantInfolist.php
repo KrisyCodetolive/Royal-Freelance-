@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Tenants\Schemas;
 
+use App\Services\QuotaService;
 use Filament\Infolists\Components\IconEntry;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Components\Grid;
@@ -10,6 +11,13 @@ use Filament\Schemas\Schema;
 
 class TenantInfolist
 {
+    private const QUOTA_LABELS = [
+        'tunnels' => 'Tunnels',
+        'mailing_lists' => 'Listes mailing',
+        'leads' => 'Leads',
+        'shared_tunnels' => 'Tunnels partagés',
+    ];
+
     public static function configure(Schema $schema): Schema
     {
         return $schema
@@ -85,6 +93,43 @@ class TenantInfolist
                                     ->state(fn($record) => $record->activeSubscription()?->ends_at?->format('d/m/Y'))
                                     ->placeholder('Jamais'),
                             ]),
+                    ]),
+
+                Section::make('Usage & quotas')
+                    ->description('Réutilise QuotaService::usageWithLimits(), même source que le widget du dashboard tenant (Module 6).')
+                    ->icon('heroicon-o-chart-bar')
+                    ->schema([
+                        Grid::make(4)
+                            ->schema(
+                                collect(self::QUOTA_LABELS)
+                                    ->map(fn (string $label, string $key) => TextEntry::make("quota_{$key}")
+                                        ->label($label)
+                                        ->badge()
+                                        ->state(function ($record) use ($key) {
+                                            $data = app(QuotaService::class)->usageWithLimits($record)[$key];
+
+                                            return is_null($data['limit'])
+                                                ? "{$data['used']} / illimité"
+                                                : "{$data['used']} / {$data['limit']}";
+                                        })
+                                        ->color(function ($record) use ($key) {
+                                            $data = app(QuotaService::class)->usageWithLimits($record)[$key];
+
+                                            if (is_null($data['limit'])) {
+                                                return 'gray';
+                                            }
+
+                                            $ratio = $data['used'] / max(1, $data['limit']);
+
+                                            return match (true) {
+                                                $ratio >= 1 => 'danger',
+                                                $ratio >= 0.8 => 'warning',
+                                                default => 'success',
+                                            };
+                                        }))
+                                    ->values()
+                                    ->all()
+                            ),
                     ]),
 
                 Section::make('Activité')

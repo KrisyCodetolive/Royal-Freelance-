@@ -1,3 +1,8 @@
+@php
+    // Cf. components/leadpro/nav.blade.php : l'ancre #tarifs n'existe que sur la home.
+    $pricingLink = request()->routeIs('home') ? '#tarifs' : route('pricing');
+@endphp
+
 <section class="py-24 bg-gradient-to-br from-zinc-950 via-zinc-900 to-zinc-950 relative overflow-hidden">
     <!-- Background Effects -->
     <div class="absolute inset-0 opacity-20 bg-[url('https://grainy-gradients.vercel.app/noise.svg')]"></div>
@@ -29,7 +34,7 @@
                 </svg>
             </a>
 
-            <a href="#tarifs"
+            <a href="{{ $pricingLink }}"
                 class="inline-flex items-center justify-center gap-2 px-10 py-5 text-lg font-bold text-white bg-white/10 hover:bg-white/20 backdrop-blur-sm border-2 border-white/30 hover:border-white/50 rounded-xl transition-all duration-300">
                 VOIR LES TARIFS
             </a>

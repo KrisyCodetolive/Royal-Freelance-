@@ -31,7 +31,11 @@ class FunnelController extends Controller
         // Récupérer le funnel par sous-domaine ou slug
         $funnel = $this->resolveFunnel($request, $subdomain);
 
-        if (!$funnel || !$funnel->isActive()) {
+        if ($funnel && $funnel->tenant?->isSuspended()) {
+            return response()->view('funnel.suspended', [], 403);
+        }
+
+        if (!$funnel || !$funnel->isPubliclyAccessible()) {
             $host = $request->getHost();
             $baseDomain = config('app.subdomain_base', 'localhost');
             if (str_ends_with($host, ".{$baseDomain}")) {
@@ -70,7 +74,11 @@ class FunnelController extends Controller
         // Récupérer le funnel par sous-domaine ou slug
         $funnel = $this->resolveFunnel($request, $subdomain);
 
-        if (!$funnel || !$funnel->isActive()) {
+        if ($funnel && $funnel->tenant?->isSuspended()) {
+            return response()->view('funnel.suspended', [], 403);
+        }
+
+        if (!$funnel || !$funnel->isPubliclyAccessible()) {
             abort(404);
         }
 
@@ -97,7 +105,11 @@ class FunnelController extends Controller
         // Récupérer le funnel par sous-domaine ou slug
         $funnel = $this->resolveFunnel($request, $subdomain);
 
-        if (!$funnel || !$funnel->isActive()) {
+        if ($funnel && $funnel->tenant?->isSuspended()) {
+            return response()->view('funnel.suspended', [], 403);
+        }
+
+        if (!$funnel || !$funnel->isPubliclyAccessible()) {
             abort(404);
         }
 
@@ -474,6 +486,10 @@ class FunnelController extends Controller
 
         // 3. Création et Tracking du Lead via TrackingService
         $lead = $this->trackingService->createLeadFromForm($funnel, $submissionData, $broughtBy);
+
+        if (!$lead) {
+            return back()->with('error', 'Ce tunnel a atteint sa capacité maximale de collecte de leads pour le moment. Merci de réessayer plus tard.');
+        }
 
         \Log::info('✅ [FORM SUBMISSION] Lead créé ou mis à jour', [
             'lead_id' => $lead->id,

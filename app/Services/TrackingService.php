@@ -19,21 +19,31 @@ class TrackingService
     protected ScoringService $scoringService;
     protected AlertService $alertService;
     protected EmailService $emailService;
+    protected QuotaService $quotaService;
 
     public function __construct(
-        ScoringService $scoringService, 
+        ScoringService $scoringService,
         AlertService $alertService,
-        EmailService $emailService
+        EmailService $emailService,
+        QuotaService $quotaService
     ) {
         $this->scoringService = $scoringService;
         $this->alertService = $alertService;
         $this->emailService = $emailService;
+        $this->quotaService = $quotaService;
     }
 
     /**
      * Track a visitor: handle cookie identification, create anonymous lead if needed, update geo, and track page view.
+     *
+     * Retourne null quand le tenant a atteint son quota de leads (Module 3) et
+     * qu'il s'agit d'un nouveau visiteur anonyme (pas de cookie existant) : on
+     * ne crée alors ni Lead ni Event pour cette vue. Les visiteurs déjà
+     * identifiés par cookie continuent normalement (déjà comptés, pas de
+     * nouvelle unité de quota). FunnelController::renderPage() et les vues
+     * gèrent déjà un `$currentLead` nul (`{{ $currentLead->id ?? 'null' }}`).
      */
-    public function trackVisitor(Funnel $funnel, Page $page): Lead
+    public function trackVisitor(Funnel $funnel, Page $page): ?Lead
     {
         // 0. Capture de l'attribution (Lead Attribution)
         if ($ref = request()->get('ref')) {
@@ -51,6 +61,10 @@ class TrackingService
 
         // Si nouveau visiteur (ou cookie perdu), on crée un "Lead Anonyme"
         if (!$lead) {
+            if ($this->quotaService->hasReachedLimit($funnel->tenant, 'leads')) {
+                return null;
+            }
+
             // Parse user agent pour extraire device, browser, OS
             $userAgentData = UserAgentService::parse(request()->userAgent());
 
@@ -246,8 +260,14 @@ class TrackingService
 
     /**
      * Create a lead from form submission
+     *
+     * Retourne null quand le tenant a atteint son quota de leads (Module 3)
+     * et que la soumission créerait un nouveau lead (pas de cookie existant,
+     * ou changement d'email détecté sur un poste partagé) : rien n'est créé.
+     * La mise à jour d'un lead déjà existant reste toujours autorisée
+     * (déjà comptée, pas de nouvelle unité de quota).
      */
-    public function createLeadFromForm(Funnel $funnel, array $formData, ?User $broughtBy = null): Lead
+    public function createLeadFromForm(Funnel $funnel, array $formData, ?User $broughtBy = null): ?Lead
     {
         // 0. Résolution de l'attribution
         if (!$broughtBy) {
@@ -346,6 +366,10 @@ class TrackingService
             // Mise à jour du lead existant
             $lead->update($data);
         } else {
+            if ($this->quotaService->hasReachedLimit($funnel->tenant, 'leads')) {
+                return null;
+            }
+
             // Création d'un nouveau lead si non trouvé ou si identité différente
             $data['uuid'] = Str::uuid();
             $data['score'] = 0;

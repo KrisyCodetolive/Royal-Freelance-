@@ -50,8 +50,7 @@
                 <!-- Logo Top Left -->
                 <div class="fade-in" style="animation-delay: 0.1s;">
                     <a href="/" class="inline-flex items-center gap-2 group">
-                        <img src="{{ asset('assets/logowhite.png') }}" class="h-10 w-auto" alt="Logo">
-                        <span class="text-xl font-bold tracking-tight">Royal LeadPro</span>
+                        <img src="{{ asset('assets/RoyalLeadPro/logoLeadProBlanc.svg') }}" class="h-10 w-auto" alt="Royal LeadPro">
                     </a>
                 </div>
 
@@ -108,7 +107,7 @@
             <!-- Mobile Logo -->
             <div class="lg:hidden absolute top-6 left-6">
                 <a href="/" class="flex items-center gap-2">
-                    <img src="{{ asset('assets/logoblack.png') }}" class="h-10 w-auto" alt="Logo">
+                    <img src="{{ asset('assets/RoyalLeadPro/lOGOsvg_lOGOsvg.svg') }}" class="h-10 w-auto" alt="Royal LeadPro">
                 </a>
             </div>
 

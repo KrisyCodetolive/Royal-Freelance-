@@ -50,6 +50,24 @@
             opacity: 0.18;
         }
 
+        .hero-grid-overlay {
+            background-image:
+                linear-gradient(to right, var(--color-primary-500) 1px, transparent 1px),
+                linear-gradient(to bottom, var(--color-primary-500) 1px, transparent 1px);
+            background-size: 40px 40px;
+            opacity: 0.16;
+            -webkit-mask-image: radial-gradient(ellipse 65% 60% at 50% 0%, black 0%, black 25%, transparent 80%);
+            mask-image: radial-gradient(ellipse 65% 60% at 50% 0%, black 0%, black 25%, transparent 80%);
+        }
+
+        .dark .hero-grid-overlay {
+            opacity: 0.25;
+        }
+
+        .hero-blob {
+            border-radius: 42% 58% 65% 35% / 45% 40% 60% 55%;
+        }
+
         .text-gradient-gold {
             background: linear-gradient(135deg, var(--color-primary-700) 0%, var(--color-primary-400) 50%, var(--color-primary-600) 100%);
             -webkit-background-clip: text;

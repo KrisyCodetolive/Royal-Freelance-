@@ -129,7 +129,9 @@ class SubdomainService
         }
 
         // Vérifier si déjà pris par un autre funnel
-        $query = Funnel::where('subdomain', $subdomain);
+        // Le sous-domaine sert de nom d'hôte DNS réel : unicité globale (tous tenants confondus)
+        // et l'index unique en base ignore le soft-delete, donc on inclut aussi les funnels supprimés.
+        $query = Funnel::withoutGlobalScope('tenant')->withTrashed()->where('subdomain', $subdomain);
 
         if ($excludeFunnelId) {
             $query->where('id', '!=', $excludeFunnelId);

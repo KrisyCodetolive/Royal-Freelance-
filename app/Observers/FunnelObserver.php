@@ -76,6 +76,12 @@ class FunnelObserver
      */
     public function deleted(Funnel $funnel): void
     {
+        // Libère le sous-domaine : l'index unique en base ignore le soft-delete,
+        // donc sans ça ce sous-domaine resterait bloqué à vie même une fois le tunnel supprimé.
+        if ($funnel->subdomain) {
+            $funnel->update(['subdomain' => null]);
+        }
+
         activity()
             ->performedOn($funnel)
             ->causedBy(auth()->user())

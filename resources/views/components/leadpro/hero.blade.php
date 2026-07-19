@@ -10,27 +10,30 @@
     <div
         class="absolute bottom-0 left-0 -mb-20 -ml-20 w-[600px] h-[600px] bg-slate-50 dark:bg-white/[0.03] rounded-full blur-3xl opacity-50 pointer-events-none">
     </div>
+    <div
+        class="absolute inset-x-0 bottom-0 h-64 lg:h-80 video-grid-reveal pointer-events-none">
+    </div>
 
     <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
         <div
-            class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-slate-900 dark:bg-white/[0.06] dark:ring-1 dark:ring-white/10 text-white text-xs font-semibold tracking-wider uppercase mb-8 shadow-md ring-1 ring-slate-900/5 dark:shadow-none cursor-default">
+            class="hero-animate hero-delay-1 inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-slate-900 dark:bg-white/[0.06] dark:ring-1 dark:ring-white/10 text-white text-xs font-semibold tracking-wider uppercase mb-8 shadow-md ring-1 ring-slate-900/5 dark:shadow-none cursor-default">
             <span class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse"></span>
             La plateforme SaaS Royal LeadPro
         </div>
 
-        <h1 class="text-5xl md:text-7xl font-serif font-bold tracking-tight text-slate-900 dark:text-white mb-8 leading-[1.1]">
+        <h1 class="hero-animate hero-delay-2 text-5xl md:text-7xl font-serif font-bold tracking-tight text-slate-900 dark:text-white mb-8 leading-[1.1]">
             Ne perdez plus vos prospects <br>
             <span class="text-gradient-gold">dans vos DM et vos tableurs.</span>
         </h1>
 
-        <p class="mt-4 max-w-2xl mx-auto text-xl text-slate-600 dark:text-zinc-400 font-light mb-10 leading-relaxed">
+        <p class="hero-animate hero-delay-3 mt-4 max-w-2xl mx-auto text-xl text-slate-600 dark:text-zinc-400 font-light mb-10 leading-relaxed">
             Royal LeadPro capture chaque visiteur, le transforme en lead qualifié et relance automatiquement —
             pendant que vous vous concentrez sur la vente.
         </p>
 
-        <div class="flex flex-col sm:flex-row justify-center gap-4">
+        <div class="hero-animate hero-delay-4 flex flex-col sm:flex-row justify-center gap-4">
             <a href="{{ route('tenant.register') }}"
-                class="px-8 py-4 text-base font-bold text-white bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 rounded-lg shadow-xl shadow-amber-600/20 dark:shadow-amber-500/20 transition-all duration-300 transform hover:-translate-y-1">
+                class="cta-glow px-8 py-4 text-base font-bold text-white rounded-lg transition-transform duration-300 transform hover:-translate-y-1">
                 DÉMARRER GRATUITEMENT
             </a>
             <a href="#tarifs"
@@ -38,11 +41,11 @@
                 VOIR LES TARIFS
             </a>
         </div>
-        <p class="mt-4 text-sm text-slate-500 dark:text-zinc-500">Aucune carte bancaire requise pour l'offre Gratuite.</p>
+        <p class="hero-animate hero-delay-5 mt-4 text-sm text-slate-500 dark:text-zinc-500">Aucune carte bancaire requise pour l'offre Gratuite.</p>
     </div>
 
     <!-- Product preview mockup -->
-    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 mt-16 lg:mt-20">
+    <div class="hero-animate-scale hero-delay-6 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 mt-16 lg:mt-20">
         <div class="relative rounded-t-2xl lg:rounded-2xl overflow-hidden glass-card shadow-2xl shadow-slate-900/10 dark:shadow-black/40 ring-1 ring-slate-900/5 dark:ring-white/10">
             <!-- Window chrome -->
             <div class="flex items-center gap-2 px-5 py-3.5 border-b border-slate-100 dark:border-white/[0.06] bg-white/60 dark:bg-white/[0.02]">
